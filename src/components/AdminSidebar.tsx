@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSidebarCollapsed, CollapseToggle } from "./SidebarToggle";
 
 const NAV = [
   { href: "/admin",                  label: "Oversigt",       icon: "M3 12l9-9 9 9M5 10v10h14V10" },
@@ -15,25 +16,43 @@ const NAV = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { collapsed, toggle } = useSidebarCollapsed();
+
   return (
-    <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-r border-[var(--hairline)] bg-[var(--canvas)]">
-      <div className="p-5">
-        <div className="t-tagline">Carl Ras · Leadership</div>
-        <div className="mt-2 text-[15px] font-semibold text-[var(--ink)]">Forhandler Partnerskab</div>
-        <div className="text-[12px] text-[var(--ink-60)] mt-0.5">Drift &amp; vækst</div>
+    <aside
+      className={
+        "hidden lg:flex flex-col shrink-0 border-r border-[var(--hairline)] bg-[var(--canvas)] " +
+        "sticky top-[48px] h-[calc(100vh-48px)] overflow-y-auto " +
+        "transition-[width] duration-300 ease-out " +
+        (collapsed ? "w-[64px]" : "w-[260px]")
+      }
+    >
+      <div className={"border-b border-[var(--divider)] " + (collapsed ? "p-3" : "p-5")}>
+        {collapsed ? (
+          <div className="grid place-items-center">
+            <span className="size-9 rounded-md bg-[var(--cr-blue)] grid place-items-center text-white font-bold text-[11px]">CR</span>
+          </div>
+        ) : (
+          <>
+            <div className="t-eyebrow">Carl Ras · Leadership</div>
+            <div className="mt-2 text-[15px] font-semibold text-[var(--ink)]">Forhandler Partnerskab</div>
+            <div className="text-[12px] text-[var(--ink-3)] mt-0.5">Drift &amp; vækst</div>
+          </>
+        )}
       </div>
 
-      <div className="h-px bg-[var(--divider)] mx-5" />
-
-      <nav className="flex-1 overflow-y-auto px-3 py-3">
+      <nav className={"flex-1 overflow-y-auto py-3 " + (collapsed ? "px-2" : "px-3")}>
         {NAV.map((item) => {
           const active = item.href === "/admin" ? pathname === item.href : pathname?.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
+              title={collapsed ? item.label : undefined}
               className={
-                "flex items-center gap-3 px-3 py-2 rounded-[11px] text-[14px] font-medium transition-colors mb-0.5 " +
+                "flex items-center gap-3 rounded-[11px] text-[14px] font-medium transition-colors mb-0.5 " +
+                (collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2") +
+                " " +
                 (active
                   ? "bg-[var(--cr-blue-tint)] text-[var(--cr-navy)]"
                   : "text-[var(--ink-80)] hover:bg-[var(--surface-pearl)]")
@@ -42,14 +61,19 @@ export function AdminSidebar() {
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
                 <path d={item.icon} />
               </svg>
-              {item.label}
+              {!collapsed && <span>{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-5 py-3 border-t border-[var(--divider)] text-[11px] text-[var(--ink-60)]">
-        Demo · alle ændringer er lokale.
+      <div className={"border-t border-[var(--divider)] " + (collapsed ? "p-2 flex justify-center" : "px-3 py-3 flex items-center justify-between gap-3")}>
+        {!collapsed && (
+          <span className="text-[11px] text-[var(--ink-3)] truncate">
+            Demo · lokale ændringer
+          </span>
+        )}
+        <CollapseToggle collapsed={collapsed} onClick={toggle} />
       </div>
     </aside>
   );

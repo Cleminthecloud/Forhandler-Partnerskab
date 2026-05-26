@@ -14,7 +14,8 @@ import {
   FORUM_THREADS,
   PARTNER_PERFORMANCE,
 } from "@/lib/data";
-import { Sparkline, AreaChart, Radial, BarMini } from "@/components/Charts";
+import { AreaChart, Radial, BarMini } from "@/components/Charts";
+import { MiniArea } from "@/components/ChartsInteractive";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -452,6 +453,7 @@ function KpiTile({
   sparkline?: number[];
   sparkColor?: string;
 }) {
+  const chartData = sparkline?.map((v, i) => ({ label: `Uge ${i + 1}`, value: v }));
   return (
     <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-5 flex flex-col transition-all hover:shadow-[var(--shadow-1)]">
       <div className="flex items-baseline justify-between">
@@ -465,9 +467,9 @@ function KpiTile({
       <div className="mt-2 text-[32px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">
         {value}
       </div>
-      {sparkline && (
+      {chartData && (
         <div className="mt-3 -mx-1">
-          <Sparkline values={sparkline} color={sparkColor} height={32} />
+          <MiniArea data={chartData} color={sparkColor} height={44} />
         </div>
       )}
     </div>

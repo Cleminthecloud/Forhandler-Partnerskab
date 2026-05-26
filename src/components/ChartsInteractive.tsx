@@ -93,6 +93,54 @@ export function InteractiveArea({ data, color = "var(--accent)", height = 240, f
   );
 }
 
+/** Tiny interactive area chart for KPI tiles. No axes, just gradient + hover tooltip. */
+export function MiniArea({ data, color = "var(--accent)", height = 44, unit, formatValue }: { data: AreaPoint[]; color?: string; height?: number; unit?: string; formatValue?: (v: number) => string }) {
+  if (!data || data.length < 2) return null;
+  const gradId = "mg-" + Math.random().toString(36).slice(2);
+  return (
+    <div style={{ width: "100%", height }}>
+      <ResponsiveContainer>
+        <RAreaChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor={color} stopOpacity={0.32} />
+              <stop offset="100%" stopColor={color} stopOpacity={0.04} />
+            </linearGradient>
+          </defs>
+          <Tooltip
+            cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: "2 2" }}
+            content={(props) => {
+              const { active, payload } = props as unknown as { active?: boolean; payload?: Array<{ value: number; payload: AreaPoint }> };
+              if (!active || !payload || !payload.length) return null;
+              const p = payload[0];
+              return (
+                <div className="bg-white rounded-md shadow-[var(--shadow-2)] border border-[var(--line-2)] px-2 py-1 text-[11px]">
+                  <span className="text-[var(--ink-3)]">{p.payload.label}</span>{" "}
+                  <span className="font-semibold text-[var(--ink)] tabular-nums">
+                    {formatValue ? formatValue(p.value) : p.value}{unit ? ` ${unit}` : ""}
+                  </span>
+                </div>
+              );
+            }}
+            wrapperStyle={{ outline: "none" }}
+          />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke={color}
+            strokeWidth={2}
+            fill={`url(#${gradId})`}
+            activeDot={{ r: 4, fill: color, stroke: "white", strokeWidth: 2 }}
+            isAnimationActive
+            animationDuration={800}
+            animationEasing="ease-out"
+          />
+        </RAreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 interface InteractiveBarProps {
   data: AreaPoint[];
   color?: string;

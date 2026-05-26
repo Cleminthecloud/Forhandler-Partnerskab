@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { ADMIN_STATS, PARTNERS, Region, Tier } from "@/lib/data";
-import { Sparkline, Donut, BarMini } from "@/components/Charts";
-import { InteractiveArea } from "@/components/ChartsInteractive";
+import { Donut, BarMini } from "@/components/Charts";
+import { InteractiveArea, MiniArea } from "@/components/ChartsInteractive";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -247,6 +247,7 @@ function KpiTile({
   label: string; value: string | number; unit?: string; delta?: string;
   deltaPositive?: boolean; sparkline?: number[]; sparkColor?: string;
 }) {
+  const chartData = sparkline?.map((v, i) => ({ label: `Periode ${i + 1}`, value: v }));
   return (
     <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-5 flex flex-col transition-shadow hover:shadow-[var(--shadow-1)]">
       <div className="flex items-baseline justify-between">
@@ -261,9 +262,9 @@ function KpiTile({
         <span className="text-[32px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">{value}</span>
         {unit && <span className="text-[14px] text-[var(--ink-3)] font-medium">{unit}</span>}
       </div>
-      {sparkline && (
+      {chartData && (
         <div className="mt-3 -mx-1">
-          <Sparkline values={sparkline} color={sparkColor} height={32} />
+          <MiniArea data={chartData} color={sparkColor} height={44} unit={unit} />
         </div>
       )}
     </div>

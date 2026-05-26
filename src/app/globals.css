@@ -26,15 +26,17 @@
   --line:          #D2D2D7;   /* default hairline */
   --line-2:        #E8E8ED;   /* lighter divider */
 
-  /* ---------- 10% — Accent (interactive ONLY) ---------- */
-  --accent:        #1158A3;
-  --accent-press:  #0E4C90;
-  --accent-tint:   #E8F0FA;
-  --accent-on:     #FFFFFF;
+  /* ---------- 10% — Accent (interactive ONLY) ----------
+     Carl Ras Blå · Pantone 300 C · #1158A3 — verified Brand Guide v1.1 */
+  --accent:         #1158A3;
+  --accent-press:   #0A4685;     /* deeper press state */
+  --accent-tint:    #E8F0FA;
+  --accent-darker:  #0A4685;     /* sub-brand differentiation */
+  --accent-on:      #FFFFFF;
 
-  /* Carl Ras navy for brand surfaces (top bar, find-page hero in dark mode) */
-  --navy:          #1D1D1F;
-  --navy-2:        #2B2B2E;
+  /* Carl Ras Mørk Blå · Pantone 648 C · #002C5B */
+  --navy:          #002C5B;
+  --navy-2:        #1D1D1F;      /* secondary dark for hero/footer */
 
   /* ---------- Theme accent (orange/green/red) ----------
      STRICT USE: only the theme-switcher chip, the active campaign card,

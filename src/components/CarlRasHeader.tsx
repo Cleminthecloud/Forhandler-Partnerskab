@@ -14,11 +14,13 @@ const MAIN_NAV = [
   "Entreprenør",
 ];
 
+// All sister brands use Carl Ras Blå variants per Brand Guide v1.1.
+// Differentiation via type (BYG, SIKRING…), not hue.
 const SISTER_BRANDS = [
-  { label: "carl ras", sub: "BYG", color: "#1158A3" },
-  { label: "carl ras", sub: "SIKRING", color: "#E30613" },
-  { label: "3 Aktive", sub: "ENTREPRENØR", color: "#0C447C" },
-  { label: "Engros beslag", sub: "DØR & VINDUER", color: "#002D59" },
+  { label: "carl ras",      sub: "BYG",            color: "#1158A3" },
+  { label: "carl ras",      sub: "SIKRING",        color: "#0A4685" },
+  { label: "3 Aktive",      sub: "ENTREPRENØR",    color: "#002C5B" },
+  { label: "Engros beslag", sub: "DØR & VINDUER",  color: "#001A33" },
 ];
 
 export function CarlRasHeader() {

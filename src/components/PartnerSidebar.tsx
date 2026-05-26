@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CURRENT_PARTNER } from "@/lib/data";
 import { useApp } from "./AppState";
+import { useSidebarCollapsed, CollapseToggle } from "./SidebarToggle";
 
 const NAV: { href: string; label: string; icon: string }[] = [
   { href: "/partner",                label: "Oversigt",          icon: "M3 12l9-9 9 9M5 10v10h14V10" },
@@ -18,57 +19,73 @@ const NAV: { href: string; label: string; icon: string }[] = [
 export function PartnerSidebar() {
   const pathname = usePathname();
   const { leads } = useApp();
+  const { collapsed, toggle } = useSidebarCollapsed();
   const newLeads = leads.filter((l) => l.partnerId === CURRENT_PARTNER.id && l.status === "Ny").length;
   const pct = Math.round((CURRENT_PARTNER.points / CURRENT_PARTNER.pointsTilNæste) * 100);
 
   return (
-    <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-r border-[var(--hairline)] bg-[var(--canvas)]">
+    <aside
+      className={
+        "hidden lg:flex flex-col shrink-0 border-r border-[var(--hairline)] bg-[var(--canvas)] " +
+        "sticky top-[48px] h-[calc(100vh-48px)] overflow-y-auto " +
+        "transition-[width] duration-300 ease-out " +
+        (collapsed ? "w-[64px]" : "w-[260px]")
+      }
+    >
       {/* Partner profile card */}
-      <div className="p-5">
-        <div className="flex items-center gap-3">
+      <div className={"border-b border-[var(--divider)] " + (collapsed ? "p-3" : "p-5")}>
+        <div className={"flex items-center gap-3 " + (collapsed ? "justify-center" : "")}>
           <div
             className="size-11 rounded-xl text-white font-semibold grid place-items-center shrink-0 text-[14px]"
             style={{ background: CURRENT_PARTNER.logoBg }}
+            title={collapsed ? CURRENT_PARTNER.firma : undefined}
           >
             {CURRENT_PARTNER.initialer}
           </div>
-          <div className="min-w-0">
-            <div className="text-[14px] font-semibold text-[var(--ink)] truncate leading-tight">
-              {CURRENT_PARTNER.firma}
+          {!collapsed && (
+            <div className="min-w-0">
+              <div className="text-[14px] font-semibold text-[var(--ink)] truncate leading-tight">
+                {CURRENT_PARTNER.firma}
+              </div>
+              <div className="text-[12px] text-[var(--ink-3)] truncate mt-0.5">
+                {CURRENT_PARTNER.by} · {CURRENT_PARTNER.region}
+              </div>
             </div>
-            <div className="text-[12px] text-[var(--ink-60)] truncate mt-0.5">
-              {CURRENT_PARTNER.by} · {CURRENT_PARTNER.region}
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="mt-4 flex items-center gap-1.5 text-[12px]">
-          <TierBadge tier={CURRENT_PARTNER.tier} />
-          <span className="font-semibold text-[var(--ink)]">{CURRENT_PARTNER.tier}-partner</span>
-        </div>
+        {!collapsed && (
+          <>
+            <div className="mt-4 flex items-center gap-1.5 text-[12px]">
+              <TierBadge tier={CURRENT_PARTNER.tier} />
+              <span className="font-semibold text-[var(--ink)]">{CURRENT_PARTNER.tier}-partner</span>
+            </div>
 
-        <div className="mt-3">
-          <div className="flex items-center justify-between text-[11px] text-[var(--ink-60)] mb-1.5">
-            <span>{CURRENT_PARTNER.points.toLocaleString("da-DK")} point</span>
-            <span>{Math.max(0, CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points)} til Guld</span>
-          </div>
-          <div className="h-1.5 rounded-full bg-[var(--divider)] overflow-hidden">
-            <div className="h-full rounded-full" style={{ width: pct + "%", background: "var(--cr-blue)" }} />
-          </div>
-        </div>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-[11px] text-[var(--ink-3)] mb-1.5">
+                <span>{CURRENT_PARTNER.points.toLocaleString("da-DK")} point</span>
+                <span>{Math.max(0, CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points)} til Guld</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-[var(--divider)] overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: pct + "%", background: "var(--cr-blue)" }} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className="h-px bg-[var(--divider)] mx-5" />
-
-      <nav className="flex-1 overflow-y-auto px-3 py-3">
+      <nav className={"flex-1 overflow-y-auto py-3 " + (collapsed ? "px-2" : "px-3")}>
         {NAV.map((item) => {
           const active = item.href === "/partner" ? pathname === item.href : pathname?.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
+              title={collapsed ? item.label : undefined}
               className={
-                "flex items-center gap-3 px-3 py-2 rounded-[11px] text-[14px] font-medium transition-colors mb-0.5 " +
+                "flex items-center gap-3 rounded-[11px] text-[14px] font-medium transition-colors mb-0.5 relative " +
+                (collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2") +
+                " " +
                 (active
                   ? "bg-[var(--cr-blue-tint)] text-[var(--cr-navy)]"
                   : "text-[var(--ink-80)] hover:bg-[var(--surface-pearl)]")
@@ -77,10 +94,15 @@ export function PartnerSidebar() {
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
                 <path d={item.icon} />
               </svg>
-              <span className="flex-1">{item.label}</span>
+              {!collapsed && <span className="flex-1">{item.label}</span>}
               {item.href === "/partner/leads" && newLeads > 0 && (
                 <span
-                  className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-white"
+                  className={
+                    "text-[10px] font-semibold rounded-full text-white shrink-0 " +
+                    (collapsed
+                      ? "absolute top-1 right-1 size-4 grid place-items-center text-[8px]"
+                      : "px-1.5 py-0.5")
+                  }
                   style={{ background: "var(--cr-blue)" }}
                 >
                   {newLeads}
@@ -91,8 +113,14 @@ export function PartnerSidebar() {
         })}
       </nav>
 
-      <div className="px-5 py-3 border-t border-[var(--divider)] text-[11px] text-[var(--ink-60)]">
-        Partner siden {CURRENT_PARTNER.medlemSiden}.
+      {/* Footer with toggle */}
+      <div className={"border-t border-[var(--divider)] " + (collapsed ? "p-2 flex justify-center" : "px-3 py-3 flex items-center justify-between gap-3")}>
+        {!collapsed && (
+          <span className="text-[11px] text-[var(--ink-3)] truncate">
+            Partner siden {CURRENT_PARTNER.medlemSiden}
+          </span>
+        )}
+        <CollapseToggle collapsed={collapsed} onClick={toggle} />
       </div>
     </aside>
   );

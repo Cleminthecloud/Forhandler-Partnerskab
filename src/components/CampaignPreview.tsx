@@ -109,7 +109,7 @@ function CoBrandFooterLight({ partner, layout = "stacked" }: { partner: PartnerP
         <span className="text-white/65" style={{ fontSize: 8, letterSpacing: "0.16em" }}>I SAMARBEJDE MED</span>
         <CarlRasMark size={14} />
         <span className="font-bold text-white" style={{ fontSize: 10, letterSpacing: "0.08em" }}>CARL RAS</span>
-        <span className="px-1 py-0.5 rounded text-white" style={{ background: "#E30613", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", lineHeight: 1 }}>
+        <span className="px-1 py-0.5 rounded text-white" style={{ background: "#0A4685", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", lineHeight: 1 }}>
           SIKRING
         </span>
       </div>
@@ -133,7 +133,7 @@ function CoBrandFooterDark({ partner, layout = "stacked" }: { partner: PartnerPr
         <span style={{ fontSize: 8, letterSpacing: "0.16em", color: "#6E6E73" }}>I SAMARBEJDE MED</span>
         <CarlRasMark size={14} />
         <span className="font-bold" style={{ fontSize: 10, letterSpacing: "0.08em", color: "#1D1D1F" }}>CARL RAS</span>
-        <span className="px-1 py-0.5 rounded text-white" style={{ background: "#E30613", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", lineHeight: 1 }}>
+        <span className="px-1 py-0.5 rounded text-white" style={{ background: "#0A4685", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", lineHeight: 1 }}>
           SIKRING
         </span>
       </div>

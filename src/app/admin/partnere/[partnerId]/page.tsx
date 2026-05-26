@@ -1,20 +1,9 @@
 "use client";
 import { use, useState } from "react";
 import Link from "next/link";
-import { PARTNERS, PRODUCTS, salesFor, CURRENT_PARTNER, type Faggruppe } from "@/lib/data";
+import { PARTNERS, PRODUCTS, salesFor, CURRENT_PARTNER } from "@/lib/data";
 import { useApp } from "@/components/AppState";
-import { InteractiveArea, InteractivePie } from "@/components/ChartsInteractive";
-import { Sparkline } from "@/components/Charts";
-
-const COVER_BY_FAG: Record<Faggruppe, string> = {
-  "Låsesmed":         "/campaigns/sommerhus-lock-pov.jpg",
-  "Tømrer":           "/campaigns/sommerhus-family.jpg",
-  "Elektriker":       "/campaigns/sommerhus-dusk.jpg",
-  "Maler":            "/campaigns/sommerhus-family_wide.jpg",
-  "VVS":              "/campaigns/sommerhus-dusk.jpg",
-  "Ejendomsservice":  "/campaigns/sommerhus-family.jpg",
-  "Murer":            "/campaigns/sommerhus-family.jpg",
-};
+import { InteractiveArea, InteractivePie, MiniArea } from "@/components/ChartsInteractive";
 
 const ACTIVITY_COLOR: Record<string, string> = {
   ordre:   "#2D4A0F",
@@ -49,7 +38,6 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
   }
 
   const sales = salesFor(partner.id);
-  const cover = COVER_BY_FAG[partner.faggruppe] ?? "/campaigns/sommerhus-family.jpg";
   const offerProducts = sales.predictedOffer.productIds
     .map((id) => PRODUCTS.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
@@ -66,54 +54,43 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
 
   return (
     <div className="animate-in pb-12">
-      {/* ─── HERO ─── */}
-      <header className="relative">
-        {/* Cover */}
-        <div className="relative h-[240px] overflow-hidden bg-[var(--ink)]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={cover} alt="" className="absolute inset-0 size-full object-cover opacity-70" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)" }} />
-          <div className="absolute top-4 left-6">
-            <Link href="/admin/partnere" className="inline-flex items-center gap-1.5 text-white/85 hover:text-white text-[13px] font-medium px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md">
-              <svg width="12" height="12" viewBox="0 0 14 14"><path d="M9 11l-4-4 4-4" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              Alle partnere
-            </Link>
+      {/* ─── HEADER (no cover image — clean Apple-style) ─── */}
+      <header className="px-6 lg:px-12 pt-8 lg:pt-10">
+        <Link href="/admin/partnere" className="link text-[13px] inline-flex items-center gap-1.5 mb-6">
+          <svg width="12" height="12" viewBox="0 0 14 14"><path d="M9 11l-4-4 4-4" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          Alle partnere
+        </Link>
+
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="flex items-end gap-5">
+            <div
+              className="size-20 rounded-2xl grid place-items-center text-white font-bold text-[24px] shrink-0"
+              style={{ background: partner.logoBg }}
+            >
+              {partner.initialer}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className={tierClass(partner.tier)}>{partner.tier}-partner</span>
+                <span className="text-[11px] text-[var(--ink-3)]">Medlem siden {partner.medlemSiden}</span>
+              </div>
+              <h1 className="t-display-lg leading-tight">{partner.firma}</h1>
+              <p className="t-body !text-[var(--ink-3)] mt-1">
+                {partner.ejer} · {partner.faggruppe} · {partner.by} ({partner.postnr})
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Identity strip */}
-        <div className="px-6 lg:px-12 -mt-12 relative z-10">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div className="flex items-end gap-5">
-              <div
-                className="size-24 rounded-2xl grid place-items-center text-white font-bold text-[28px] shrink-0 ring-4 ring-white shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
-                style={{ background: partner.logoBg }}
-              >
-                {partner.initialer}
-              </div>
-              <div className="pb-2">
-                <div className="flex items-center gap-2">
-                  <span className={tierClass(partner.tier)}>{partner.tier}-partner</span>
-                  <span className="text-[11px] text-[var(--ink-3)]">Medlem siden {partner.medlemSiden}</span>
-                </div>
-                <h1 className="t-display-lg mt-1 leading-tight">{partner.firma}</h1>
-                <p className="t-body !text-[var(--ink-3)] mt-1">
-                  {partner.ejer} · {partner.faggruppe} · {partner.by} ({partner.postnr})
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pb-2">
-              <button onClick={() => pushToast("Beskedseditor åbnes…")} className="btn btn-secondary">Send besked</button>
-              <button onClick={() => pushToast("Tier-opgradering kræver godkendelse")} className="btn btn-secondary">Opgradér tier</button>
-              <button
-                onClick={() => setShowOfferDialog(true)}
-                className="btn btn-primary"
-                disabled={offerSent}
-              >
-                {offerSent ? "✓ Tilbud sendt" : "Send forudsigt-tilbud"}
-              </button>
-            </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => pushToast("Beskedseditor åbnes…")} className="btn btn-secondary">Send besked</button>
+            <button onClick={() => pushToast("Tier-opgradering kræver godkendelse")} className="btn btn-secondary">Opgradér tier</button>
+            <button
+              onClick={() => setShowOfferDialog(true)}
+              className="btn btn-primary"
+              disabled={offerSent}
+            >
+              {offerSent ? "✓ Tilbud sendt" : "Send forudsigt-tilbud"}
+            </button>
           </div>
         </div>
       </header>
@@ -121,8 +98,8 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
       {/* ─── KPI ROW ─── */}
       <section className="px-6 lg:px-12 mt-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <Kpi label="Omsætning 12 mdr" value={fmtKr(sales.omsætning12mo)} delta={`${sales.omsætningYoY > 0 ? "+" : ""}${sales.omsætningYoY}% YoY`} positive={sales.omsætningYoY > 0} sparkline={sales.monthlyOmsætning} color="var(--accent)" />
-          <Kpi label="Sager YTD" value={sales.sagerYTD.toString()} delta={`${sales.sagerYoY > 0 ? "+" : ""}${sales.sagerYoY}% YoY`} positive={sales.sagerYoY > 0} sparkline={sales.monthlySager} color="#2D4A0F" />
+          <Kpi label="Omsætning 12 mdr" value={fmtKr(sales.omsætning12mo)} delta={`${sales.omsætningYoY > 0 ? "+" : ""}${sales.omsætningYoY}% YoY`} positive={sales.omsætningYoY > 0} sparkline={sales.monthlyOmsætning} labels={sales.monthlyLabels} color="var(--accent)" unit="kr" />
+          <Kpi label="Sager YTD" value={sales.sagerYTD.toString()} delta={`${sales.sagerYoY > 0 ? "+" : ""}${sales.sagerYoY}% YoY`} positive={sales.sagerYoY > 0} sparkline={sales.monthlySager} labels={sales.monthlyLabels} color="#2D4A0F" />
           <Kpi label="Kontakt-omkostning" value={`${sales.kontaktOmkostningPerSag} kr`} delta="pr. sag" />
           <Kpi label="NPS" value={`+${sales.npsScore}`} delta={`${sales.npsRespondenter} svar`} positive />
         </div>
@@ -313,7 +290,8 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
   );
 }
 
-function Kpi({ label, value, delta, positive, sparkline, color }: { label: string; value: string; delta?: string; positive?: boolean; sparkline?: number[]; color?: string }) {
+function Kpi({ label, value, delta, positive, sparkline, color, labels, unit }: { label: string; value: string; delta?: string; positive?: boolean; sparkline?: number[]; color?: string; labels?: string[]; unit?: string }) {
+  const chartData = sparkline?.map((v, i) => ({ label: labels?.[i] ?? String(i + 1), value: v }));
   return (
     <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-5 flex flex-col">
       <div className="flex items-baseline justify-between">
@@ -321,9 +299,9 @@ function Kpi({ label, value, delta, positive, sparkline, color }: { label: strin
         {delta && <span className={"text-[11px] font-semibold " + (positive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>{delta}</span>}
       </div>
       <div className="mt-2 text-[24px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">{value}</div>
-      {sparkline && (
+      {chartData && (
         <div className="mt-3 -mx-1">
-          <Sparkline values={sparkline} color={color ?? "var(--accent)"} height={28} />
+          <MiniArea data={chartData} color={color ?? "var(--accent)"} height={44} unit={unit} />
         </div>
       )}
     </div>
