@@ -454,6 +454,11 @@ textarea.field {
 }
 .animate-in { animation: fadeIn var(--t-slow) var(--ease-out) both; }
 
+@keyframes slideInRight {
+  from { transform: translateX(16px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }

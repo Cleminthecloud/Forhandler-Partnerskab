@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
 import { CAMPAIGNS, FORMATS, CURRENT_PARTNER, FormatKind, Campaign } from "@/lib/data";
@@ -32,6 +32,15 @@ export default function KampagnerPage() {
   type ActionKind = "print-order" | "print-pdf" | "digital-pack" | "digital-send" | "digital-link";
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
   const [showLogoSheet, setShowLogoSheet] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // ESC closes drawer
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDrawerOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawerOpen]);
 
   const variants = DEFAULT_IMAGES;
   const currentImage = variants[imageVariant];
@@ -69,18 +78,16 @@ export default function KampagnerPage() {
     : [];
 
   return (
-    <div className="px-6 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
-      {/* ─── HEADER ─── */}
-      <header className="flex flex-wrap items-end justify-between gap-6 mb-6">
-        <div>
+    <div className="flex flex-col h-[calc(100vh-48px)] animate-in">
+      {/* ─── COMPACT HEADER ─── */}
+      <header className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
+        <div className="flex items-baseline gap-3">
           <div className="t-eyebrow flex items-center gap-2">
             <span className="theme-dot" style={{ background: theme.accent }} />
             <span>Marketing-værktøjskasse</span>
           </div>
-          <h1 className="t-display mt-2">Kampagner</h1>
-          <p className="t-body-lg mt-2 max-w-[640px]">
-            Færdige co-brandede materialer. <strong className="text-[var(--ink)] font-semibold">Klik på tekst i ad&apos;en</strong> for at redigere den. Logo og kontaktoplysninger hentes fra din profil.
-          </p>
+          <span className="text-[var(--ink-4)]">·</span>
+          <h1 className="text-[20px] font-semibold tracking-tight text-[var(--ink)] leading-none">Kampagner</h1>
         </div>
         <div className="flex gap-2">
           {hasEdits && (
@@ -97,10 +104,10 @@ export default function KampagnerPage() {
         </div>
       </header>
 
-      {/* ─── MAIN 3-PANEL EDITOR ─── */}
-      <div className="grid gap-4 xl:grid-cols-[280px_1fr_300px]">
-        {/* LEFT — campaigns + variants */}
-        <aside className="flex flex-col gap-4 self-start xl:sticky xl:top-[60px]">
+      {/* ─── EDITOR: left rail + canvas ─── */}
+      <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-6 grid-cols-[280px_1fr] min-h-0">
+        {/* LEFT — campaign picker + image variants */}
+        <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1">
           <div className="card !p-3">
             <div className="px-2 py-1 mb-1 flex items-center gap-2">
               <span className="theme-dot" style={{ background: theme.accent }} />
@@ -195,19 +202,30 @@ export default function KampagnerPage() {
           </div>
         </aside>
 
-        {/* CENTER — big canvas */}
-        <section className="card !p-0 overflow-hidden flex flex-col min-h-[760px]">
-          {/* Top bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-[var(--line-2)] bg-[var(--canvas)]">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--ink-3)]">Preview</span>
-              <span className="text-[13px] font-semibold text-[var(--ink)]">{activeCampaign?.titel}</span>
+        {/* CENTER — CANVAS (full bleed, floating chrome) */}
+        <section className="relative rounded-[var(--r-xl)] overflow-hidden bg-[var(--canvas-3)] border border-[var(--line-2)] min-h-[640px]">
+          {/* subtle canvas grid */}
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.55] pointer-events-none"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)",
+              backgroundSize: "16px 16px",
+            }}
+          />
+
+          {/* FLOATING TOP BAR — campaign title + print/digital toggle */}
+          <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between gap-3 pointer-events-none">
+            <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-white/85 backdrop-blur-md rounded-full pl-3 pr-4 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
+              <span className="theme-dot" style={{ background: theme.accent }} />
+              <span className="text-[12px] font-semibold text-[var(--ink)]">{activeCampaign?.titel}</span>
               {isUnpublished && (
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[var(--ink)] text-white">Ikke publiceret</span>
+                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-[var(--ink)] text-white ml-1">Udkast</span>
               )}
             </div>
 
-            <div className="inline-flex rounded-full bg-[var(--canvas-2)] p-1">
+            <div className="pointer-events-auto inline-flex rounded-full bg-white/85 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
               {(["print", "digital"] as const).map((c) => (
                 <button
                   key={c}
@@ -217,8 +235,8 @@ export default function KampagnerPage() {
                     if (first) setFormat(first);
                   }}
                   className={
-                    "px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors " +
-                    (category === c ? "bg-white text-[var(--ink)] shadow-[0_1px_3px_rgba(0,0,0,0.05)]" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
+                    "px-3.5 py-1 rounded-full text-[12px] font-medium transition-colors " +
+                    (category === c ? "bg-[var(--ink)] text-white" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
                   }
                 >
                   {c === "print" ? "Print" : "Digital"}
@@ -227,180 +245,248 @@ export default function KampagnerPage() {
             </div>
           </div>
 
-          {/* Big preview — scaled larger */}
+          {/* PREVIEW STAGE — auto-fit, no overflow */}
           {activeCampaign && (
-            <div className="flex-1 grid place-items-center p-6 lg:p-10 relative bg-[var(--canvas-2)]" style={{ minHeight: 540 }}>
-              <div className="relative grid place-items-center" style={{ transform: "scale(1.25)", transformOrigin: "center" }}>
-                <CampaignPreview campaign={activeCampaign} partner={CURRENT_PARTNER} theme={theme} format={format} image={currentImage} />
+            <div className="absolute inset-0 grid place-items-center px-6 pt-20 pb-36 lg:pb-32">
+              <div className="relative max-w-full max-h-full grid place-items-center">
+                <CampaignPreview
+                  campaign={activeCampaign}
+                  partner={CURRENT_PARTNER}
+                  theme={theme}
+                  format={format}
+                  image={currentImage}
+                />
               </div>
             </div>
           )}
 
-          {/* Format-thumbnail strip */}
-          <div className="border-t border-[var(--line-2)] bg-[var(--canvas)] px-4 lg:px-5 py-3">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              {currentCategoryFormats.map((f) => {
-                const meta = FORMATS.find((x) => x.id === f)!;
-                const sel = format === f;
-                return (
-                  <button
-                    key={f}
-                    onClick={() => setFormat(f)}
-                    data-tt={meta.dim}
-                    className={
-                      "shrink-0 flex flex-col items-center gap-1.5 px-3.5 py-2 rounded-[var(--r-md)] transition-all border " +
-                      (sel
-                        ? "bg-[var(--ink)] text-white border-[var(--ink)]"
-                        : "bg-[var(--canvas)] text-[var(--ink-2)] border-[var(--line)] hover:bg-[var(--canvas-2)]")
-                    }
-                  >
-                    <FormatThumb format={f} active={sel} />
-                    <span className="text-[11px] font-medium whitespace-nowrap">{meta.label.replace(/ A[35]/, "")}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* FLOATING BOTTOM — format dock + action bar (single unit) */}
+          <div className="absolute left-3 right-3 bottom-3 z-20 pointer-events-none">
+            <div className="pointer-events-auto bg-white/90 backdrop-blur-md rounded-[var(--r-xl)] border border-[var(--line-2)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] overflow-hidden">
+              {/* Format dock */}
+              <div className="px-3 py-2 border-b border-[var(--line-2)] flex items-center gap-2 overflow-x-auto">
+                {currentCategoryFormats.map((f) => {
+                  const meta = FORMATS.find((x) => x.id === f)!;
+                  const sel = format === f;
+                  return (
+                    <button
+                      key={f}
+                      onClick={() => setFormat(f)}
+                      data-tt={meta.dim}
+                      className={
+                        "shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-[var(--r-md)] transition-all border text-[12px] font-medium " +
+                        (sel
+                          ? "bg-[var(--ink)] text-white border-[var(--ink)]"
+                          : "bg-transparent text-[var(--ink-2)] border-transparent hover:bg-[var(--canvas-2)]")
+                      }
+                    >
+                      <FormatThumb format={f} active={sel} />
+                      <span className="whitespace-nowrap">{meta.label.replace(/ A[35]/, "")}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Action bar — context-aware: print vs digital */}
-          <div className="border-t border-[var(--line-2)] bg-[var(--canvas)] px-5 py-4 flex flex-wrap items-center justify-between gap-3">
-            {category === "print" ? (
-              <>
-                <p className="text-[12px] text-[var(--ink-3)] max-w-[480px]">
-                  Sølv- og Guld-partnere: <strong className="text-[var(--ink-2)]">50% af medieomkostninger</strong> dækket. Levering inden for 5 hverdage.
+              {/* Action bar */}
+              <div className="px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-[11.5px] text-[var(--ink-3)] max-w-[420px] leading-snug">
+                  {category === "print"
+                    ? <>Sølv- og Guld: <strong className="text-[var(--ink-2)]">50% af medieomkostninger</strong> dækket · 5 hverdages levering.</>
+                    : <>Asset-pakken har JPG, PNG + dimensions klar til upload. Eller send direkte til din annoncekonto.</>}
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <button
-                    onClick={() => setConfirm({ kind: "print-pdf", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    className="btn btn-secondary"
-                    data-tt="Print-klar PDF til lokalt tryk"
+                    onClick={() => setDrawerOpen(true)}
+                    className="btn btn-secondary !py-1.5"
+                    data-tt="Åbn redigeringspanel"
                   >
-                    Hent PDF
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline -mt-0.5 mr-1.5">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
+                    </svg>
+                    Rediger
                   </button>
-                  <button
-                    onClick={() => setConfirm({ kind: "print-order", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    className="btn btn-primary"
-                  >
-                    Bestil tryk
-                  </button>
+                  {category === "print" ? (
+                    <>
+                      <button
+                        onClick={() => setConfirm({ kind: "print-pdf", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                        className="btn btn-secondary !py-1.5"
+                        data-tt="Print-klar PDF til lokalt tryk"
+                      >
+                        Hent PDF
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "print-order", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                        className="btn btn-primary !py-1.5"
+                      >
+                        Bestil tryk
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-link", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                        className="btn btn-secondary !py-1.5"
+                        data-tt="Kopiér en delelink til kampagnen"
+                      >
+                        🔗 Link
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-pack", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                        className="btn btn-secondary !py-1.5"
+                        data-tt="Download zip med JPG + PNG + dimensions"
+                      >
+                        ⬇ Asset-pakke
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-send", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                        className="btn btn-primary !py-1.5"
+                      >
+                        Send til konto
+                      </button>
+                    </>
+                  )}
                 </div>
-              </>
-            ) : (
-              <>
-                <p className="text-[12px] text-[var(--ink-3)] max-w-[460px]">
-                  Asset-pakken indeholder JPG, PNG og dimensions klar til upload. Eller send direkte til din annoncekonto.
-                </p>
-                <div className="flex gap-2 flex-wrap">
-                  <button
-                    onClick={() => setConfirm({ kind: "digital-link", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    className="btn btn-secondary"
-                    data-tt="Kopiér en delelink til kampagnen"
-                  >
-                    🔗 Kopiér link
-                  </button>
-                  <button
-                    onClick={() => setConfirm({ kind: "digital-pack", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    className="btn btn-secondary"
-                    data-tt="Download zip med JPG + PNG + dimensions"
-                  >
-                    ⬇ Hent asset-pakke
-                  </button>
-                  <button
-                    onClick={() => setConfirm({ kind: "digital-send", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    className="btn btn-primary"
-                  >
-                    Send til min konto
-                  </button>
-                </div>
-              </>
-            )}
+              </div>
+            </div>
           </div>
         </section>
-
-        {/* RIGHT — Inspector */}
-        <aside className="flex flex-col gap-4 self-start xl:sticky xl:top-[60px]">
-          <div className="card">
-            <div className="t-eyebrow mb-3">Tilpas tekst</div>
-
-            <EditField
-              label="Hovedbudskab"
-              value={activeCampaign?.hovedbudskab ?? ""}
-              onChange={(v) => updateEdit("hovedbudskab", v)}
-              max={80}
-              multiline
-            />
-            <div className="h-3" />
-            <EditField
-              label="Underbudskab"
-              value={activeCampaign?.underbudskab ?? ""}
-              onChange={(v) => updateEdit("underbudskab", v)}
-              max={200}
-              multiline
-            />
-            <div className="h-3" />
-            <EditField
-              label="Call-to-action"
-              value={activeCampaign?.cta ?? ""}
-              onChange={(v) => updateEdit("cta", v)}
-              max={40}
-            />
-
-            {hasEdits && (
-              <button onClick={resetEdits} className="mt-4 text-[12px] font-semibold text-[var(--accent)] hover:underline">
-                Nulstil til original
-              </button>
-            )}
-          </div>
-
-          <div className="card !p-4 flex items-center gap-3">
-            <div
-              className="size-10 rounded-lg grid place-items-center text-white font-semibold text-[13px] shrink-0"
-              style={{ background: CURRENT_PARTNER.logoBg }}
-            >
-              {CURRENT_PARTNER.initialer}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{CURRENT_PARTNER.firma}</div>
-              <div className="text-[11px] text-[var(--ink-3)] truncate">Auto-hentet fra profil</div>
-            </div>
-            <button onClick={() => setShowLogoSheet(true)} data-tt="Skift logo" className="text-[12px] font-semibold text-[var(--accent)] shrink-0">
-              Skift
-            </button>
-          </div>
-
-          {/* Connected ad accounts — shown when in digital mode */}
-          {category === "digital" && (
-            <div className="card">
-              <div className="t-eyebrow mb-3">Forbundne konti</div>
-              <ul className="space-y-2.5">
-                {CONNECTED_ACCOUNTS.map((a) => (
-                  <li key={a.id} className="flex items-center gap-3">
-                    <div className="size-8 rounded-md grid place-items-center text-white text-[14px] shrink-0" style={{ background: a.color }}>{a.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-medium text-[var(--ink)] truncate">{a.name}</div>
-                      <div className="text-[11px] text-[var(--ink-3)] truncate">{a.connected ? a.account : "Ikke forbundet"}</div>
-                    </div>
-                    {a.connected ? (
-                      <span className="size-2 rounded-full bg-[#2D4A0F] shrink-0" data-tt="Forbundet" />
-                    ) : (
-                      <button className="text-[12px] font-semibold text-[var(--accent)] shrink-0">Forbind →</button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="card !p-4 bg-[var(--canvas-2)] !border-0">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">Tip</div>
-            <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
-              {category === "print"
-                ? "Bestil tryk lader Carl Ras producere og levere. Eller hent en print-klar PDF til din lokale trykker."
-                : "Send direkte til din annoncekonto som kladde, eller hent asset-pakken (JPG + PNG) til upload selv."}
-            </p>
-          </div>
-        </aside>
       </div>
+
+      {/* ─── EDIT DRAWER (slides from right) ─── */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 z-40 animate-in"
+          onClick={() => setDrawerOpen(false)}
+        >
+          {/* dim */}
+          <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
+
+          {/* panel */}
+          <aside
+            className="absolute top-[48px] right-0 bottom-0 w-[420px] max-w-[95vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
+          >
+            {/* Drawer header */}
+            <div className="px-5 py-4 border-b border-[var(--line-2)] flex items-center justify-between">
+              <div>
+                <div className="t-eyebrow !text-[10px]">Rediger kampagne</div>
+                <div className="text-[15px] font-semibold text-[var(--ink)] mt-0.5">{activeCampaign?.titel}</div>
+              </div>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="size-8 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors"
+                aria-label="Luk"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Drawer body — scrollable */}
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
+              {/* Tilpas tekst */}
+              <section>
+                <div className="t-eyebrow mb-3">Tekst</div>
+                <EditField
+                  label="Hovedbudskab"
+                  value={activeCampaign?.hovedbudskab ?? ""}
+                  onChange={(v) => updateEdit("hovedbudskab", v)}
+                  max={80}
+                  multiline
+                  rows={2}
+                />
+                <div className="h-4" />
+                <EditField
+                  label="Underbudskab"
+                  value={activeCampaign?.underbudskab ?? ""}
+                  onChange={(v) => updateEdit("underbudskab", v)}
+                  max={200}
+                  multiline
+                  rows={5}
+                />
+                <div className="h-4" />
+                <EditField
+                  label="Call-to-action"
+                  value={activeCampaign?.cta ?? ""}
+                  onChange={(v) => updateEdit("cta", v)}
+                  max={40}
+                />
+                {hasEdits && (
+                  <button onClick={resetEdits} className="mt-4 text-[12px] font-semibold text-[var(--accent)] hover:underline">
+                    Nulstil til original
+                  </button>
+                )}
+              </section>
+
+              {/* Partner / logo */}
+              <section>
+                <div className="t-eyebrow mb-3">Partner</div>
+                <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
+                  <div
+                    className="size-10 rounded-lg grid place-items-center text-white font-semibold text-[13px] shrink-0"
+                    style={{ background: CURRENT_PARTNER.logoBg }}
+                  >
+                    {CURRENT_PARTNER.initialer}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{CURRENT_PARTNER.firma}</div>
+                    <div className="text-[11px] text-[var(--ink-3)] truncate">Auto-hentet fra profil</div>
+                  </div>
+                  <button onClick={() => setShowLogoSheet(true)} data-tt="Skift logo" className="text-[12px] font-semibold text-[var(--accent)] shrink-0">
+                    Skift
+                  </button>
+                </div>
+              </section>
+
+              {/* Digital-only: connected accounts */}
+              {category === "digital" && (
+                <section>
+                  <div className="t-eyebrow mb-3">Forbundne konti</div>
+                  <ul className="space-y-2">
+                    {CONNECTED_ACCOUNTS.map((a) => (
+                      <li key={a.id} className="flex items-center gap-3 p-2.5 rounded-[var(--r-md)] border border-[var(--line-2)]">
+                        <div className="size-8 rounded-md grid place-items-center text-white text-[14px] font-bold shrink-0" style={{ background: a.color }}>{a.icon}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[13px] font-medium text-[var(--ink)] truncate">{a.name}</div>
+                          <div className="text-[11px] text-[var(--ink-3)] truncate">{a.connected ? a.account : "Ikke forbundet"}</div>
+                        </div>
+                        {a.connected ? (
+                          <span className="size-2 rounded-full bg-[#2D4A0F] shrink-0" data-tt="Forbundet" />
+                        ) : (
+                          <button className="text-[12px] font-semibold text-[var(--accent)] shrink-0">Forbind →</button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {/* Tip */}
+              <section>
+                <div className="p-3.5 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">Tip</div>
+                  <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
+                    {category === "print"
+                      ? "Bestil tryk lader Carl Ras producere og levere. Eller hent en print-klar PDF til din lokale trykker."
+                      : "Send direkte til din annoncekonto som kladde, eller hent asset-pakken (JPG + PNG) til upload selv."}
+                  </p>
+                </div>
+              </section>
+            </div>
+
+            {/* Drawer footer */}
+            <div className="px-5 py-3.5 border-t border-[var(--line-2)] flex items-center justify-between gap-3 bg-[var(--canvas)]">
+              <span className="text-[11px] text-[var(--ink-3)]">
+                Ændringer gemmes automatisk
+              </span>
+              <button onClick={() => setDrawerOpen(false)} className="btn btn-primary !py-1.5">Færdig</button>
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* Confirmation modal — context-aware copy per action */}
       {confirm && (
@@ -469,13 +555,10 @@ function ActionConfirm({
   onClose: () => void;
   onConfirm: (target?: string) => void;
 }) {
-  const [target, setTarget] = useState<string>("meta");
-
   const isMeta = formatId === "digital-facebook" || formatId === "digital-instagram";
   const isGoogle = formatId === "digital-google";
   const defaultTarget = isMeta ? "meta" : isGoogle ? "google" : "meta";
-  // initialize target
-  useState(() => { setTarget(defaultTarget); return defaultTarget; });
+  const [target, setTarget] = useState<string>(defaultTarget);
 
   const meta = (() => {
     switch (kind) {
@@ -516,7 +599,7 @@ function ActionConfirm({
       case "digital-link": return {
         eyebrow: "Kopiér delelink",
         title: "Del kampagnen",
-        body: <>Get en kort URL der viser kampagnen i browseren. God til Slack, email og kundedialog inden du publicerer.</>,
+        body: <>Få en kort URL der viser kampagnen i browseren. God til Slack, email og kundedialog inden du publicerer.</>,
         cta: "Kopiér link",
       };
     }
@@ -571,7 +654,7 @@ function ActionConfirm({
 }
 
 /* ─── Inspector edit field ─── */
-function EditField({ label, value, onChange, max, multiline }: { label: string; value: string; onChange: (v: string) => void; max?: number; multiline?: boolean }) {
+function EditField({ label, value, onChange, max, multiline, rows }: { label: string; value: string; onChange: (v: string) => void; max?: number; multiline?: boolean; rows?: number }) {
   const len = value.length;
   const near = max ? len > max * 0.85 : false;
   return (
@@ -588,15 +671,15 @@ function EditField({ label, value, onChange, max, multiline }: { label: string; 
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, max))}
-          rows={2}
-          className="w-full bg-[var(--canvas-2)] rounded-[var(--r-md)] px-3 py-2 text-[13px] text-[var(--ink)] outline-none resize-none border border-transparent focus:border-[var(--accent)] focus:bg-white transition-colors leading-[1.45]"
+          rows={rows ?? 3}
+          className="w-full bg-[var(--canvas-2)] rounded-[var(--r-md)] px-3 py-2.5 text-[13px] text-[var(--ink)] outline-none resize-y border border-transparent focus:border-[var(--accent)] focus:bg-white transition-colors leading-[1.5]"
         />
       ) : (
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, max))}
-          className="w-full bg-[var(--canvas-2)] rounded-[var(--r-md)] px-3 py-2 text-[13px] text-[var(--ink)] outline-none border border-transparent focus:border-[var(--accent)] focus:bg-white transition-colors"
+          className="w-full bg-[var(--canvas-2)] rounded-[var(--r-md)] px-3 py-2.5 text-[13px] text-[var(--ink)] outline-none border border-transparent focus:border-[var(--accent)] focus:bg-white transition-colors"
         />
       )}
     </div>
@@ -608,19 +691,19 @@ function FormatThumb({ format, active }: { format: FormatKind; active: boolean }
   const stroke = active ? "white" : "currentColor";
   // Render a simplified rect approximating the aspect ratio of the format
   const dims: Record<FormatKind, { w: number; h: number }> = {
-    "print-flyer":      { w: 14, h: 20 },
-    "print-poster":     { w: 14, h: 20 },
-    "print-magasin":    { w: 14, h: 20 },
-    "print-bilstreamer":{ w: 22, h: 6 },
-    "digital-facebook": { w: 18, h: 18 },
-    "digital-instagram":{ w: 12, h: 22 },
-    "digital-email":    { w: 22, h: 8 },
-    "digital-google":   { w: 18, h: 14 },
+    "print-flyer":      { w: 11, h: 16 },
+    "print-poster":     { w: 11, h: 16 },
+    "print-magasin":    { w: 11, h: 16 },
+    "print-bilstreamer":{ w: 18, h: 5 },
+    "digital-facebook": { w: 15, h: 15 },
+    "digital-instagram":{ w: 10, h: 18 },
+    "digital-email":    { w: 18, h: 7 },
+    "digital-google":   { w: 15, h: 12 },
   };
   const d = dims[format];
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <rect x={(22 - d.w) / 2} y={(22 - d.h) / 2} width={d.w} height={d.h} rx="2" stroke={stroke} strokeWidth="1.5" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <rect x={(18 - d.w) / 2} y={(18 - d.h) / 2} width={d.w} height={d.h} rx="1.5" stroke={stroke} strokeWidth="1.4" />
     </svg>
   );
 }
