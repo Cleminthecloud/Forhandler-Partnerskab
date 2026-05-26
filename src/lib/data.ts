@@ -241,6 +241,16 @@ export const CHAT_THREADS: Record<string, ChatThread> = {
 };
 
 /* ─────────────────────────── Forum ─────────────────────────── */
+export interface ForumReply {
+  forfatter: string;
+  firma: string;
+  region: Region;
+  tid: string;
+  body: string;
+  likes: number;
+  reactions?: { emoji: string; count: number }[];
+}
+
 export interface ForumThread {
   id: string;
   titel: string;
@@ -253,10 +263,18 @@ export interface ForumThread {
   svar: number;
   likes: number;
   seneste: string;
+  replies?: ForumReply[];
 }
 
 export const FORUM_THREADS: ForumThread[] = [
-  { id: "f-001", titel: "Hvordan håndterer I gæstekoder til Smart Lock i højsæsonen?", forfatter: "Lars Kofoed", forfatterFirma: "Bornholm Sikring", forfatterRegion: "Bornholm", dato: "for 2 timer", kategori: "Spørgsmål", body: "Vi får flere forespørgsler fra udlejere som vil have ugentlige koder. Hvordan har I sat det op uden at det bliver et helvede at administrere?", svar: 14, likes: 22, seneste: "Søren Vinther · for 12 min" },
+  { id: "f-001", titel: "Hvordan håndterer I gæstekoder til Smart Lock i højsæsonen?", forfatter: "Lars Kofoed", forfatterFirma: "Bornholm Sikring", forfatterRegion: "Bornholm", dato: "for 2 timer", kategori: "Spørgsmål", body: "Vi får flere forespørgsler fra udlejere som vil have ugentlige koder. Hvordan har I sat det op uden at det bliver et helvede at administrere?", svar: 14, likes: 22, seneste: "Søren Vinther · for 12 min",
+    replies: [
+      { forfatter: "Søren Vinther", firma: "Blokhus Byg & Bolig", region: "Vestkysten", tid: "for 1 t", body: "Vi bruger Gateway G2 + en uge-kode-rotation gennem partner-portalen. Udlejerne får en ny kode hver mandag morgen via SMS. Tager 2 minutter at sætte op pr. hus.", likes: 8, reactions: [{ emoji: "🔥", count: 3 }, { emoji: "👍", count: 5 }] },
+      { forfatter: "Birgitte Holm", firma: "Marielyst Låseteknik", region: "Lolland-Falster", tid: "for 45 min", body: "+1 til Søren. Vi har koblet det op til Airbnb-kalenderen via Zapier, så koden ændres automatisk når der kommer ny booking. Spar én time om ugen pr. udlejnings-hus.", likes: 11 },
+      { forfatter: "Erik Brinch", firma: "Fanø Lås & Sikring", region: "Vestkysten", tid: "for 30 min", body: "Smart. Vi har bare hardcodet 'sommerkode' og 'vinterkode' for nu — men det her ser bedre ud. Linker du Zapier-templaten?", likes: 2 },
+      { forfatter: "Søren Vinther", firma: "Blokhus Byg & Bolig", region: "Vestkysten", tid: "for 12 min", body: "Sender den i DM 👍 Også til andre der vil have den.", likes: 4, reactions: [{ emoji: "🙏", count: 2 }] },
+    ]
+  },
   { id: "f-002", titel: "Tip: Lokalavis-annoncer giver stadig leads", forfatter: "Søren Vinther", forfatterFirma: "Blokhus Byg & Bolig", forfatterRegion: "Vestkysten", dato: "i går", kategori: "Markedsføring", body: "Vi har kørt Carl Ras-flyeren i Lokalavisen Vendsyssel hver uge siden marts — 11 leads, 4 jobs. Bedre ROI end Facebook.", svar: 8, likes: 31, seneste: "Bent Madsen · i går" },
   { id: "f-003", titel: "Bilstreameren — hvor får I den printet bedst?", forfatter: "Thomas Riis", forfatterFirma: "Vejers Strand VVS", forfatterRegion: "Vestkysten", dato: "for 2 dage", kategori: "Værktøj", body: "Carl Ras trykker den i Herlev men leveringstid er 5 dage. Findes der lokale tryk vi kan bruge med samme filer?", svar: 6, likes: 9, seneste: "Henrik Larsen · for 18 timer" },
   { id: "f-004", titel: "Erfaringer med STROXX Smart Cylinder?", forfatter: "Erik Brinch", forfatterFirma: "Fanø Lås & Sikring", forfatterRegion: "Vestkysten", dato: "for 3 dage", kategori: "Spørgsmål", body: "Jeg har lige fået testeksemplaret. Hvordan klarer den sig vs. ABUS i salt-luft (vi har en del af det her)?", svar: 11, likes: 14, seneste: "Lars Kofoed · for 1 dag" },

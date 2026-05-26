@@ -421,6 +421,69 @@ textarea.field {
   animation: shimmer 2s linear infinite;
 }
 
+/* === Chart animations (SVG-based) === */
+@keyframes chart-line-draw {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes chart-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes chart-area-grow {
+  from { opacity: 0; transform: scaleY(0.6); }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+@keyframes chart-dot-pop {
+  0%   { opacity: 0; transform: scale(0); }
+  60%  { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes chart-bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes chart-bar-grow-v {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+.chart-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: chart-line-draw 1100ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+.chart-area {
+  transform-origin: bottom;
+  animation: chart-area-grow 900ms cubic-bezier(0, 0, 0.2, 1) 300ms both;
+}
+.chart-dot {
+  opacity: 0;
+  transform-origin: center;
+  animation: chart-dot-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 950ms both;
+}
+.chart-fade {
+  opacity: 0;
+  animation: chart-fade-in 400ms ease-out 1100ms both;
+}
+.chart-bar {
+  transform-origin: left center;
+  animation: chart-bar-grow 700ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.chart-bar-v {
+  transform-origin: bottom center;
+  animation: chart-bar-grow-v 700ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Donut segment sweep — keyframe per length needs JS, but we can use a generic offset animation */
+@keyframes donut-sweep {
+  from { stroke-dashoffset: 1000; }
+  to   { /* set by inline style override */ }
+}
+.donut-segment {
+  animation: chart-fade-in 800ms ease-out both;
+}
+
 /* Subtle theme cross-fade — feeds Instant Feedback principle */
 [data-theme-active] {
   transition:

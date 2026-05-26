@@ -2,7 +2,7 @@
 
 /* ============================================================
    Chart primitives — pure SVG, no library, Apple-restrained.
-   Used across partner + admin dashboards.
+   With tasteful CSS-driven entry animations.
    ============================================================ */
 
 interface SparklineProps {
@@ -27,9 +27,9 @@ export function Sparkline({ values, color = "var(--accent)", fill = true, height
   const area = fill ? `0,${h} ${points} ${(values.length - 1) * xstep},${h}` : "";
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className={"w-full h-auto block " + (className ?? "")} preserveAspectRatio="none" aria-hidden="true">
-      {fill && <polygon points={area} fill={color} opacity="0.12" />}
-      <polyline points={points} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={(values.length - 1) * xstep} cy={y(last)} r="2.5" fill={color} />
+      {fill && <polygon points={area} fill={color} opacity="0.12" className="chart-area" />}
+      <polyline points={points} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="chart-line" />
+      <circle cx={(values.length - 1) * xstep} cy={y(last)} r="2.5" fill={color} className="chart-dot" />
     </svg>
   );
 }
@@ -60,8 +60,8 @@ export function AreaChart({ values, labels, color = "var(--accent)", height = 20
           const yy = padY + (h - padY * 2) * p;
           return <line key={p} x1={padX} y1={yy} x2={w - padX} y2={yy} stroke="var(--line-2)" strokeWidth="1" strokeDasharray="2 4" />;
         })}
-        <polygon points={area} fill={color} opacity="0.10" />
-        <polyline points={points} fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        <polygon points={area} fill={color} opacity="0.10" className="chart-area" />
+        <polyline points={points} fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="chart-line" />
         {values.map((v, i) => (
           <circle
             key={i}
@@ -71,10 +71,11 @@ export function AreaChart({ values, labels, color = "var(--accent)", height = 20
             fill="white"
             stroke={color}
             strokeWidth="2"
+            className={i === lastIdx ? "chart-dot" : ""}
           />
         ))}
         {/* Last value annotation */}
-        <g transform={`translate(${padX + lastIdx * xstep}, ${y(values[lastIdx]) - 12})`}>
+        <g transform={`translate(${padX + lastIdx * xstep}, ${y(values[lastIdx]) - 12})`} className="chart-fade">
           <rect x="-18" y="-14" width="36" height="20" rx="6" fill={color} />
           <text x="0" y="0" textAnchor="middle" fontSize="11" fontWeight="600" fontFamily="Inter" fill="white">{values[lastIdx]}</text>
         </g>
@@ -91,7 +92,7 @@ export function AreaChart({ values, labels, color = "var(--accent)", height = 20
 }
 
 interface RadialProps {
-  value: number;        // 0–100
+  value: number;
   size?: number;
   thickness?: number;
   color?: string;
@@ -100,7 +101,7 @@ interface RadialProps {
   sub?: string;
 }
 
-/** Big radial progress arc — like a Garmin / Apple Watch ring. */
+/** Big radial progress arc. Animates from 0 to value via stroke-dashoffset. */
 export function Radial({ value, size = 160, thickness = 14, color = "var(--accent)", trackColor = "var(--line-2)", label, sub }: RadialProps) {
   const v = Math.min(100, Math.max(0, value));
   const r = (size - thickness) / 2;
@@ -119,10 +120,14 @@ export function Radial({ value, size = 160, thickness = 14, color = "var(--accen
           fill="none"
           strokeLinecap="round"
           strokeDasharray={`${dash} ${c}`}
-          style={{ transition: "stroke-dasharray 600ms cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+          strokeDashoffset={dash}
+          style={{
+            animation: "radial-sweep 1200ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms forwards",
+          }}
         />
+        <style>{`@keyframes radial-sweep { from { stroke-dashoffset: ${dash}; } to { stroke-dashoffset: 0; } }`}</style>
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center chart-fade">
         {label && <div className="text-[28px] font-semibold leading-none text-[var(--ink)] tabular-nums">{label}</div>}
         {sub && <div className="text-[11px] text-[var(--ink-3)] mt-1.5 max-w-[100px]">{sub}</div>}
       </div>
@@ -132,7 +137,7 @@ export function Radial({ value, size = 160, thickness = 14, color = "var(--accen
 
 interface DonutSegment { label: string; value: number; color: string; }
 
-/** Multi-segment donut chart. */
+/** Multi-segment donut chart. Segments animate in with staggered delay. */
 export function Donut({ segments, size = 140, thickness = 18 }: { segments: DonutSegment[]; size?: number; thickness?: number }) {
   const total = segments.reduce((s, x) => s + x.value, 0);
   const r = (size - thickness) / 2;
@@ -157,6 +162,10 @@ export function Donut({ segments, size = 140, thickness = 18 }: { segments: Donu
             strokeDasharray={`${len - 2} ${c}`}
             strokeDashoffset={off}
             strokeLinecap="butt"
+            style={{
+              opacity: 0,
+              animation: `chart-fade-in 500ms ease-out ${300 + i * 150}ms forwards`,
+            }}
           />
         );
       })}
@@ -177,8 +186,12 @@ export function BarMini({ rows, max }: { rows: { label: string; value: number; c
           </div>
           <div className="h-1.5 rounded-full bg-[var(--canvas-2)] overflow-hidden">
             <div
-              className="h-full rounded-full transition-all"
-              style={{ width: `${(r.value / m) * 100}%`, background: r.color ?? "var(--accent)" }}
+              className="h-full rounded-full chart-bar"
+              style={{
+                width: `${(r.value / m) * 100}%`,
+                background: r.color ?? "var(--accent)",
+                animationDelay: `${i * 80}ms`,
+              }}
             />
           </div>
         </div>
@@ -194,7 +207,7 @@ interface MiniBarChartProps {
   highlightLast?: boolean;
 }
 
-/** Tiny bar chart for in-tile data viz (like Vento's "Total Balance" mini-chart). */
+/** Tiny bar chart for in-tile data viz. */
 export function MiniBarChart({ values, color = "var(--accent)", height = 60, highlightLast = true }: MiniBarChartProps) {
   const max = Math.max(...values, 1);
   const w = 280, h = height, gap = 4;
@@ -214,6 +227,11 @@ export function MiniBarChart({ values, color = "var(--accent)", height = 60, hig
             rx="2"
             fill={highlightLast && isLast ? color : color}
             opacity={highlightLast && !isLast ? 0.32 : 1}
+            className="chart-bar-v"
+            style={{
+              transformOrigin: `${i * (barW + gap) + barW / 2}px ${h}px`,
+              animationDelay: `${i * 50}ms`,
+            }}
           />
         );
       })}
