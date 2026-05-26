@@ -240,7 +240,268 @@ export const CHAT_THREADS: Record<string, ChatThread> = {
   },
 };
 
-/* ─────────────────────────── Forum ─────────────────────────── */
+/* ─────────────────────────── AI-style scripted scenarios ───────────────────────────
+   These power the /partner/specialister chat. They feel AI-driven but are fully
+   deterministic — branching state machine. Each step can render bot text bubbles,
+   product cards, and quick-reply chips. Chips advance the scenario by id.
+   ──────────────────────────────────────────────────────────────────────────────── */
+
+export type ScenarioChipAction =
+  | { kind: "next"; next: string }
+  | { kind: "add-all"; next: string }       // adds current step's products to basket, advances
+  | { kind: "send-tilbud"; next: string }   // opens tilbud modal, advances
+  | { kind: "restart" };                    // resets scenario
+
+export interface ScenarioChip {
+  label: string;
+  action: ScenarioChipAction;
+}
+
+export interface ScenarioStep {
+  /** Bot messages — array of bubbles. Each renders with typing delay. */
+  bot: string[];
+  /** Product ids to render as cards in chat after bot messages */
+  products?: string[];
+  /** Quick-reply chips below the bubble */
+  chips?: ScenarioChip[];
+}
+
+export interface Scenario {
+  id: string;
+  /** Label on the starter chip above the input */
+  starterLabel: string;
+  /** What gets shown as a user message when starter chip is clicked */
+  userText: string;
+  /** Specialist who should be active for this scenario */
+  specialistId: string;
+  /** The starting step */
+  firstStep: string;
+  steps: Record<string, ScenarioStep>;
+}
+
+export const SCENARIOS: Scenario[] = [
+  {
+    id: "sommerhus-25",
+    starterLabel: "Pakke til 25 sommerhuse",
+    userText: "Jeg har 25 sommerhuse i Hornbæk-området som skal sikres. Hvad anbefaler du?",
+    specialistId: "s-jens",
+    firstStep: "ask-segment",
+    steps: {
+      "ask-segment": {
+        bot: [
+          "Spændende — 25 enheder er en god volumen at lave en pakke på.",
+          "Først: er det udlejningssommerhuse, privatejede, eller en blanding? Det styrer om vi skal vælge cylinder med ekstern kode-administration.",
+        ],
+        chips: [
+          { label: "Udlejning", action: { kind: "next", next: "rec-udlejning" } },
+          { label: "Private", action: { kind: "next", next: "rec-private" } },
+          { label: "Blanding", action: { kind: "next", next: "rec-udlejning" } },
+        ],
+      },
+      "rec-udlejning": {
+        bot: [
+          "Så er det STROXX Smart Lock ST-2 + Gateway G2 vi skal kigge på.",
+          "Udlejer styrer koderne fra app'en — ny kode pr. uge eller pr. booking via Airbnb-integration. Plus Housegard Pebble røgalarm som er lovpligtig på sommerhuse.",
+          "Her er den anbefalede pakke pr. enhed:",
+        ],
+        products: ["40013215", "40013955", "55011840"],
+        chips: [
+          { label: "Hvad koster det totalt?", action: { kind: "next", next: "pricing" } },
+          { label: "Vis mig en kundecase", action: { kind: "next", next: "case-tisvilde" } },
+          { label: "Book hjemmebesøg", action: { kind: "next", next: "book-besøg" } },
+        ],
+      },
+      "rec-private": {
+        bot: [
+          "For privatejede sommerhuse er det typisk Smart Lock + røgalarm — uden Gateway, fordi ejer selv er der.",
+          "Anbefaling pr. enhed:",
+        ],
+        products: ["40013215", "55011840"],
+        chips: [
+          { label: "Hvad koster det totalt?", action: { kind: "next", next: "pricing-private" } },
+          { label: "Skift til udlejnings-version", action: { kind: "next", next: "rec-udlejning" } },
+        ],
+      },
+      pricing: {
+        bot: [
+          "Pr. enhed ≈ 4.924 kr ex. moms. For 25 enheder = 123.100 kr.",
+          "Med din Sølv-margin på ≈18% har du ~22.158 kr i partnerprovision på den her ordre. Hvis du opgraderer til Guld inden årsskiftet er det ≈24% = ~29.500 kr.",
+          "Vil du lægge hele pakken i kurven (×25 af hver) eller sende et færdigt tilbud til kunden?",
+        ],
+        chips: [
+          { label: "Læg alt i kurv (×25)", action: { kind: "add-all", next: "after-basket" } },
+          { label: "Send tilbud til kunde", action: { kind: "send-tilbud", next: "after-tilbud" } },
+          { label: "Først — vis kundecase", action: { kind: "next", next: "case-tisvilde" } },
+        ],
+      },
+      "pricing-private": {
+        bot: [
+          "Pr. enhed ≈ 3.951 kr ex. moms. For 25 enheder = 98.775 kr.",
+          "Din Sølv-margin på den her er ~17.780 kr.",
+        ],
+        chips: [
+          { label: "Læg alt i kurv (×25)", action: { kind: "add-all", next: "after-basket" } },
+          { label: "Send tilbud til kunde", action: { kind: "send-tilbud", next: "after-tilbud" } },
+        ],
+      },
+      "case-tisvilde": {
+        bot: [
+          "Carl Ras-partner Tisvilde Låseteknik leverede 18 enheder i april 2026 til en udlejningsportefølje.",
+          "Setup: STROXX + Gateway + ugentlig kode-rotation via Airbnb-kalender. 0 servicebesøg på 6 måneder. Udlejer sparer ~4 timer/uge.",
+          "Jeg sender PDF-casen til din email — den er lavet i Carl Ras-skabelon så du kan vise den til kunden direkte.",
+        ],
+        chips: [
+          { label: "Tilbage til prisen", action: { kind: "next", next: "pricing" } },
+          { label: "Læg alt i kurv (×25)", action: { kind: "add-all", next: "after-basket" } },
+        ],
+      },
+      "book-besøg": {
+        bot: [
+          "Jeg åbner en kalender-prompt så I kan finde en tid. Hvis kunden vil have mig med — bare ring 8h før, så kører jeg op fra Glostrup.",
+          "Indtil da: jeg har sendt din salgsslide-pakke (4 slides + prisliste) til din email.",
+        ],
+        chips: [
+          { label: "Læg pakken i kurv (×25)", action: { kind: "add-all", next: "after-basket" } },
+          { label: "Send tilbud til kunde", action: { kind: "send-tilbud", next: "after-tilbud" } },
+        ],
+      },
+      "after-basket": {
+        bot: [
+          "Lagt i kurven. Du kan tjekke ud direkte på carl-ras.dk eller fortsætte herinde.",
+          "Tip: hvis kunden vil have det leveret + installeret som én pakkepris, har vi en service-add-on på 1.450 kr pr. enhed via Carl Ras Sikring-partneren i Helsingør.",
+        ],
+        chips: [
+          { label: "Tilføj installation (×25)", action: { kind: "next", next: "install-added" } },
+          { label: "Send tilbud til kunde nu", action: { kind: "send-tilbud", next: "after-tilbud" } },
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+      "install-added": {
+        bot: [
+          "Notér det — installation ×25 lægges på tilbuddet (36.250 kr i tillægsservice, du tager 12% provision = 4.350 kr).",
+        ],
+        chips: [
+          { label: "Send tilbud til kunde", action: { kind: "send-tilbud", next: "after-tilbud" } },
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+      "after-tilbud": {
+        bot: [
+          "Tilbud genereret med dit logo, kontaktinfo, pakkepris og opsætnings-spec. Sender til kunden + cc dig.",
+          "Hvis kunden tøver, ring mig — jeg kan hoppe på et 15-min teknisk Q&A-kald.",
+        ],
+        chips: [
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+    },
+  },
+
+  {
+    id: "smart-lock-1door",
+    starterLabel: "Smart Lock til én dør",
+    userText: "Kunde vil have Smart Lock til hoveddøren hjemme. Hvilket anbefaler du?",
+    specialistId: "s-jens",
+    firstStep: "rec",
+    steps: {
+      rec: {
+        bot: [
+          "STROXX ST-2 i 90% af tilfældene. Hurtigere installation end ABUS Smart Lock Pro (≈12 min vs 35 min), full battery-management fra app'en, og bedre support på dansk.",
+          "Hvis kunden vil styre koderne ude fra hus (ferie, håndværker, rengøring) → tilføj Gateway G2.",
+        ],
+        products: ["40013215", "40013955"],
+        chips: [
+          { label: "Hvorfor ikke ABUS?", action: { kind: "next", next: "abus" } },
+          { label: "Hvad koster det?", action: { kind: "next", next: "pris" } },
+          { label: "Læg i kurv", action: { kind: "add-all", next: "basket" } },
+        ],
+      },
+      abus: {
+        bot: [
+          "ABUS er solid, men ST-2 vinder på 3 ting: 1) installation, 2) batteriet (12 mdr vs 6 mdr i typisk brug), og 3) prisen pr. enhed (~1.200 kr mindre i indkøb).",
+          "ABUS Smart Lock Pro vinder hvis kunden allerede har ABUS-økosystem (cylindre, hængelåse etc).",
+        ],
+        chips: [
+          { label: "OK — vis prisen", action: { kind: "next", next: "pris" } },
+          { label: "Læg ST-2 i kurv", action: { kind: "add-all", next: "basket" } },
+        ],
+      },
+      pris: {
+        bot: [
+          "ST-2 alene: 3.737,50 kr ex. moms · din margin ≈673 kr.",
+          "ST-2 + Gateway G2: 4.711,25 kr · margin ≈848 kr.",
+          "Til sammenligning: ABUS Pro er 4.890 kr alene, så ST-2 + Gateway koster mindre OG dækker mere.",
+        ],
+        chips: [
+          { label: "Læg pakken i kurv", action: { kind: "add-all", next: "basket" } },
+          { label: "Læg kun ST-2 i kurv", action: { kind: "next", next: "single-basket" } },
+        ],
+      },
+      "single-basket": {
+        bot: ["OK — kun ST-2 lagt i kurven."],
+        chips: [
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+      basket: {
+        bot: [
+          "Begge produkter i kurven. Hvis kunden booker installation samtidig kan du tilbyde det som flat-fee 1.450 kr (carl-ras Sikring-rate).",
+        ],
+        chips: [
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+    },
+  },
+
+  {
+    id: "hot-vestkysten",
+    starterLabel: "Hvad sælger bedst lige nu?",
+    userText: "Hvad sælger bedst på min region (Nordsjælland) lige nu?",
+    specialistId: "s-jens",
+    firstStep: "top",
+    steps: {
+      top: {
+        bot: [
+          "Top 3 på Nordsjælland i Q1 2026 (på tværs af alle partnere):",
+        ],
+        products: ["40013955", "40013215", "55011841"],
+        chips: [
+          { label: "Hvorfor sælger Gateway?", action: { kind: "next", next: "why-gateway" } },
+          { label: "Send mig prislisten", action: { kind: "next", next: "prisliste" } },
+        ],
+      },
+      "why-gateway": {
+        bot: [
+          "Gateway G2 toppede i Q1 fordi Q4 2025 var Smart Lock-tungt — kunderne der købte cylindre i jul vil nu have remote-kode-styring.",
+          "Up-sell pattern: hvis du har solgt en ST-2 inden for de sidste 6 måneder, er der ≈35% sandsynlighed for at samme kunde også vil tage Gateway hvis du nævner det.",
+        ],
+        chips: [
+          { label: "Send mig en up-sell-liste", action: { kind: "next", next: "upsell-liste" } },
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+      prisliste: {
+        bot: [
+          "Sendt til din email — opdateret pr. 1. maj 2026 med dine Sølv-priser indregnet.",
+        ],
+        chips: [
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+      "upsell-liste": {
+        bot: [
+          "Sendt — 14 kunder fra dine sidste 6 mdr's ST-2-salg uden Gateway. Hver er ≈970 kr ekstra omsætning hvis de konverterer.",
+        ],
+        chips: [
+          { label: "Starte forfra", action: { kind: "restart" } },
+        ],
+      },
+    },
+  },
+];
+
+
 export interface ForumReply {
   forfatter: string;
   firma: string;

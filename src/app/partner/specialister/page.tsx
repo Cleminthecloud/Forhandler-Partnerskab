@@ -1,33 +1,238 @@
 "use client";
-import { useState } from "react";
-import { SPECIALISTS, CHAT_THREADS, ChatThread } from "@/lib/data";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import Image from "next/image";
+import {
+  SPECIALISTS, CHAT_THREADS, SCENARIOS, PRODUCTS,
+  Product, Scenario, ScenarioChip, ScenarioStep,
+} from "@/lib/data";
 import { useApp } from "@/components/AppState";
 
+/* =====================================================================
+   Specialister — AI-style scripted chat. Each scenario is a deterministic
+   state machine. Bot messages reveal one bubble at a time with a typing
+   delay, product cards render inline, quick-reply chips advance the flow,
+   and "Læg i kurv" actions push to the global basket.
+   ===================================================================== */
+
+interface ChatItem {
+  id: string;
+  kind: "user" | "bot" | "products" | "tilbud-sent";
+  text?: string;
+  products?: Product[];
+  tid: string;
+}
+
+function nowTime() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
+}
+
+function productById(id: string): Product | undefined {
+  return PRODUCTS.find((p) => p.id === id);
+}
+
 export default function SpecialisterPage() {
-  const { pushToast } = useApp();
+  const { pushToast, basket, addToBasket } = useApp();
   const [activeId, setActiveId] = useState(SPECIALISTS[0].id);
   const [draft, setDraft] = useState("");
-  const active = SPECIALISTS.find((s) => s.id === activeId)!;
-  const thread: ChatThread = CHAT_THREADS[activeId] ?? { specialistId: activeId, messages: [] };
 
-  function send() {
-    if (!draft.trim()) return;
-    pushToast("Besked sendt til " + active.navn);
-    setDraft("");
+  // Scripted-scenario state
+  const [items, setItems] = useState<ChatItem[]>([]);
+  const [activeStepId, setActiveStepId] = useState<string | null>(null);
+  const [activeScenario, setActiveScenario] = useState<Scenario | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const active = SPECIALISTS.find((s) => s.id === activeId)!;
+  const seedThread = CHAT_THREADS[activeId];
+
+  /* Switching specialist — reset chat state in handler, not effect, per React 19 rules */
+  function switchSpecialist(id: string) {
+    if (id === activeId) return;
+    setActiveId(id);
+    setItems([]);
+    setActiveScenario(null);
+    setActiveStepId(null);
+    setIsTyping(false);
   }
 
-  return (
-    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
-      <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>TAL MED CARL RAS</div>
-      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Specialister</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
-        Stuck i et installationsproblem? Brug for prisliste, salgsargument, eller en demovideo?
-        Stil din Carl Ras-specialist et spørgsmål direkte. Svar inden for arbejdsdagen.
-      </p>
+  /* Auto-scroll to bottom on new content */
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [items, isTyping]);
 
-      <div className="mt-8 card !p-0 overflow-hidden grid lg:grid-cols-[280px_1fr] min-h-[520px]">
-        {/* Specialist list */}
-        <aside className="border-r border-[var(--hairline)] overflow-y-auto">
+  /* Scenarios available for the active specialist */
+  const availableScenarios = useMemo(
+    () => SCENARIOS.filter((s) => s.specialistId === activeId),
+    [activeId]
+  );
+
+  /* Run a step: reveal bot messages with typing delays, then products */
+  const runStep = useCallback(async (scenario: Scenario, stepId: string) => {
+    const step: ScenarioStep | undefined = scenario.steps[stepId];
+    if (!step) return;
+    setActiveStepId(stepId);
+
+    // Reveal each bot bubble with typing delay
+    for (let i = 0; i < step.bot.length; i++) {
+      setIsTyping(true);
+      const delay = 700 + Math.min(step.bot[i].length * 12, 1400);
+      await new Promise((r) => setTimeout(r, delay));
+      setIsTyping(false);
+      setItems((prev) => [
+        ...prev,
+        { id: `b-${Date.now()}-${i}`, kind: "bot", text: step.bot[i], tid: nowTime() },
+      ]);
+      // Small breath between bubbles
+      await new Promise((r) => setTimeout(r, 240));
+    }
+
+    // Then products (single message containing the cards)
+    if (step.products && step.products.length > 0) {
+      const prods = step.products.map(productById).filter(Boolean) as Product[];
+      setItems((prev) => [
+        ...prev,
+        { id: `p-${Date.now()}`, kind: "products", products: prods, tid: nowTime() },
+      ]);
+    }
+  }, []);
+
+  /* Start a scenario */
+  const startScenario = useCallback((scenario: Scenario) => {
+    setActiveScenario(scenario);
+    setItems([
+      { id: `u-${Date.now()}`, kind: "user", text: scenario.userText, tid: nowTime() },
+    ]);
+    setTimeout(() => runStep(scenario, scenario.firstStep), 350);
+  }, [runStep]);
+
+  /* Handle chip click */
+  const onChip = useCallback((chip: ScenarioChip) => {
+    if (!activeScenario || !activeStepId) return;
+    const currentStep = activeScenario.steps[activeStepId];
+    // Add user echo of the chip choice
+    setItems((prev) => [
+      ...prev,
+      { id: `u-${Date.now()}`, kind: "user", text: chip.label, tid: nowTime() },
+    ]);
+
+    if (chip.action.kind === "restart") {
+      setTimeout(() => {
+        setItems([]);
+        setActiveScenario(null);
+        setActiveStepId(null);
+      }, 300);
+      return;
+    }
+
+    // Capture `next` in a local — TS narrowing doesn't survive into setTimeout closures
+    const nextStepId = chip.action.next;
+
+    // For add-all: drop current step's products into basket
+    if (chip.action.kind === "add-all" && currentStep?.products) {
+      const productsToAdd = currentStep.products.map(productById).filter(Boolean) as Product[];
+      productsToAdd.forEach((p) => addToBasket(p, 25));
+      pushToast(`${productsToAdd.length} produkter (×25) lagt i kurv`, "success");
+    }
+
+    if (chip.action.kind === "send-tilbud") {
+      pushToast("Tilbud sendt til kunde + cc dig", "success");
+      setItems((prev) => [
+        ...prev,
+        { id: `t-${Date.now()}`, kind: "tilbud-sent", tid: nowTime() },
+      ]);
+    }
+
+    setTimeout(() => runStep(activeScenario, nextStepId), 280);
+  }, [activeScenario, activeStepId, runStep, addToBasket, pushToast]);
+
+  /* Handle add-to-basket from a single product card */
+  const onAddSingle = useCallback((p: Product) => {
+    addToBasket(p, 1);
+    pushToast(`${p.brand} ${p.navn.slice(0, 32)}${p.navn.length > 32 ? "…" : ""} lagt i kurv`, "success");
+  }, [addToBasket, pushToast]);
+
+  /* Free-text send — fallback when no scenario matches */
+  const send = useCallback(() => {
+    if (!draft.trim()) return;
+    setItems((prev) => [
+      ...prev,
+      { id: `u-${Date.now()}`, kind: "user", text: draft.trim(), tid: nowTime() },
+    ]);
+    setDraft("");
+    // Generic acknowledgement
+    setTimeout(async () => {
+      setIsTyping(true);
+      await new Promise((r) => setTimeout(r, 900));
+      setIsTyping(false);
+      setItems((prev) => [
+        ...prev,
+        {
+          id: `b-${Date.now()}`,
+          kind: "bot",
+          text: `Lad mig hjælpe — kan du vælge en af mine forslag herunder, eller skrive lidt mere om hvad du arbejder med? Jeg er hurtigere når jeg ved om det er Smart Lock, alarm eller adgangskontrol.`,
+          tid: nowTime(),
+        },
+      ]);
+    }, 400);
+  }, [draft]);
+
+  /* Current step (for chip rendering) */
+  const currentStep = activeScenario && activeStepId
+    ? activeScenario.steps[activeStepId]
+    : null;
+  const showChips = currentStep && !isTyping && currentStep.chips && currentStep.chips.length > 0;
+  const showStarterChips = !activeScenario && items.length === 0;
+
+  /* Basket items related to this conversation — for the right rail */
+  const basketTotalKr = useMemo(() => {
+    return basket.reduce((sum, b) => {
+      const num = parseFloat(b.pris.replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, ""));
+      return sum + (isNaN(num) ? 0 : num) * b.qty;
+    }, 0);
+  }, [basket]);
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-48px)] animate-in">
+      {/* ─── HEADER ─── */}
+      <header className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
+        <div className="flex items-baseline gap-3">
+          <div className="t-eyebrow flex items-center gap-2">
+            <span className="size-2 rounded-full bg-[var(--accent)]" />
+            <span>Tal med Carl Ras</span>
+          </div>
+          <span className="text-[var(--ink-4)]">·</span>
+          <h1 className="text-[20px] font-semibold tracking-tight text-[var(--ink)] leading-none">Specialister</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          {basket.length > 0 && (
+            <a
+              href="https://www.carl-ras.dk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary !py-1.5"
+              data-tt="Gå til carl-ras.dk kurv"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="-mt-0.5 mr-1.5 inline">
+                <path d="M3 7h18l-2 12H5z" /><path d="M9 7V4h6v3" />
+              </svg>
+              Kurv ({basket.reduce((n, b) => n + b.qty, 0)})
+            </a>
+          )}
+        </div>
+      </header>
+
+      {/* ─── 3-pane editor ─── */}
+      <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-6 grid-cols-[260px_1fr_300px] min-h-0">
+
+        {/* LEFT — Specialist list */}
+        <aside className="card !p-0 overflow-y-auto self-stretch">
+          <div className="px-4 py-3 border-b border-[var(--line-2)]">
+            <div className="t-eyebrow !text-[10px]">Mine specialister</div>
+            <div className="text-[11px] text-[var(--ink-3)] mt-1">6 tilknyttet din region</div>
+          </div>
           {SPECIALISTS.map((s) => {
             const sel = activeId === s.id;
             const t = CHAT_THREADS[s.id];
@@ -35,72 +240,362 @@ export default function SpecialisterPage() {
             return (
               <button
                 key={s.id}
-                onClick={() => setActiveId(s.id)}
-                className={"w-full text-left px-4 py-3 border-b border-[var(--divider-soft)] flex items-center gap-3 hover:bg-[var(--surface-pearl)] transition-colors " + (sel ? "bg-[var(--cr-blue-tint)]" : "")}
+                onClick={() => switchSpecialist(s.id)}
+                className={"w-full text-left px-4 py-3 border-b border-[var(--line-2)] flex items-center gap-3 hover:bg-[var(--canvas-2)] transition-colors " + (sel ? "bg-[var(--accent-tint)]" : "")}
               >
                 <div className="relative shrink-0">
                   <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[13px]" style={{ background: s.bg }}>
                     {s.initialer}
                   </div>
-                  {s.online && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-[#5B7F2C] ring-2 ring-white" />}
+                  {s.online && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-[#5DBA47] ring-2 ring-white" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-semibold text-[var(--cr-navy-deep)] truncate">{s.navn}</div>
-                  <div className="text-[11px] text-[var(--ink-muted-48)] truncate">{s.rolle} · {s.bu}</div>
-                  {last && <div className="text-[11px] text-[var(--ink-muted-48)] truncate mt-0.5">{last.text.slice(0, 40)}{last.text.length > 40 ? "…" : ""}</div>}
+                  <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{s.navn}</div>
+                  <div className="text-[11px] text-[var(--ink-3)] truncate">{s.rolle} · {s.bu}</div>
+                  {last && <div className="text-[11px] text-[var(--ink-3)] truncate mt-0.5">{last.text.slice(0, 38)}{last.text.length > 38 ? "…" : ""}</div>}
                 </div>
               </button>
             );
           })}
         </aside>
 
-        {/* Chat pane */}
-        <div className="flex flex-col">
-          <div className="px-5 py-4 border-b border-[var(--hairline)] flex items-center gap-3">
-            <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[13px]" style={{ background: active.bg }}>
-              {active.initialer}
+        {/* CENTER — Chat pane */}
+        <section className="flex flex-col rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--canvas)] overflow-hidden min-h-0">
+          {/* Chat header */}
+          <div className="px-5 py-3.5 border-b border-[var(--line-2)] flex items-center gap-3 shrink-0">
+            <div className="relative shrink-0">
+              <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[13px]" style={{ background: active.bg }}>
+                {active.initialer}
+              </div>
+              {active.online && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-[#5DBA47] ring-2 ring-white" />}
             </div>
-            <div>
-              <div className="text-[14px] font-semibold text-[var(--cr-navy-deep)]">{active.navn}</div>
-              <div className="text-[12px] text-[var(--ink-muted-48)]">
-                {active.online ? <><span className="text-[#5B7F2C]">●</span> Online · </> : <><span className="text-[#9CA3AF]">●</span> Offline · </>}
-                {active.responstid}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[14px] font-semibold text-[var(--ink)]">{active.navn}</span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[var(--accent-tint)] text-[var(--accent-press)]">AI-assisteret</span>
+              </div>
+              <div className="text-[11px] text-[var(--ink-3)]">
+                {active.online ? <><span className="text-[#5DBA47]">●</span> Online · {active.responstid}</> : <><span className="text-[var(--ink-4)]">●</span> Offline · {active.responstid}</>}
+                <span className="mx-1.5">·</span>
+                {active.rolle} · {active.bu}
               </div>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[var(--surface-pearl)]">
-            {thread.messages.length === 0 ? (
-              <div className="text-center text-[14px] text-[var(--ink-muted-48)] py-12">
-                Start samtalen med {active.navn.split(" ")[0]} ↓
+          {/* Messages */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-3 bg-[var(--canvas-2)]">
+            {/* Existing thread (history) */}
+            {items.length === 0 && seedThread && seedThread.messages.length > 0 && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] bg-[var(--canvas-2)] px-2">Tidligere</span>
+                </div>
+                {seedThread.messages.map((m, i) => (
+                  <MessageBubble key={i} from={m.from === "partner" ? "user" : "bot"} text={m.text} tid={m.tid} specialist={active} />
+                ))}
+                <div className="text-center pt-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] bg-[var(--canvas-2)] px-2">I dag</span>
+                </div>
               </div>
-            ) : thread.messages.map((m, i) => (
-              <div key={i} className={"flex " + (m.from === "partner" ? "justify-end" : "justify-start")}>
-                <div
-                  className={"max-w-[75%] rounded-2xl px-4 py-3 text-[14px] " + (m.from === "partner" ? "bg-[var(--cr-blue)] text-white rounded-br-md" : "bg-white border border-[var(--hairline)] rounded-bl-md")}
-                >
-                  <div>{m.text}</div>
-                  <div className={"text-[11px] mt-1 " + (m.from === "partner" ? "text-white/70" : "text-[var(--ink-muted-48)]")}>
-                    {m.tid}
+            )}
+
+            {/* Empty state */}
+            {items.length === 0 && (!seedThread || seedThread.messages.length === 0) && (
+              <div className="h-full grid place-items-center text-center">
+                <div className="max-w-[400px]">
+                  <div className="size-16 rounded-full mx-auto grid place-items-center text-white text-[20px] font-semibold" style={{ background: active.bg }}>
+                    {active.initialer}
+                  </div>
+                  <div className="mt-4 text-[16px] font-semibold text-[var(--ink)]">Hej — jeg er {active.navn.split(" ")[0]}.</div>
+                  <div className="mt-1.5 text-[13px] text-[var(--ink-3)] leading-[1.5]">
+                    {active.rolle} hos Carl Ras{active.bu ? " · " + active.bu : ""}. Jeg svarer på spec, finder produkter, og bygger pakker — alt sammen direkte i din kurv hvis du vil.
                   </div>
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Scripted scenario messages */}
+            {items.map((it) => {
+              if (it.kind === "user") return <MessageBubble key={it.id} from="user" text={it.text!} tid={it.tid} specialist={active} />;
+              if (it.kind === "bot") return <MessageBubble key={it.id} from="bot" text={it.text!} tid={it.tid} specialist={active} />;
+              if (it.kind === "tilbud-sent") return <TilbudSentNote key={it.id} tid={it.tid} />;
+              if (it.kind === "products" && it.products) return (
+                <ProductCardRow key={it.id} products={it.products} onAdd={onAddSingle} />
+              );
+              return null;
+            })}
+
+            {/* Typing indicator */}
+            {isTyping && <TypingIndicator specialist={active} />}
+
+            {/* Chips (current step) */}
+            {showChips && (
+              <div className="flex flex-wrap gap-2 pt-1" style={{ animation: "fadeIn 240ms ease-out both" }}>
+                {currentStep!.chips!.map((c, i) => (
+                  <button
+                    key={i}
+                    onClick={() => onChip(c)}
+                    className="text-[12.5px] font-medium px-3.5 py-2 rounded-full bg-white border border-[var(--line)] hover:border-[var(--accent)] hover:bg-[var(--accent-tint)] hover:text-[var(--accent-press)] text-[var(--ink-2)] transition-colors"
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="border-t border-[var(--hairline)] p-3 flex items-center gap-2">
-            <input
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") send(); }}
-              placeholder={`Spørg ${active.navn.split(" ")[0]} om noget…`}
-              className="flex-1 rounded-full px-4 py-2.5 bg-[var(--surface-pearl)] text-[14px] outline-none focus:ring-2 focus:ring-[var(--cr-blue)] border border-transparent"
-            />
-            <button onClick={send} className="pill pill-primary">Send</button>
+          {/* Starter chips + input */}
+          <div className="border-t border-[var(--line-2)] bg-[var(--canvas)] shrink-0">
+            {/* Starter chips — when no conversation yet */}
+            {showStarterChips && availableScenarios.length > 0 && (
+              <div className="px-4 pt-3 pb-1 flex flex-wrap gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] w-full mb-1">Foreslag</span>
+                {availableScenarios.map((sc) => (
+                  <button
+                    key={sc.id}
+                    onClick={() => startScenario(sc)}
+                    className="text-[12.5px] font-medium px-3 py-1.5 rounded-full bg-[var(--canvas-2)] hover:bg-[var(--accent-tint)] hover:text-[var(--accent-press)] text-[var(--ink-2)] transition-colors border border-transparent hover:border-[var(--accent)]"
+                  >
+                    ✨ {sc.starterLabel}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Free text input */}
+            <div className="p-3 flex items-center gap-2">
+              <input
+                type="text"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") send(); }}
+                placeholder={`Spørg ${active.navn.split(" ")[0]} om et produkt, en pris, en case…`}
+                className="flex-1 rounded-full px-4 py-2.5 bg-[var(--canvas-2)] text-[14px] outline-none focus:bg-white focus:ring-2 focus:ring-[var(--accent)] border border-transparent transition-all"
+              />
+              <button onClick={send} disabled={!draft.trim()} className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                Send
+              </button>
+            </div>
           </div>
+        </section>
+
+        {/* RIGHT — Session summary */}
+        <aside className="flex flex-col gap-3 self-stretch overflow-y-auto">
+          <div className="card !p-4">
+            <div className="t-eyebrow mb-3">I denne samtale</div>
+            <SessionSummary items={items} />
+          </div>
+
+          <div className="card !p-4">
+            <div className="flex items-baseline justify-between mb-3">
+              <div className="t-eyebrow !text-[10px]">Kurv</div>
+              {basket.length > 0 && (
+                <span className="text-[11px] text-[var(--ink-3)] tabular-nums">
+                  {basket.reduce((n, b) => n + b.qty, 0)} stk
+                </span>
+              )}
+            </div>
+            {basket.length === 0 ? (
+              <div className="text-[12px] text-[var(--ink-3)] leading-[1.5]">
+                Når specialisten foreslår produkter kan du lægge dem direkte i kurv herinde.
+              </div>
+            ) : (
+              <>
+                <ul className="space-y-2.5">
+                  {basket.slice(0, 4).map((b) => (
+                    <li key={b.productId} className="flex items-center gap-2.5">
+                      <div className="size-9 rounded-md bg-[var(--canvas-2)] grid place-items-center text-[14px] shrink-0 overflow-hidden">
+                        {b.image ? (
+                          <Image src={b.image} alt={b.navn} width={36} height={36} className="object-cover size-9" />
+                        ) : (
+                          <span>{b.emoji}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12px] font-semibold text-[var(--ink)] truncate">{b.brand}</div>
+                        <div className="text-[11px] text-[var(--ink-3)] truncate">×{b.qty} · {b.pris}</div>
+                      </div>
+                    </li>
+                  ))}
+                  {basket.length > 4 && (
+                    <li className="text-[11px] text-[var(--ink-3)]">+{basket.length - 4} til</li>
+                  )}
+                </ul>
+                <div className="mt-4 pt-3 border-t border-[var(--line-2)]">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <span className="text-[11px] text-[var(--ink-3)]">Total ex. moms</span>
+                    <span className="text-[15px] font-semibold text-[var(--ink)] tabular-nums">
+                      {basketTotalKr.toLocaleString("da-DK", { maximumFractionDigits: 0 })} kr
+                    </span>
+                  </div>
+                  <a
+                    href="https://www.carl-ras.dk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary w-full !py-2 text-center"
+                  >
+                    Gå til carl-ras.dk
+                  </a>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="card !p-4 bg-[var(--canvas-2)] !border-0">
+            <div className="t-eyebrow !text-[10px]">Tip</div>
+            <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
+              Specialisten kan også sende et færdigt tilbud til en kunde — med dit logo og pakkepris. Spørg fx <em className="text-[var(--ink)] not-italic font-medium">&quot;Send tilbud til kunde&quot;</em>.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   Sub-components
+   ===================================================================== */
+
+function MessageBubble({ from, text, tid, specialist }: { from: "user" | "bot"; text: string; tid: string; specialist: { navn: string; bg: string; initialer: string } }) {
+  const isUser = from === "user";
+  return (
+    <div className={"flex gap-2.5 " + (isUser ? "justify-end" : "justify-start")} style={{ animation: "slideUpFade 280ms cubic-bezier(0.22,1,0.36,1) both" }}>
+      {!isUser && (
+        <div className="size-7 rounded-full grid place-items-center text-white font-semibold text-[10px] shrink-0 mt-1" style={{ background: specialist.bg }}>
+          {specialist.initialer}
+        </div>
+      )}
+      <div className={"max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-[1.5] " + (isUser
+        ? "bg-[var(--accent)] text-white rounded-br-md"
+        : "bg-white border border-[var(--line-2)] rounded-bl-md text-[var(--ink)]"
+      )}>
+        <div>{text}</div>
+        <div className={"text-[10.5px] mt-1 " + (isUser ? "text-white/70" : "text-[var(--ink-3)]")}>
+          {tid}
         </div>
       </div>
+    </div>
+  );
+}
+
+function TypingIndicator({ specialist }: { specialist: { bg: string; initialer: string } }) {
+  return (
+    <div className="flex gap-2.5" style={{ animation: "fadeIn 200ms ease-out both" }}>
+      <div className="size-7 rounded-full grid place-items-center text-white font-semibold text-[10px] shrink-0 mt-1" style={{ background: specialist.bg }}>
+        {specialist.initialer}
+      </div>
+      <div className="bg-white border border-[var(--line-2)] rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-1.5">
+        <span className="size-1.5 rounded-full bg-[var(--ink-3)]" style={{ animation: "typing 1200ms ease-in-out infinite" }} />
+        <span className="size-1.5 rounded-full bg-[var(--ink-3)]" style={{ animation: "typing 1200ms ease-in-out 200ms infinite" }} />
+        <span className="size-1.5 rounded-full bg-[var(--ink-3)]" style={{ animation: "typing 1200ms ease-in-out 400ms infinite" }} />
+      </div>
+    </div>
+  );
+}
+
+function TilbudSentNote({ tid }: { tid: string }) {
+  return (
+    <div className="flex justify-center my-1" style={{ animation: "slideUpFade 280ms cubic-bezier(0.22,1,0.36,1) both" }}>
+      <div className="inline-flex items-center gap-2 text-[11.5px] text-[var(--ink-3)] bg-[var(--canvas)] border border-[var(--line-2)] rounded-full px-3 py-1.5">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5DBA47" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4z" />
+        </svg>
+        <span><strong className="text-[var(--ink-2)]">Tilbud sendt til kunde</strong> · {tid}</span>
+      </div>
+    </div>
+  );
+}
+
+function ProductCardRow({ products, onAdd }: { products: Product[]; onAdd: (p: Product) => void }) {
+  return (
+    <div className="flex flex-col gap-2.5 pl-9" style={{ animation: "slideUpFade 320ms cubic-bezier(0.22,1,0.36,1) both" }}>
+      {products.map((p) => <ProductCard key={p.id} product={p} onAdd={onAdd} />)}
+    </div>
+  );
+}
+
+function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product) => void }) {
+  return (
+    <div className="bg-white rounded-[var(--r-md)] border border-[var(--line-2)] p-3 flex items-center gap-3 max-w-[78%] hover:border-[var(--accent)] hover:shadow-[var(--shadow-1)] transition-all">
+      <div className="size-14 rounded-[var(--r-sm)] bg-[var(--canvas-2)] grid place-items-center text-[24px] shrink-0 overflow-hidden">
+        {product.image ? (
+          <Image src={product.image} alt={product.navn} width={56} height={56} className="object-cover size-14" />
+        ) : (
+          <span>{product.emoji}</span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{product.brand}</span>
+          <span className="text-[9.5px] text-[var(--ink-4)] tabular-nums">#{product.id}</span>
+        </div>
+        <div className="text-[13px] font-semibold text-[var(--ink)] mt-0.5 leading-[1.3] line-clamp-2">{product.navn}</div>
+        <div className="text-[12px] mt-1 flex items-baseline gap-2">
+          <span className="font-semibold text-[var(--ink)] tabular-nums">{product.pris}</span>
+          {product.margin && (
+            <span className="text-[10.5px] text-[var(--ink-3)]">· {product.margin}</span>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-col gap-1.5 shrink-0">
+        <button
+          onClick={() => onAdd(product)}
+          className="text-[11px] font-semibold px-3 py-1.5 rounded-full bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+        >
+          + Læg i kurv
+        </button>
+        <a
+          href={product.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[11px] font-medium px-3 py-1.5 rounded-full text-[var(--ink-2)] hover:text-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap text-center"
+        >
+          Se PDP ↗
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function SessionSummary({ items }: { items: ChatItem[] }) {
+  const productsMentioned = items
+    .filter((i) => i.kind === "products" && i.products)
+    .flatMap((i) => i.products!)
+    .reduce((acc, p) => acc.set(p.id, p), new Map<string, Product>());
+  const userQuestions = items.filter((i) => i.kind === "user").length;
+
+  if (items.length === 0) {
+    return (
+      <div className="text-[12px] text-[var(--ink-3)] leading-[1.5]">
+        Vælg et af de foreslåede emner nedenfor, eller stil et spørgsmål. Jeg holder styr på produkter og handlinger her.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between text-[11.5px]">
+        <span className="text-[var(--ink-3)]">Spørgsmål stillet</span>
+        <span className="font-semibold text-[var(--ink)] tabular-nums">{userQuestions}</span>
+      </div>
+      <div className="flex items-center justify-between text-[11.5px]">
+        <span className="text-[var(--ink-3)]">Produkter foreslået</span>
+        <span className="font-semibold text-[var(--ink)] tabular-nums">{productsMentioned.size}</span>
+      </div>
+      {productsMentioned.size > 0 && (
+        <div className="pt-3 border-t border-[var(--line-2)]">
+          <div className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">Anbefalede</div>
+          <ul className="space-y-1.5">
+            {[...productsMentioned.values()].map((p) => (
+              <li key={p.id} className="flex items-center gap-2 text-[11.5px]">
+                <span className="text-[14px]">{p.emoji}</span>
+                <span className="text-[var(--ink-2)] truncate">{p.brand} {p.navn.slice(0, 20)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
