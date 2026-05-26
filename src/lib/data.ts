@@ -332,3 +332,96 @@ export const ADMIN_STATS = {
   omsætningForrigeMåned: 412000,
   aktiveTema: "sommer-sikring" as ThemeId,
 };
+
+/* ─────────────────────────── Carl Ras products (real PDPs) ─────────────────────────── */
+export interface Product {
+  id: string;
+  brand: string;
+  navn: string;
+  pris: string;
+  url: string;
+  kategori: "Smart Lock" | "Adgangskontrol" | "Alarm" | "Brand & røg" | "Tilbehør";
+  margin?: string;
+  emoji: string;
+}
+
+export const PRODUCTS: Product[] = [
+  // Smart locks
+  { id: "40013215", brand: "STROXX", navn: "Smart Lock ST-2 sort XLOCK · skandinavisk lås", pris: "3.737,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-sort-xlock-t-skandinavisk-las/?product=40013215/40013215", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐" },
+  { id: "40013216", brand: "STROXX", navn: "Smart Lock ST-2 RS XLOCK · europæisk lås", pris: "3.612,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-rs-xlock-t-europaeisk-las/?product=40013216/40013216", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐" },
+  { id: "40013955", brand: "STROXX", navn: "Gateway Smart Lock G2 hvid · XLOCK WIFI",     pris: "973,75 kr",   url: "https://www.carl-ras.dk/gateway-smart-lock-g2-hvid-xlock-wifi/?product=40013955/40013955", kategori: "Adgangskontrol", margin: "≈22% partner", emoji: "📡" },
+
+  // Alarm / smoke / motion
+  { id: "55011840", brand: "Housegard", navn: "Røgalarm Pebble 10 års SA701 · optisk",    pris: "213,75 kr",   url: "https://www.carl-ras.dk/roegalarm-pebble-10ars-sa701-optisk/?product=55011840/55011840", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️" },
+  { id: "55011841", brand: "Housegard", navn: "Røgalarm Luma trådløs seriekoblet · 2-pak", pris: "561,25 kr",   url: "https://www.carl-ras.dk/roegalarm-luma-10ars-tradlos-seriekoblet-a-2-stk/?product=55011841/55011841", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️" },
+  { id: "41008815", brand: "Dormakaba", navn: "Normalarm Sølv 0-225 mm t/ED100 og ED250", pris: "1.948,75 kr", url: "https://www.carl-ras.dk/normalarm-soelv-0-225-mm-t-ed100-og-ed250-ny/?product=41008815/41008815", kategori: "Alarm", margin: "≈20% partner", emoji: "🚨" },
+];
+
+/** Map: lead.behov substring → suggested product ids in order of relevance */
+export const PRODUCT_RECS_BY_BEHOV: { match: RegExp; products: string[]; træning?: string }[] = [
+  { match: /smart\s*lock|nøgle|kode/i,           products: ["40013215", "40013955", "55011840"], træning: "cert-abus-smart" },
+  { match: /alarm.*sensor|udvendig/i,            products: ["55011841", "41008815", "55011840"], træning: "cert-cr-sikring-2" },
+  { match: /adgangskontrol|udlej/i,              products: ["40013955", "40013216", "40013215"], træning: "cert-yale" },
+  { match: /alarm|sirene/i,                      products: ["55011840", "55011841", "41008815"], træning: "cert-cr-sikring-2" },
+  { match: /låse|cylinder|udskift/i,             products: ["40013215", "40013216"],             træning: "cert-cr-sikring-1" },
+];
+
+export function productsForBehov(behov: string): { products: Product[]; træningId?: string } {
+  for (const r of PRODUCT_RECS_BY_BEHOV) {
+    if (r.match.test(behov)) {
+      return {
+        products: r.products.map((id) => PRODUCTS.find((p) => p.id === id)!).filter(Boolean),
+        træningId: r.træning,
+      };
+    }
+  }
+  return { products: PRODUCTS.slice(0, 3) };
+}
+
+/* ─────────────────────────── Event detail content ─────────────────────────── */
+export const EVENT_DETAIL: Record<string, { hero: string; agenda: string[]; medbringer: string[]; faktura: string }> = {
+  "e-001": {
+    hero: "linear-gradient(135deg, #1158A3 0%, #002D59 100%)",
+    agenda: [
+      "13:00 · Velkomst + STROXX Smart Lock ST-2 hands-on",
+      "13:45 · ABUS Smart Lock Pro — installation case-study",
+      "14:30 · Pause + netværk",
+      "15:00 · Yale Doorman L3 — udlejningssegment",
+      "15:30 · Q&A + ny prisliste + medie-pakke gennemgang",
+    ],
+    medbringer: ["Tablet eller laptop", "Eksisterende kundespørgsmål", "Sultne hjerner"],
+    faktura: "Gratis for Sølv- og Guld-partnere. Bronze: 499 kr inkl. forplejning.",
+  },
+  "e-002": {
+    hero: "linear-gradient(135deg, #002D59 0%, #001A33 100%)",
+    agenda: [
+      "16:00 · Status på Sommerhus-pilot Nordsjælland",
+      "16:30 · Q2 leads-flow gennemgang pr. partner",
+      "17:00 · Højsæson 2026 — hvad forventer vi",
+      "17:30 · Middag på Hotel Marienlyst",
+    ],
+    medbringer: ["Egen bil eller del transport"],
+    faktura: "Gratis. Middag dækket af Carl Ras.",
+  },
+  "e-003": {
+    hero: "linear-gradient(135deg, #1158A3 0%, #5B7F2C 100%)",
+    agenda: [
+      "09:00 · ABUS Niveau 2 — pensum",
+      "10:30 · Hands-on: avanceret cylinder-konfiguration",
+      "12:00 · Frokost",
+      "13:00 · Salgsteknik mod udlejnings-segment",
+      "15:00 · Eksamen + certificering",
+    ],
+    medbringer: ["ABUS Niveau 1 certifikat", "Eget værktøjssæt"],
+    faktura: "Inkluderet i Sølv-partnerskab (3.500 kr værdi)",
+  },
+};
+
+export function getEventDetail(eventId: string) {
+  return EVENT_DETAIL[eventId] ?? {
+    hero: "linear-gradient(135deg, #1158A3 0%, #002D59 100%)",
+    agenda: ["Detaljeret program kommer snart.", "Tilmeld for at modtage opdateringer."],
+    medbringer: ["Tablet eller laptop"],
+    faktura: "Gratis for Sølv- og Guld-partnere.",
+  };
+}

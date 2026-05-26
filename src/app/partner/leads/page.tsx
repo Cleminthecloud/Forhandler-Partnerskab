@@ -1,8 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
-import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
-import { CURRENT_PARTNER, Lead, LeadStatus } from "@/lib/data";
+import { CURRENT_PARTNER, Lead, LeadStatus, productsForBehov, CERTS_AVAILABLE, SPECIALISTS } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 
 const STATUSES: LeadStatus[] = ["Ny", "Kontaktet", "Vundet", "Tabt"];
@@ -15,7 +14,6 @@ const STATUS_COLOR: Record<LeadStatus, { bg: string; ink: string; dot: string }>
 };
 
 export default function LeadsPage() {
-  const { theme } = useTheme();
   const { leads, updateLeadStatus, pushToast } = useApp();
   const [activeStatus, setActiveStatus] = useState<LeadStatus | "Alle">("Alle");
   const [openLead, setOpenLead] = useState<Lead | null>(null);
@@ -134,6 +132,11 @@ export default function LeadsPage() {
               <Section label="Modtaget">{new Date(openLead.dato).toLocaleDateString("da-DK", { day: "numeric", month: "long", year: "numeric" })}</Section>
             </div>
 
+            {/* Won-project upsell */}
+            {openLead.status === "Vundet" && (
+              <WonProjectUpsell behov={openLead.behov} />
+            )}
+
             <div className="p-6 border-t border-[var(--hairline)] bg-[var(--surface-pearl)]">
               <div className="text-[12px] font-semibold mb-3 text-[var(--ink-muted-80)]">Opdatér status</div>
               <div className="grid grid-cols-2 gap-2">
@@ -192,6 +195,118 @@ function Section({ label, children }: { label: string; children: React.ReactNode
     <div>
       <div className="text-[11px] uppercase tracking-wider text-[var(--ink-muted-48)] font-semibold mb-1.5">{label}</div>
       <div className="text-[14px] text-[var(--cr-navy-deep)]">{children}</div>
+    </div>
+  );
+}
+
+function WonProjectUpsell({ behov }: { behov: string }) {
+  const { products, træningId } = productsForBehov(behov);
+  const træning = træningId ? CERTS_AVAILABLE.find((c) => c.cert.id === træningId)?.cert : undefined;
+  const specialist = SPECIALISTS[0]; // Jens Pedersen — Sikring
+
+  return (
+    <div className="border-t-8 border-[#EAF1DC] mt-2">
+      <div className="px-6 pt-5 pb-2 bg-[var(--canvas)]">
+        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#EAF1DC] text-[#2D4A0F]">
+          <svg width="12" height="12" viewBox="0 0 14 14"><path d="M2 7l3 3 7-7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <span className="text-[11px] font-semibold uppercase tracking-wider">Vundet — næste skridt</span>
+        </div>
+        <h3 className="text-[18px] font-semibold text-[var(--ink)] mt-3">Nu kommer arbejdet</h3>
+        <p className="text-[13px] text-[var(--ink-2)] mt-1 leading-[1.5]">
+          Her er hvad du skal bruge til opgaven. Køb varerne hos Carl Ras til partner-priser og forbered dig på selve installationen.
+        </p>
+      </div>
+
+      {/* Products from Carl Ras */}
+      <div className="px-6 py-5 bg-[var(--canvas)]">
+        <div className="flex items-baseline justify-between mb-3">
+          <h4 className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+            Anbefalede produkter
+          </h4>
+          <a
+            href={`https://www.carl-ras.dk/search/?sortType=0&search=${encodeURIComponent(behov)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[12px] font-semibold text-[var(--accent)] hover:underline"
+          >
+            Se alle på carl-ras.dk →
+          </a>
+        </div>
+        <ul className="space-y-2.5">
+          {products.map((p) => (
+            <li key={p.id}>
+              <a
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors group"
+              >
+                <div className="size-12 rounded-lg bg-[var(--canvas-2)] grid place-items-center text-2xl shrink-0">
+                  {p.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                  <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{p.navn}</div>
+                  <div className="text-[11px] text-[var(--ink-3)] mt-0.5">Varenr {p.id} {p.margin ? `· ${p.margin}` : ""}</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-[13px] font-semibold text-[var(--ink)] tabular-nums">{p.pris}</div>
+                  <div className="text-[11px] text-[var(--accent)] mt-0.5">Åbn PDP ↗</div>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Training */}
+      {træning && (
+        <div className="px-6 py-5 bg-[var(--canvas)] border-t border-[var(--line-2)]">
+          <h4 className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-3">
+            Træning til opgaven
+          </h4>
+          <a
+            href="/partner/certificering"
+            className="flex items-center gap-3 p-3 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors group"
+          >
+            <div className="size-12 rounded-lg bg-[var(--cr-blue-tint)] grid place-items-center text-2xl shrink-0">
+              {træning.ikon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{træning.udsteder}</div>
+              <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{træning.titel}</div>
+              <div className="text-[11px] text-[var(--ink-3)] mt-0.5">{træning.moduler} moduler · {træning.varighed}</div>
+            </div>
+            <div className="text-[12px] font-semibold text-[var(--accent)] shrink-0">Start →</div>
+          </a>
+        </div>
+      )}
+
+      {/* Specialist */}
+      <div className="px-6 py-5 bg-[var(--canvas)] border-t border-[var(--line-2)]">
+        <h4 className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-3">
+          Brug for en specialist?
+        </h4>
+        <a
+          href="/partner/specialister"
+          className="flex items-center gap-3 p-3 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors group"
+        >
+          <div
+            className="size-12 rounded-full grid place-items-center text-white font-semibold text-[13px] shrink-0"
+            style={{ background: specialist.bg }}
+          >
+            {specialist.initialer}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{specialist.navn}</div>
+            <div className="text-[11px] text-[var(--ink-3)]">
+              {specialist.rolle} · {specialist.bu}
+              {specialist.online && <span className="ml-2 text-[#2D4A0F]">● Online</span>}
+            </div>
+          </div>
+          <div className="text-[12px] font-semibold text-[var(--accent)] shrink-0">Skriv →</div>
+        </a>
+      </div>
     </div>
   );
 }

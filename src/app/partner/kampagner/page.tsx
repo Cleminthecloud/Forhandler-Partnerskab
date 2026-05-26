@@ -3,10 +3,11 @@ import { useState, useMemo } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
 import { CAMPAIGNS, FORMATS, CURRENT_PARTNER, FormatKind, Campaign } from "@/lib/data";
-import { CampaignPreview } from "@/components/CampaignPreview";
+import { CampaignPreview, DEFAULT_IMAGES } from "@/components/CampaignPreview";
+import { THEMES } from "@/lib/themes";
 
 export default function KampagnerPage() {
-  const { theme } = useTheme();
+  const { theme, setThemeId } = useTheme();
   const { pushToast } = useApp();
 
   const themed = useMemo(() => CAMPAIGNS.filter((c) => c.tema === theme.id), [theme.id]);
@@ -24,14 +25,9 @@ export default function KampagnerPage() {
   const [confirm, setConfirm] = useState<null | { kind: "print" | "digital"; label: string }>(null);
   const [showLogoSheet, setShowLogoSheet] = useState(false);
 
-  // Image variants — placeholders until real images land.
-  // Each is a styled gradient + glyph that hints at the campaign mood.
-  const variants = [
-    { id: 0, label: "Lifestyle", glyph: "🏖️", grad: "linear-gradient(135deg, #F8C77A 0%, #E89A4A 100%)" },
-    { id: 1, label: "Atmosfære", glyph: "🌅", grad: "linear-gradient(160deg, #4A6B8A 0%, #1F3D5C 100%)" },
-    { id: 2, label: "Produkt",   glyph: "🔐", grad: "linear-gradient(135deg, #E0D4C2 0%, #B89A78 100%)" },
-    { id: 3, label: "Studio",    glyph: "📱", grad: "linear-gradient(180deg, #2A2A2C 0%, #0E0E10 100%)" },
-  ];
+  const variants = DEFAULT_IMAGES;
+  const currentImage = variants[imageVariant];
+  const isUnpublished = activeCampaign?.tema !== theme.id;
 
   const currentCategoryFormats = activeCampaign
     ? activeCampaign.formater.filter((f) => f.startsWith(category + "-"))
@@ -98,23 +94,41 @@ export default function KampagnerPage() {
 
             {other.length > 0 && (
               <>
-                <div className="px-2 pt-3 mt-2 border-t border-[var(--line-2)] mb-1">
-                  <span className="t-eyebrow !text-[10px] !text-[var(--ink-3)]">Kommer senere</span>
+                <div className="px-2 pt-3 mt-2 border-t border-[var(--line-2)] mb-1 flex items-center justify-between">
+                  <span className="t-eyebrow !text-[10px] !text-[var(--ink-3)]">Andre temaer</span>
+                  <span className="text-[10px] text-[var(--ink-3)]">Klik for preview</span>
                 </div>
-                <ul className="opacity-55">
-                  {other.slice(0, 3).map((c) => (
-                    <li key={c.id}>
-                      <div className="flex items-start gap-3 p-2.5 rounded-[var(--r-md)]">
-                        <div className="size-9 rounded-lg grid place-items-center text-xl shrink-0 bg-[var(--canvas-2)]">
-                          {c.heroEmoji}
-                        </div>
-                        <div className="flex-1 min-w-0 pt-0.5">
-                          <div className="text-[13px] font-medium text-[var(--ink)] leading-tight truncate">{c.titel}</div>
-                          <div className="text-[11px] text-[var(--ink-3)] mt-0.5">{c.status}</div>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
+                <ul>
+                  {other.slice(0, 4).map((c) => {
+                    const otherTheme = THEMES.find((t) => t.id === c.tema);
+                    const isActive = activeCampaign?.id === c.id;
+                    return (
+                      <li key={c.id}>
+                        <button
+                          onClick={() => {
+                            // switch the global theme so all surfaces follow
+                            if (c.tema !== theme.id && otherTheme) setThemeId(otherTheme.id);
+                            setActiveCampaignId(c.id);
+                            setFormat(c.formater[0]);
+                            setCategory(c.formater[0].startsWith("print") ? "print" : "digital");
+                          }}
+                          className={"w-full text-left flex items-start gap-3 p-2.5 rounded-[var(--r-md)] transition-colors " +
+                            (isActive ? "bg-[var(--canvas-2)]" : "hover:bg-[var(--canvas-2)]")}
+                        >
+                          <div className="size-9 rounded-lg grid place-items-center text-xl shrink-0" style={{ background: otherTheme?.accentSoft ?? "var(--canvas-2)" }}>
+                            {c.heroEmoji}
+                          </div>
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <div className="text-[13px] font-medium text-[var(--ink)] leading-tight truncate">{c.titel}</div>
+                            <div className="text-[11px] text-[var(--ink-3)] mt-0.5 flex items-center gap-1.5">
+                              <span className="size-1.5 rounded-full" style={{ background: otherTheme?.accent }} />
+                              <span>{otherTheme?.label}</span>
+                            </div>
+                          </div>
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </>
             )}
@@ -127,13 +141,13 @@ export default function KampagnerPage() {
               <span className="text-[11px] text-[var(--ink-3)]">{variants.length} varianter</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
-              {variants.map((v) => (
+              {variants.map((v, idx) => (
                 <button
                   key={v.id}
-                  onClick={() => setImageVariant(v.id)}
+                  onClick={() => setImageVariant(idx)}
                   className={"aspect-[3/4] rounded-[var(--r-md)] relative overflow-hidden text-[22px] grid place-items-center transition-all " +
-                    (imageVariant === v.id ? "ring-2 ring-[var(--accent)] ring-offset-2" : "ring-1 ring-[var(--line-2)] hover:ring-[var(--accent)] opacity-90 hover:opacity-100")}
-                  style={{ background: v.grad }}
+                    (imageVariant === idx ? "ring-2 ring-[var(--accent)] ring-offset-2" : "ring-1 ring-[var(--line-2)] hover:ring-[var(--accent)] opacity-90 hover:opacity-100")}
+                  style={{ background: v.bg }}
                   aria-label={v.label}
                 >
                   <span style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.25))" }}>{v.glyph}</span>
@@ -194,13 +208,20 @@ export default function KampagnerPage() {
             </div>
           </div>
 
-          {/* Big preview */}
+          {/* Big preview — neutral canvas, real ad is the visual */}
           {activeCampaign && (
-            <div className="flex-1 grid place-items-center p-8 lg:p-12 relative" style={{ background: theme.accentSoft + "33" }}>
-              {/* Variant background hint */}
-              <div className="absolute inset-0 opacity-10" style={{ background: variants[imageVariant].grad }} aria-hidden="true" />
-              <div className="relative max-h-full w-auto grid place-items-center" style={{ maxHeight: 540 }}>
-                <CampaignPreview campaign={activeCampaign} partner={CURRENT_PARTNER} theme={theme} format={format} />
+            <div className="flex-1 grid place-items-center p-8 lg:p-12 relative bg-[var(--canvas-2)]">
+              {isUnpublished && (
+                <div className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--ink)] text-white text-[11px] font-semibold">
+                  <span className="size-1.5 rounded-full bg-[var(--theme-accent)]" />
+                  Preview · ikke publiceret endnu
+                </div>
+              )}
+              <div className="relative max-h-full grid place-items-center">
+                <CampaignPreview campaign={activeCampaign} partner={CURRENT_PARTNER} theme={theme} format={format} image={currentImage} />
+              </div>
+              <div className="absolute bottom-3 right-4 text-[10px] text-[var(--ink-3)]">
+                {FORMATS.find((f) => f.id === format)?.label} · {FORMATS.find((f) => f.id === format)?.dim}
               </div>
             </div>
           )}
