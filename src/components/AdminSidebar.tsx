@@ -16,14 +16,16 @@ const NAV = [
 export function AdminSidebar() {
   const pathname = usePathname();
   return (
-    <aside className="hidden lg:flex flex-col w-[280px] shrink-0 border-r border-[var(--hairline)] bg-white">
-      <div className="p-5 border-b border-[var(--hairline)]">
-        <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>CARL RAS · LEADERSHIP</div>
-        <div className="mt-2 text-[15px] font-semibold text-[var(--cr-navy-deep)]">Forhandler Partnerskab</div>
-        <div className="text-[12px] text-[var(--ink-muted-48)] mt-0.5">Drift &amp; vækst</div>
+    <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-r border-[var(--hairline)] bg-[var(--canvas)]">
+      <div className="p-5">
+        <div className="t-tagline">Carl Ras · Leadership</div>
+        <div className="mt-2 text-[15px] font-semibold text-[var(--ink)]">Forhandler Partnerskab</div>
+        <div className="text-[12px] text-[var(--ink-60)] mt-0.5">Drift &amp; vækst</div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-2">
+      <div className="h-px bg-[var(--divider)] mx-5" />
+
+      <nav className="flex-1 overflow-y-auto px-3 py-3">
         {NAV.map((item) => {
           const active = item.href === "/admin" ? pathname === item.href : pathname?.startsWith(item.href);
           return (
@@ -31,13 +33,13 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-colors " +
+                "flex items-center gap-3 px-3 py-2 rounded-[11px] text-[14px] font-medium transition-colors mb-0.5 " +
                 (active
-                  ? "bg-[var(--cr-blue-tint)] text-[var(--cr-navy-deep)] font-semibold"
-                  : "text-[var(--ink-muted-80)] hover:bg-[var(--surface-pearl)]")
+                  ? "bg-[var(--cr-blue-tint)] text-[var(--cr-navy)]"
+                  : "text-[var(--ink-80)] hover:bg-[var(--surface-pearl)]")
               }
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
                 <path d={item.icon} />
               </svg>
               {item.label}
@@ -46,7 +48,7 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      <div className="p-3 border-t border-[var(--hairline)] text-[11px] text-[var(--ink-muted-48)]">
+      <div className="px-5 py-3 border-t border-[var(--divider)] text-[11px] text-[var(--ink-60)]">
         Demo · alle ændringer er lokale.
       </div>
     </aside>
