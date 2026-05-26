@@ -1,12 +1,27 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
-import { CURRENT_PARTNER, CAMPAIGNS, EVENTS, BLOG_POSTS, CHAT_THREADS, SPECIALISTS, PARTNERS, FORUM_THREADS } from "@/lib/data";
+import {
+  CURRENT_PARTNER,
+  CAMPAIGNS,
+  EVENTS,
+  BLOG_POSTS,
+  CHAT_THREADS,
+  SPECIALISTS,
+  PARTNERS,
+  FORUM_THREADS,
+  PARTNER_PERFORMANCE,
+} from "@/lib/data";
+import { Sparkline, AreaChart, Radial, BarMini } from "@/components/Charts";
+
+type DateRange = "uge" | "maaned" | "kvartal";
 
 export default function PartnerDashboard() {
   const { theme } = useTheme();
   const { leads } = useApp();
+  const [range, setRange] = useState<DateRange>("uge");
 
   const myLeads = leads.filter((l) => l.partnerId === CURRENT_PARTNER.id);
   const newLeads = myLeads.filter((l) => l.status === "Ny");
@@ -24,146 +39,234 @@ export default function PartnerDashboard() {
   const latestChatSpec = SPECIALISTS.find((s) => s.id === latestThread.specialistId)!;
   const latestChatMsg = latestThread.messages[latestThread.messages.length - 1];
 
-  // "Din region" data
-  const myRegionPartners = PARTNERS.filter((p) => p.region === CURRENT_PARTNER.region && p.id !== CURRENT_PARTNER.id);
+  const myRegionPartners = PARTNERS.filter(
+    (p) => p.region === CURRENT_PARTNER.region && p.id !== CURRENT_PARTNER.id
+  );
   const myRegionEvent = upcoming.find((e) => e.region === CURRENT_PARTNER.region);
   const topThread = [...FORUM_THREADS].sort((a, b) => b.likes - a.likes)[0];
 
+  const pointsPct = Math.round(
+    (CURRENT_PARTNER.points / CURRENT_PARTNER.pointsTilNæste) * 100
+  );
+
   return (
-    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
-      {/* ─── HEADER ───────────────────────────────────────────────── */}
-      <header className="mb-10 flex flex-wrap items-end justify-between gap-6">
+    <div className="px-6 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+      {/* ─── HEADER ─── */}
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
         <div>
           <div className="t-eyebrow flex items-center gap-2">
             <span className="theme-dot" style={{ background: theme.accent }} />
             <span>{theme.label} · {theme.season}</span>
           </div>
-          <h1 className="t-display mt-3">
+          <h1 className="t-display mt-2">
             God morgen, {CURRENT_PARTNER.ejer.split(" ")[0]}.
           </h1>
-          <p className="t-body-lg mt-3 max-w-[640px]">
+          <p className="t-body-lg mt-2 max-w-[560px]">
             {newLeads.length > 0 ? (
               <>
-                Du har <strong className="text-[var(--ink)] font-semibold">{newLeads.length} nye leads</strong>{" "}
-                fra Carl Ras Partnerfinder. Aktiv kampagne: {activeCampaign?.titel}.
+                Du har <strong className="text-[var(--ink)] font-semibold">{newLeads.length} nye leads</strong> i denne uge. Konverteringen er steget til 51%.
               </>
             ) : (
               <>Alt er ajourført. Næste lead-push starter mandag.</>
             )}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link href="/partner/leads" className="btn btn-secondary">Se alle leads</Link>
-          <Link href="/partner/kampagner" className="btn btn-primary">Åbn Materialer</Link>
+
+        <div className="flex items-center gap-3">
+          <SegmentedRange value={range} onChange={setRange} />
+          <Link href="/partner/kampagner" className="btn btn-primary">
+            Åbn Materialer
+          </Link>
         </div>
       </header>
 
-      {/* ─── KPI ROW ──────────────────────────────────────────────── */}
-      <section aria-label="Nøgletal" className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        <Kpi label="Nye leads"      value={newLeads.length}     sub="i denne uge" delta="+2" />
-        <Kpi label="Vundne sager"   value={wonLeads.length}     sub="seneste 30 dage" delta="+1" />
-        <Kpi label="Konvertering"   value="51%"                  sub="3 pp over snittet" />
-        <Kpi label="Point til Guld" value={`${CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points}`} sub={`${Math.round((CURRENT_PARTNER.points / CURRENT_PARTNER.pointsTilNæste) * 100)}% af vejen`} />
+      {/* ─── KPI ROW (4 tall tiles with sparklines) ─── */}
+      <section aria-label="Nøgletal" className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <KpiTile
+          label="Nye leads"
+          value={newLeads.length}
+          delta="+2"
+          deltaPositive
+          sparkline={PARTNER_PERFORMANCE.leadsByWeek}
+          sparkColor={theme.accent}
+        />
+        <KpiTile
+          label="Vundne sager"
+          value={wonLeads.length}
+          delta="+1 sidste 30 dage"
+          deltaPositive
+          sparkline={[1, 1, 0, 2, 1, 3, 2, 3]}
+          sparkColor="#2D4A0F"
+        />
+        <KpiTile
+          label="Konvertering"
+          value="51%"
+          delta="+3 pp"
+          deltaPositive
+          sparkline={PARTNER_PERFORMANCE.conversionByWeek}
+          sparkColor="var(--accent)"
+        />
+        <KpiTile
+          label="Sølv → Guld"
+          value={`${pointsPct}%`}
+          delta={`${(CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points).toLocaleString("da-DK")} point igen`}
+          sparkline={PARTNER_PERFORMANCE.pointsByWeek}
+          sparkColor="#C99A20"
+        />
       </section>
 
-      {/* ─── HERO: active campaign ───────────────────────────────── */}
-      {activeCampaign && (
-        <Link
-          href="/partner/kampagner"
-          aria-label={`Åbn kampagnen ${activeCampaign.titel} i Materialer`}
-          className="block rounded-[20px] mb-8 overflow-hidden group transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-3)]"
-          style={{ background: theme.accentSoft }}
-        >
-          <div className="grid lg:grid-cols-[1.4fr_1fr]">
-            <div className="p-8 lg:p-10 xl:p-12">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: theme.accentInk }}>
-                Aktiv kampagne · klar at bruge
+      {/* ─── HERO ROW: Active campaign + Tier radial ─── */}
+      <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr] mb-4">
+        {/* Active campaign card — bold, image-feeling */}
+        {activeCampaign && (
+          <Link
+            href="/partner/kampagner"
+            aria-label={`Åbn kampagnen ${activeCampaign.titel}`}
+            className="block rounded-[20px] overflow-hidden group transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-3)]"
+            style={{ background: theme.accentSoft }}
+          >
+            <div className="grid lg:grid-cols-[1.3fr_1fr] h-full">
+              <div className="p-7 lg:p-9 flex flex-col justify-between">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: theme.accentInk }}>
+                    Aktiv kampagne
+                  </div>
+                  <h2
+                    className="mt-2 font-semibold leading-[1.04] tracking-[-0.022em]"
+                    style={{ color: theme.accentInk, fontSize: "clamp(28px, 3.2vw, 42px)" }}
+                  >
+                    {activeCampaign.titel}
+                  </h2>
+                  <p className="mt-3 text-[15px] leading-[1.45] max-w-[420px]" style={{ color: theme.accentInk, opacity: 0.78 }}>
+                    {activeCampaign.hovedbudskab}
+                  </p>
+                </div>
+
+                <div className="mt-6">
+                  <div className="flex items-baseline gap-6 mb-5">
+                    <div>
+                      <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.62 }}>
+                        Formater
+                      </div>
+                      <div className="text-[22px] font-semibold mt-0.5 tabular-nums" style={{ color: theme.accentInk }}>
+                        {activeCampaign.formater.length}
+                      </div>
+                    </div>
+                    <div className="w-px h-9" style={{ background: theme.accentInk, opacity: 0.18 }} />
+                    <div>
+                      <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.62 }}>
+                        Brugt af partnere
+                      </div>
+                      <div className="text-[22px] font-semibold mt-0.5 tabular-nums" style={{ color: theme.accentInk }}>
+                        23
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="inline-flex items-center gap-2 text-[14px] font-semibold transition-transform group-hover:translate-x-0.5" style={{ color: theme.accentInk }}>
+                    Brug i Materialer
+                    <ArrowRight />
+                  </div>
+                </div>
               </div>
-              <h2
-                className="mt-3 font-semibold leading-[1.05] tracking-[-0.02em]"
-                style={{ color: theme.accentInk, fontSize: "clamp(32px, 3.6vw, 48px)" }}
+
+              <div
+                className="hidden lg:flex items-center justify-center relative overflow-hidden min-h-[260px]"
+                style={{
+                  background: `radial-gradient(circle at 50% 45%, ${theme.accent}30 0%, transparent 70%)`,
+                }}
+                aria-hidden="true"
               >
-                {activeCampaign.titel}
-              </h2>
-              <p className="mt-4 text-[17px] leading-[1.45] max-w-[560px]" style={{ color: theme.accentInk, opacity: 0.78 }}>
-                {activeCampaign.hovedbudskab}
-              </p>
-
-              <div className="mt-8 flex items-center gap-6">
-                <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.6 }}>
-                    Formater
-                  </div>
-                  <div className="text-[20px] font-semibold mt-0.5" style={{ color: theme.accentInk }}>
-                    {activeCampaign.formater.length}
-                  </div>
+                <div className="text-[180px] leading-none select-none" style={{ filter: "drop-shadow(0 14px 32px rgba(0,0,0,0.18))" }}>
+                  {activeCampaign.heroEmoji}
                 </div>
-                <div className="w-px h-10" style={{ background: theme.accentInk, opacity: 0.15 }} />
-                <div>
-                  <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.6 }}>
-                    Brugt af partnere
-                  </div>
-                  <div className="text-[20px] font-semibold mt-0.5" style={{ color: theme.accentInk }}>
-                    23 <span className="text-[13px] font-normal" style={{ opacity: 0.7 }}>denne uge</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 inline-flex items-center gap-2 text-[15px] font-semibold transition-transform group-hover:translate-x-0.5" style={{ color: theme.accentInk }}>
-                Brug i Materialer
-                <ArrowRight />
               </div>
             </div>
+          </Link>
+        )}
 
-            {/* Right panel — product-tile feel with a soft radial halo */}
-            <div
-              className="hidden lg:flex items-center justify-center relative overflow-hidden"
-              style={{
-                background: `radial-gradient(circle at 50% 45%, ${theme.accent}26 0%, transparent 70%)`,
-              }}
-              aria-hidden="true"
-            >
-              <div className="text-[200px] leading-none select-none" style={{ filter: "drop-shadow(0 12px 30px rgba(0,0,0,0.18))" }}>
-                {activeCampaign.heroEmoji}
-              </div>
-              {/* Tiny preview chips at bottom */}
-              <div className="absolute bottom-6 left-6 right-6 flex flex-wrap gap-1.5">
-                {activeCampaign.formater.slice(0, 4).map((f) => (
-                  <span key={f} className="text-[11px] px-2 py-1 rounded-full bg-white/70 backdrop-blur-sm font-medium" style={{ color: theme.accentInk }}>
-                    {labelForFormat(f)}
-                  </span>
-                ))}
-                {activeCampaign.formater.length > 4 && (
-                  <span className="text-[11px] px-2 py-1 rounded-full font-medium" style={{ color: theme.accentInk, opacity: 0.7 }}>
-                    +{activeCampaign.formater.length - 4}
-                  </span>
-                )}
-              </div>
+        {/* Tier-progress radial */}
+        <div className="card card-lg flex flex-col">
+          <div className="flex items-baseline justify-between mb-1">
+            <h3 className="t-h3">Tier-progression</h3>
+            <span className="t-caption">{CURRENT_PARTNER.tier} → Guld</span>
+          </div>
+          <p className="text-[12px] text-[var(--ink-3)] mb-4">
+            {(CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points).toLocaleString("da-DK")} point til næste niveau
+          </p>
+
+          <div className="flex-1 grid place-items-center my-4">
+            <Radial
+              value={pointsPct}
+              size={180}
+              thickness={16}
+              color="#C99A20"
+              trackColor="var(--canvas-2)"
+              label={`${pointsPct}%`}
+              sub={`${CURRENT_PARTNER.points.toLocaleString("da-DK")} / ${CURRENT_PARTNER.pointsTilNæste.toLocaleString("da-DK")}`}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-1 text-center pt-3 border-t border-[var(--line-2)]">
+            <TierDot tier="Bronze" current={CURRENT_PARTNER.tier === "Bronze"} done />
+            <TierDot tier="Sølv"   current={CURRENT_PARTNER.tier === "Sølv"}   done />
+            <TierDot tier="Guld"   current={CURRENT_PARTNER.tier === "Guld"} />
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PERFORMANCE ROW ─── */}
+      <section className="grid gap-4 lg:grid-cols-[1.6fr_1fr] mb-4">
+        <div className="card card-lg">
+          <div className="flex items-baseline justify-between mb-4">
+            <div>
+              <h3 className="t-h3">Leads pr. uge</h3>
+              <p className="t-caption mt-0.5">Seneste 8 uger · alle kanaler</p>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[32px] font-semibold text-[var(--ink)] leading-none tabular-nums">
+                {PARTNER_PERFORMANCE.leadsByWeek[PARTNER_PERFORMANCE.leadsByWeek.length - 1]}
+              </span>
+              <span className="text-[12px] font-semibold text-[#2D4A0F]">+3 vs. forrige</span>
             </div>
           </div>
-        </Link>
-      )}
+          <AreaChart
+            values={PARTNER_PERFORMANCE.leadsByWeek}
+            labels={PARTNER_PERFORMANCE.weekLabels}
+            color={theme.accent}
+            height={160}
+          />
+        </div>
 
-      {/* ─── 3-COL: leads | event | region ──────────────────────── */}
-      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mb-8">
-        {/* Leads */}
+        <div className="card card-lg">
+          <div className="flex items-baseline justify-between mb-5">
+            <div>
+              <h3 className="t-h3">Top formater</h3>
+              <p className="t-caption mt-0.5">Hentet denne måned</p>
+            </div>
+            <span className="text-[12px] text-[var(--ink-3)] tabular-nums">47 i alt</span>
+          </div>
+          <BarMini rows={PARTNER_PERFORMANCE.formatsThisMonth} />
+        </div>
+      </section>
+
+      {/* ─── 3-COL DATA ROW ─── */}
+      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mb-4">
+        {/* Nye leads */}
         <Link href="/partner/leads" className="card card-hover block">
           <div className="flex items-baseline justify-between mb-3">
             <h3 className="t-h3">Nye leads</h3>
-            <span className="t-caption">Carl-ras.dk</span>
+            <span className="t-caption">{newLeads.length} venter</span>
           </div>
-          <div className="text-[28px] font-semibold leading-none text-[var(--ink)] mb-4">
-            {newLeads.length} <span className="text-[var(--ink-3)] text-[15px] font-normal">venter</span>
-          </div>
-          <ul className="divide-y divide-[var(--line-2)] -mx-2">
+          <ul className="divide-y divide-[var(--line-2)] -mx-1">
             {newLeads.slice(0, 3).map((l) => (
-              <li key={l.id} className="py-2.5 px-2 flex items-center gap-3">
+              <li key={l.id} className="py-2.5 px-1 flex items-center gap-3">
                 <span className="size-1.5 rounded-full shrink-0 bg-[var(--accent)]" aria-hidden="true" />
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-medium text-[var(--ink)] truncate">{l.kunde}</div>
                   <div className="text-[12px] text-[var(--ink-3)] truncate">{l.behov}</div>
                 </div>
-                <span className="text-[11px] text-[var(--ink-3)] shrink-0">{l.værdi}</span>
+                <span className="text-[11px] text-[var(--ink-3)] shrink-0 tabular-nums">{l.værdi}</span>
               </li>
             ))}
             {newLeads.length === 0 && (
@@ -175,11 +278,11 @@ export default function PartnerDashboard() {
           </div>
         </Link>
 
-        {/* Next event */}
+        {/* Næste event */}
         <Link href="/partner/events" className="card card-hover block">
-          <div className="flex items-baseline justify-between mb-3">
+          <div className="flex items-baseline justify-between mb-4">
             <h3 className="t-h3">Næste event</h3>
-            <span className="t-caption">{nextEvent.tilmeldte}/{nextEvent.pladser} tilmeldt</span>
+            <span className="t-caption">{nextEvent.tilmeldte}/{nextEvent.pladser}</span>
           </div>
           <div className="flex items-start gap-4">
             <DateChip iso={nextEvent.dato} />
@@ -201,12 +304,12 @@ export default function PartnerDashboard() {
         {/* Din region */}
         <div className="card md:col-span-2 xl:col-span-1">
           <div className="flex items-baseline justify-between mb-3">
-            <h3 className="t-h3">Din region · {CURRENT_PARTNER.region}</h3>
-            <span className="t-caption">{myRegionPartners.length} partnere</span>
+            <h3 className="t-h3">Din region</h3>
+            <span className="t-caption">{CURRENT_PARTNER.region}</span>
           </div>
-          <ul className="divide-y divide-[var(--line-2)] -mx-2">
+          <ul className="divide-y divide-[var(--line-2)] -mx-1">
             {myRegionPartners.slice(0, 3).map((p) => (
-              <li key={p.id} className="py-2.5 px-2 flex items-center gap-3">
+              <li key={p.id} className="py-2.5 px-1 flex items-center gap-3">
                 <div className="size-7 rounded-lg grid place-items-center text-white text-[10px] font-semibold shrink-0" style={{ background: p.logoBg }} aria-hidden="true">
                   {p.initialer}
                 </div>
@@ -222,19 +325,45 @@ export default function PartnerDashboard() {
             <div className="mt-4 pt-4 border-t border-[var(--line-2)]">
               <div className="t-caption mb-1">Lokal samling</div>
               <div className="text-[13px] font-medium text-[var(--ink)] truncate">{myRegionEvent.titel}</div>
-              <div className="text-[12px] text-[var(--ink-3)]">
-                {new Date(myRegionEvent.dato).toLocaleDateString("da-DK", { day: "numeric", month: "long" })} · {myRegionEvent.lokation.split(",")[0]}
+              <div className="text-[12px] text-[var(--ink-3)] mt-0.5">
+                {new Date(myRegionEvent.dato).toLocaleDateString("da-DK", { day: "numeric", month: "long" })}
               </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* ─── 3-COL: chat | blog | forum ─────────────────────────── */}
-      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+      {/* ─── ACTIVITY + CONTENT ROW ─── */}
+      <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr]">
+        {/* Activity feed */}
+        <div className="card card-lg">
+          <div className="flex items-baseline justify-between mb-5">
+            <h3 className="t-h3">Aktivitet</h3>
+            <span className="t-caption">Seneste 7 dage</span>
+          </div>
+          <ul className="space-y-4">
+            {PARTNER_PERFORMANCE.activity.map((a, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span
+                  className="size-8 rounded-full grid place-items-center shrink-0 text-white"
+                  style={{ background: a.color }}
+                  aria-hidden="true"
+                >
+                  <ActivityIcon kind={a.icon} />
+                </span>
+                <div className="flex-1 min-w-0 pt-1">
+                  <div className="text-[14px] text-[var(--ink)] leading-snug">{a.text}</div>
+                  <div className="text-[12px] text-[var(--ink-3)] mt-0.5">{a.tid}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Specialist chat */}
         <Link href="/partner/specialister" className="card card-hover block">
           <h3 className="t-h3 mb-4">Tal med Carl Ras</h3>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-3">
             <div
               className="size-10 rounded-full text-white font-semibold grid place-items-center shrink-0 text-[13px]"
               style={{ background: latestChatSpec.bg }}
@@ -244,65 +373,120 @@ export default function PartnerDashboard() {
             </div>
             <div className="min-w-0">
               <div className="text-[14px] font-semibold text-[var(--ink)]">{latestChatSpec.navn}</div>
-              <div className="text-[12px] text-[var(--ink-3)]">{latestChatSpec.rolle} · {latestChatSpec.bu}</div>
+              <div className="text-[12px] text-[var(--ink-3)]">{latestChatSpec.bu}</div>
             </div>
           </div>
-          <p className="mt-3 text-[13px] text-[var(--ink-2)] line-clamp-3 leading-[1.5]">{latestChatMsg.text}</p>
+          <p className="text-[13px] text-[var(--ink-2)] line-clamp-3 leading-[1.5]">{latestChatMsg.text}</p>
           <div className="mt-4 text-[14px] font-semibold text-[var(--accent)] inline-flex items-center gap-1">
             Læs samtalen <ArrowRight />
           </div>
         </Link>
 
-        <Link href="/partner/nyheder" className="card card-hover block">
-          <div className="flex items-baseline justify-between mb-4">
-            <h3 className="t-h3">Nyt fra Carl Ras</h3>
-            <span className="t-caption">{latestPost.dato}</span>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="size-11 rounded-xl bg-[var(--canvas-2)] grid place-items-center text-[22px] shrink-0" aria-hidden="true">
-              {latestPost.hero}
+        {/* Blog + forum stacked */}
+        <div className="flex flex-col gap-4">
+          <Link href="/partner/nyheder" className="card card-hover block flex-1">
+            <div className="flex items-baseline justify-between mb-3">
+              <h3 className="t-h3">Nyt fra Carl Ras</h3>
+              <span className="t-caption">{latestPost.dato}</span>
             </div>
-            <div className="min-w-0">
-              <div className="text-[14px] font-semibold text-[var(--ink)] leading-snug">{latestPost.titel}</div>
-              <p className="mt-1 text-[12px] text-[var(--ink-3)] line-clamp-2 leading-[1.5]">{latestPost.excerpt}</p>
+            <div className="text-[14px] font-semibold text-[var(--ink)] leading-snug">{latestPost.titel}</div>
+            <p className="mt-1 text-[12px] text-[var(--ink-3)] line-clamp-2 leading-[1.5]">{latestPost.excerpt}</p>
+            <div className="mt-3 text-[13px] font-semibold text-[var(--accent)] inline-flex items-center gap-1">
+              Læs hele <ArrowRight />
             </div>
-          </div>
-          <div className="mt-4 text-[14px] font-semibold text-[var(--accent)] inline-flex items-center gap-1">
-            Læs hele <ArrowRight />
-          </div>
-        </Link>
-
-        <Link href="/partner/forum" className="card card-hover block">
-          <div className="flex items-baseline justify-between mb-4">
-            <h3 className="t-h3">Forum · trender lige nu</h3>
-            <span className="t-caption">♡ {topThread.likes}</span>
-          </div>
-          <div>
-            <div className="text-[14px] font-semibold text-[var(--ink)] leading-snug">{topThread.titel}</div>
-            <p className="mt-1 text-[12px] text-[var(--ink-3)] line-clamp-2 leading-[1.5]">{topThread.body}</p>
-            <div className="text-[12px] text-[var(--ink-3)] mt-2">
-              {topThread.forfatter} · {topThread.forfatterFirma}
+          </Link>
+          <Link href="/partner/forum" className="card card-hover block flex-1">
+            <div className="flex items-baseline justify-between mb-3">
+              <h3 className="t-h3">Forum trender</h3>
+              <span className="t-caption">♡ {topThread.likes}</span>
             </div>
-          </div>
-          <div className="mt-4 text-[14px] font-semibold text-[var(--accent)] inline-flex items-center gap-1">
-            Læs tråden <ArrowRight />
-          </div>
-        </Link>
+            <div className="text-[14px] font-semibold text-[var(--ink)] leading-snug line-clamp-2">{topThread.titel}</div>
+            <div className="mt-2 text-[12px] text-[var(--ink-3)]">
+              {topThread.forfatter} · {topThread.svar} svar
+            </div>
+          </Link>
+        </div>
       </section>
     </div>
   );
 }
 
-/* ───── helpers ───── */
-function Kpi({ label, value, sub, delta }: { label: string; value: string | number; sub: string; delta?: string }) {
+/* ─────────── small components ─────────── */
+
+function SegmentedRange({ value, onChange }: { value: DateRange; onChange: (v: DateRange) => void }) {
+  const options: { id: DateRange; label: string }[] = [
+    { id: "uge",     label: "Uge" },
+    { id: "maaned",  label: "Måned" },
+    { id: "kvartal", label: "Kvartal" },
+  ];
   return (
-    <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-4 transition-shadow hover:shadow-[var(--shadow-1)]">
+    <div className="inline-flex rounded-full bg-[var(--canvas-2)] p-1">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          onClick={() => onChange(o.id)}
+          className={
+            "px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors " +
+            (value === o.id ? "bg-white text-[var(--ink)] shadow-[0_1px_3px_rgba(0,0,0,0.05)]" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
+          }
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function KpiTile({
+  label,
+  value,
+  delta,
+  deltaPositive,
+  sparkline,
+  sparkColor = "var(--accent)",
+}: {
+  label: string;
+  value: string | number;
+  delta?: string;
+  deltaPositive?: boolean;
+  sparkline?: number[];
+  sparkColor?: string;
+}) {
+  return (
+    <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-5 flex flex-col transition-all hover:shadow-[var(--shadow-1)]">
       <div className="flex items-baseline justify-between">
         <span className="text-[12px] text-[var(--ink-3)] font-medium">{label}</span>
-        {delta && <span className="text-[11px] font-semibold text-[#2D4A0F]">{delta}</span>}
+        {delta && (
+          <span className={"text-[11px] font-semibold " + (deltaPositive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>
+            {delta}
+          </span>
+        )}
       </div>
-      <div className="mt-2 text-[26px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">{value}</div>
-      <div className="text-[11px] text-[var(--ink-3)] mt-1.5">{sub}</div>
+      <div className="mt-2 text-[32px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">
+        {value}
+      </div>
+      {sparkline && (
+        <div className="mt-3 -mx-1">
+          <Sparkline values={sparkline} color={sparkColor} height={32} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TierDot({ tier, current, done }: { tier: "Bronze" | "Sølv" | "Guld"; current?: boolean; done?: boolean }) {
+  const color = tier === "Guld" ? "#C99A20" : tier === "Sølv" ? "#7E8993" : "#9C6A3F";
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div
+        className={"size-6 rounded-full grid place-items-center text-white " + (current ? "ring-2 ring-offset-2 ring-offset-white" : "")}
+        style={{ background: done ? color : "var(--line)", borderColor: color }}
+      >
+        {done && (
+          <svg width="11" height="11" viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        )}
+      </div>
+      <span className={"text-[11px] " + (current ? "font-semibold text-[var(--ink)]" : "text-[var(--ink-3)]")}>{tier}</span>
     </div>
   );
 }
@@ -313,7 +497,7 @@ function DateChip({ iso }: { iso: string }) {
   return (
     <div className="rounded-xl bg-[var(--canvas-2)] px-3 py-2 text-center shrink-0 min-w-[52px]">
       <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{month}</div>
-      <div className="text-[22px] font-bold leading-none mt-0.5 text-[var(--ink)]">{d.getDate()}</div>
+      <div className="text-[22px] font-bold leading-none mt-0.5 text-[var(--ink)] tabular-nums">{d.getDate()}</div>
     </div>
   );
 }
@@ -326,16 +510,17 @@ function ArrowRight() {
   );
 }
 
-function labelForFormat(f: string): string {
-  const map: Record<string, string> = {
-    "print-flyer": "Flyer",
-    "print-poster": "Poster",
-    "print-magasin": "Magasin",
-    "print-bilstreamer": "Bilstreamer",
-    "digital-facebook": "Facebook",
-    "digital-instagram": "Instagram",
-    "digital-email": "Email",
-    "digital-google": "Google",
+function ActivityIcon({ kind }: { kind: string }) {
+  const paths: Record<string, string> = {
+    lead:     "M3 8l5 4 5-4M3 8v7h10V8M3 8l5-4 5 4",
+    download: "M8 3v8m0 0l-3-3m3 3l3-3M3 13h10",
+    chat:     "M3 4h10v8H6l-3 2z",
+    won:      "M3 8l3 3 7-7",
+    event:    "M3 5h10v8H3zM3 7h10M5 3v3M11 3v3",
   };
-  return map[f] ?? f;
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d={paths[kind] ?? paths.lead} />
+    </svg>
+  );
 }

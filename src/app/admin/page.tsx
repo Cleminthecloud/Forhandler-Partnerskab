@@ -1,137 +1,189 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
-import { useApp } from "@/components/AppState";
 import { ADMIN_STATS, PARTNERS, Region, Tier } from "@/lib/data";
+import { Sparkline, AreaChart, Donut, BarMini } from "@/components/Charts";
+
+type DateRange = "uge" | "maaned" | "kvartal";
+
+const TIER_COLOR: Record<Tier, string> = {
+  Guld:  "#C99A20",
+  Sølv:  "#7E8993",
+  Bronze: "#9C6A3F",
+};
 
 export default function AdminOverview() {
   const { theme } = useTheme();
-  const { leads } = useApp();
-  void leads;
+  const [range, setRange] = useState<DateRange>("maaned");
 
   const leadGrowth = Math.round(((ADMIN_STATS.leadsDenneUge - ADMIN_STATS.leadsForrigeUge) / ADMIN_STATS.leadsForrigeUge) * 100);
   const omsætningGrowth = Math.round(((ADMIN_STATS.omsætningDenneMåned - ADMIN_STATS.omsætningForrigeMåned) / ADMIN_STATS.omsætningForrigeMåned) * 100);
 
+  const leadSeries = [22, 18, 24, 26, 31, 29, 33, 38];
+  const partnerGrowth = [12, 18, 24, 31, 38, 47];
+
+  const tierSegments = (Object.entries(ADMIN_STATS.partnereByTier) as [Tier, number][])
+    .map(([t, v]) => ({ label: t, value: v, color: TIER_COLOR[t] }));
+
   return (
-    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
-      {/* Header */}
-      <header className="flex flex-wrap items-end justify-between gap-6 mb-12">
+    <div className="px-6 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+      {/* ─── HEADER ─── */}
+      <header className="flex flex-wrap items-end justify-between gap-6 mb-8">
         <div>
           <div className="t-eyebrow flex items-center gap-2">
             <span className="theme-dot" style={{ background: theme.accent }} />
             <span>Aktivt tema · {theme.label}</span>
           </div>
-          <h1 className="t-display mt-3">Forhandler Partnerskab</h1>
-          <p className="t-body-lg mt-3 max-w-[600px]">
+          <h1 className="t-display mt-2">Forhandler Partnerskab</h1>
+          <p className="t-body-lg mt-2 max-w-[600px]">
             Motoren i drift. Skift tema i toppen for at se hvad næste BU&apos;s årshjul leverer.
           </p>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <button className="btn btn-secondary">Eksportér rapport</button>
+        <div className="flex items-center gap-3">
+          <SegmentedRange value={range} onChange={setRange} />
+          <button className="btn btn-secondary">Eksportér</button>
           <button className="btn btn-primary">+ Ny kampagne</button>
         </div>
       </header>
 
-      {/* KPI tiles — 4 across, equal weight */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 mb-8">
-        <Kpi label="Aktive partnere"      value={ADMIN_STATS.aktivePartnere} delta="+6 i denne måned"  positive />
-        <Kpi label="Leads denne uge"      value={ADMIN_STATS.leadsDenneUge}  delta={`${leadGrowth > 0 ? "+" : ""}${leadGrowth}% vs. forrige`} positive={leadGrowth > 0} />
-        <Kpi label="Konvertering"         value={`${Math.round(ADMIN_STATS.leadsKonverteret * 100)}%`} delta="3 pp over Q1-mål" positive />
-        <Kpi label="Omsætning maj"        value={`${Math.round(ADMIN_STATS.omsætningDenneMåned / 1000)}k kr`} delta={`${omsætningGrowth > 0 ? "+" : ""}${omsætningGrowth}% vs. april`} positive={omsætningGrowth > 0} />
+      {/* ─── KPI ROW ─── */}
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+        <KpiTile
+          label="Aktive partnere"
+          value={ADMIN_STATS.aktivePartnere}
+          delta="+6 i denne måned"
+          deltaPositive
+          sparkline={partnerGrowth}
+          sparkColor="var(--accent)"
+        />
+        <KpiTile
+          label="Leads denne uge"
+          value={ADMIN_STATS.leadsDenneUge}
+          delta={`${leadGrowth > 0 ? "+" : ""}${leadGrowth}% vs. forrige`}
+          deltaPositive={leadGrowth > 0}
+          sparkline={leadSeries}
+          sparkColor={theme.accent}
+        />
+        <KpiTile
+          label="Konvertering"
+          value={`${Math.round(ADMIN_STATS.leadsKonverteret * 100)}%`}
+          delta="3 pp over Q1-mål"
+          deltaPositive
+          sparkline={[36, 38, 40, 39, 41, 42, 42, 42]}
+          sparkColor="#2D4A0F"
+        />
+        <KpiTile
+          label="Omsætning maj"
+          value={`${Math.round(ADMIN_STATS.omsætningDenneMåned / 1000)}k`}
+          unit="kr"
+          delta={`${omsætningGrowth > 0 ? "+" : ""}${omsætningGrowth}% vs. april`}
+          deltaPositive={omsætningGrowth > 0}
+          sparkline={[280, 310, 340, 370, 412, 487]}
+          sparkColor="#C99A20"
+        />
       </section>
 
-      {/* Trend chart — full width, calm */}
-      <section className="card card-lg mb-12">
-        <div className="flex items-baseline justify-between mb-6">
-          <div>
-            <h2 className="t-h3">Leads pr. uge</h2>
-            <p className="t-caption mt-0.5">Seneste 8 uger · alle kanaler</p>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-[28px] font-semibold text-[var(--ink)] leading-none">{ADMIN_STATS.leadsDenneUge}</span>
-            <span className="text-[13px] font-medium text-[#2D4A0F]">+{leadGrowth}%</span>
-          </div>
-        </div>
-        <Sparkline values={[22, 18, 24, 26, 31, 29, 33, 38]} labels={["U17","U18","U19","U20","U21","U22","U23","U24"]} />
-      </section>
-
-      {/* Two-column: distribution charts */}
-      <section className="grid gap-4 lg:grid-cols-2 mb-12">
+      {/* ─── HERO ROW: Big leads chart + Tier donut ─── */}
+      <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr] mb-4">
+        {/* Big leads chart */}
         <div className="card card-lg">
-          <h2 className="t-h3 mb-5">Niveau-fordeling</h2>
-          <div className="space-y-4">
-            {(Object.entries(ADMIN_STATS.partnereByTier) as [Tier, number][]).map(([tier, count]) => {
-              const pct = Math.round((count / ADMIN_STATS.aktivePartnere) * 100);
-              const color = tier === "Guld" ? "#C99A20" : tier === "Sølv" ? "#7E8993" : "#9C6A3F";
-              return (
-                <div key={tier}>
-                  <div className="flex items-center justify-between text-[13px] mb-1.5">
-                    <span className="font-semibold text-[var(--ink)]">{tier}-partner</span>
-                    <span className="text-[var(--ink-3)] tabular-nums">{count} · {pct}%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-[var(--canvas-2)] overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: pct + "%", background: color }} />
-                  </div>
+          <div className="flex items-baseline justify-between mb-5">
+            <div>
+              <h3 className="t-h3">Leads pr. uge</h3>
+              <p className="t-caption mt-0.5">Seneste 8 uger · alle kanaler</p>
+            </div>
+            <div className="text-right">
+              <div className="text-[36px] font-semibold leading-none text-[var(--ink)] tabular-nums">{ADMIN_STATS.leadsDenneUge}</div>
+              <div className="text-[12px] font-semibold text-[#2D4A0F] mt-1">+{leadGrowth}%</div>
+            </div>
+          </div>
+          <AreaChart
+            values={leadSeries}
+            labels={["U17","U18","U19","U20","U21","U22","U23","U24"]}
+            color={theme.accent}
+            height={200}
+          />
+        </div>
+
+        {/* Tier donut */}
+        <div className="card card-lg">
+          <div className="flex items-baseline justify-between mb-1">
+            <h3 className="t-h3">Niveau-fordeling</h3>
+            <span className="t-caption">{ADMIN_STATS.aktivePartnere} partnere</span>
+          </div>
+          <p className="text-[12px] text-[var(--ink-3)] mb-4">Andele af niveauer</p>
+
+          <div className="flex items-center justify-center gap-5 mt-2">
+            <div className="relative grid place-items-center">
+              <Donut segments={tierSegments} size={140} thickness={16} />
+              <div className="absolute inset-0 grid place-items-center text-center">
+                <div>
+                  <div className="text-[24px] font-semibold leading-none tabular-nums">{ADMIN_STATS.aktivePartnere}</div>
+                  <div className="text-[10px] text-[var(--ink-3)] mt-1 uppercase tracking-wider">aktive</div>
                 </div>
-              );
-            })}
+              </div>
+            </div>
           </div>
-          <Link href="/admin/partnere" className="link mt-5 inline-flex items-center gap-1 text-[14px]">
-            Se alle partnere →
-          </Link>
+
+          <ul className="mt-5 space-y-2.5">
+            {tierSegments.map((s) => (
+              <li key={s.label} className="flex items-center gap-3 text-[13px]">
+                <span className="size-2.5 rounded-full shrink-0" style={{ background: s.color }} aria-hidden="true" />
+                <span className="font-medium text-[var(--ink)] flex-1">{s.label}</span>
+                <span className="text-[var(--ink-3)] tabular-nums">
+                  {s.value} · {Math.round((s.value / ADMIN_STATS.aktivePartnere) * 100)}%
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ─── REGION + ACTIVITY ─── */}
+      <section className="grid gap-4 lg:grid-cols-2 mb-4">
+        <div className="card card-lg">
+          <div className="flex items-baseline justify-between mb-5">
+            <h3 className="t-h3">Partnere pr. region</h3>
+            <span className="t-caption">8 regioner</span>
+          </div>
+          <BarMini
+            rows={(Object.entries(ADMIN_STATS.partnereByRegion) as [Region, number][])
+              .sort((a, b) => b[1] - a[1])
+              .map(([region, count]) => ({ label: region, value: count }))}
+          />
         </div>
 
         <div className="card card-lg">
-          <h2 className="t-h3 mb-5">Partnere pr. region</h2>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-            {(Object.entries(ADMIN_STATS.partnereByRegion) as [Region, number][])
-              .sort((a, b) => b[1] - a[1])
-              .map(([region, count]) => {
-                const pct = Math.round((count / ADMIN_STATS.aktivePartnere) * 100);
-                return (
-                  <div key={region}>
-                    <div className="flex items-center justify-between text-[12px] mb-1">
-                      <span className="text-[var(--ink)]">{region}</span>
-                      <span className="text-[var(--ink-3)] tabular-nums">{count}</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-[var(--canvas-2)] overflow-hidden">
-                      <div className="h-full rounded-full bg-[var(--accent)] transition-all" style={{ width: pct + "%" }} />
-                    </div>
-                  </div>
-                );
-              })}
+          <div className="flex items-baseline justify-between mb-5">
+            <h3 className="t-h3">Seneste aktivitet</h3>
+            <Link href="/admin/data" className="link text-[13px]">Se alt →</Link>
           </div>
+          <ul className="space-y-4">
+            {[
+              { tid: "for 18 min", body: <><strong>Blokhus Byg &amp; Bolig</strong> opgraderet til Guld-partner.</>, color: "#C99A20" },
+              { tid: "for 42 min", body: <><strong>3 nye leads</strong> routet fra carl-ras.dk → Hornbæk Låseservice.</>, color: theme.accent },
+              { tid: "for 1 t",    body: <><strong>Faglig Fredag Bornholm</strong> nåede 8/18 tilmeldte.</>, color: "var(--accent)" },
+              { tid: "for 2 t",    body: <><strong>Nyt blogindlæg</strong> publiceret: &quot;Vinterklargøring kommer Q4&quot;.</>, color: "#5B7F2C" },
+              { tid: "i går",      body: <><strong>Targeted besked</strong> sendt til 21 Sølv-partnere.</>, color: "#7E8993" },
+            ].map((a, i) => (
+              <li key={i} className="flex items-start gap-3 text-[14px]">
+                <span className="size-2 rounded-full shrink-0 mt-2" style={{ background: a.color }} aria-hidden="true" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[var(--ink-2)] leading-snug">{a.body}</div>
+                  <div className="text-[12px] text-[var(--ink-3)] mt-0.5">{a.tid}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* Recent activity */}
-      <section className="card card-lg mb-12">
-        <div className="flex items-baseline justify-between mb-5">
-          <h2 className="t-h3">Seneste aktivitet</h2>
-          <Link href="/admin/data" className="link text-[14px]">Se alt →</Link>
-        </div>
-        <ul className="divide-y divide-[var(--line-2)]">
-          {[
-            { tid: "for 18 min", body: <><strong>Blokhus Byg &amp; Bolig</strong> opgraderet til Guld-partner.</>, dot: "#C99A20" },
-            { tid: "for 42 min", body: <><strong>3 nye leads</strong> routet fra carl-ras.dk → Hornbæk Låseservice.</>, dot: "var(--accent)" },
-            { tid: "for 1 t",    body: <><strong>Faglig Fredag Bornholm</strong> nåede 8/18 tilmeldte.</>, dot: "var(--ink-3)" },
-            { tid: "for 2 t",    body: <><strong>Nyt blogindlæg</strong> publiceret af Morten Bach: &quot;Vinterklargøring kommer Q4&quot;.</>, dot: "var(--ink-3)" },
-            { tid: "i går",      body: <><strong>Targeted besked</strong> sendt til 21 Sølv-partnere (Niveau 2-tilmelding).</>, dot: "var(--ink-3)" },
-          ].map((a, i) => (
-            <li key={i} className="py-3 flex items-center gap-3 text-[14px]">
-              <span className="size-1.5 rounded-full shrink-0" style={{ background: a.dot }} aria-hidden="true" />
-              <span className="flex-1 text-[var(--ink-2)]">{a.body}</span>
-              <span className="text-[12px] text-[var(--ink-3)] shrink-0 tabular-nums">{a.tid}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Top performers */}
+      {/* ─── TOP PERFORMERS ─── */}
       <section className="card card-lg">
         <div className="flex items-baseline justify-between mb-5">
-          <h2 className="t-h3">Top-performere</h2>
-          <Link href="/admin/partnere" className="link text-[14px]">Se alle 47 →</Link>
+          <h3 className="t-h3">Top-performere</h3>
+          <Link href="/admin/partnere" className="link text-[13px]">Se alle 47 →</Link>
         </div>
         <div className="grid grid-cols-[1fr_80px_70px_80px_110px] gap-4 px-2 mb-2 text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)]">
           <span>Partner</span><span>Tier</span><span>Sager</span><span>Rating</span><span>Region</span>
@@ -158,12 +210,57 @@ export default function AdminOverview() {
   );
 }
 
-function Kpi({ label, value, delta, positive }: { label: string; value: number | string; delta: string; positive?: boolean }) {
+/* ─────────── small components ─────────── */
+
+function SegmentedRange({ value, onChange }: { value: DateRange; onChange: (v: DateRange) => void }) {
+  const options: { id: DateRange; label: string }[] = [
+    { id: "uge",     label: "Uge" },
+    { id: "maaned",  label: "Måned" },
+    { id: "kvartal", label: "Kvartal" },
+  ];
   return (
-    <div className="card-pearl !p-4 transition-colors">
-      <div className="text-[12px] text-[var(--ink-3)] font-medium">{label}</div>
-      <div className="mt-1 text-[26px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">{value}</div>
-      <div className={"text-[11px] mt-2 font-medium " + (positive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>{delta}</div>
+    <div className="inline-flex rounded-full bg-[var(--canvas-2)] p-1">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          onClick={() => onChange(o.id)}
+          className={
+            "px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors " +
+            (value === o.id ? "bg-white text-[var(--ink)] shadow-[0_1px_3px_rgba(0,0,0,0.05)]" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
+          }
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function KpiTile({
+  label, value, unit, delta, deltaPositive, sparkline, sparkColor = "var(--accent)",
+}: {
+  label: string; value: string | number; unit?: string; delta?: string;
+  deltaPositive?: boolean; sparkline?: number[]; sparkColor?: string;
+}) {
+  return (
+    <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-5 flex flex-col transition-shadow hover:shadow-[var(--shadow-1)]">
+      <div className="flex items-baseline justify-between">
+        <span className="text-[12px] text-[var(--ink-3)] font-medium">{label}</span>
+        {delta && (
+          <span className={"text-[11px] font-semibold " + (deltaPositive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>
+            {delta}
+          </span>
+        )}
+      </div>
+      <div className="mt-2 flex items-baseline gap-1">
+        <span className="text-[32px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">{value}</span>
+        {unit && <span className="text-[14px] text-[var(--ink-3)] font-medium">{unit}</span>}
+      </div>
+      {sparkline && (
+        <div className="mt-3 -mx-1">
+          <Sparkline values={sparkline} color={sparkColor} height={32} />
+        </div>
+      )}
     </div>
   );
 }
@@ -171,29 +268,4 @@ function Kpi({ label, value, delta, positive }: { label: string; value: number |
 function tierClass(tier: "Bronze" | "Sølv" | "Guld") {
   const map = { Bronze: "tag tag-bronze", Sølv: "tag tag-soelv", Guld: "tag tag-guld" } as const;
   return map[tier];
-}
-
-function Sparkline({ values, labels }: { values: number[]; labels: string[] }) {
-  const max = Math.max(...values);
-  const w = 800, h = 140, padX = 20, padY = 24;
-  const xstep = (w - padX * 2) / (values.length - 1);
-  const y = (v: number) => h - padY - (v / max) * (h - padY * 2);
-  const points = values.map((v, i) => `${padX + i * xstep},${y(v)}`).join(" ");
-  const area = `${padX},${h - padY} ${points} ${padX + (values.length - 1) * xstep},${h - padY}`;
-  return (
-    <>
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto block">
-        <polygon points={area} fill="var(--accent-tint)" />
-        <polyline points={points} fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        {values.map((v, i) => (
-          <circle key={i} cx={padX + i * xstep} cy={y(v)} r={i === values.length - 1 ? 5 : 3} fill={i === values.length - 1 ? "var(--accent)" : "white"} stroke="var(--accent)" strokeWidth="2" />
-        ))}
-      </svg>
-      <div className="grid mt-1" style={{ gridTemplateColumns: `repeat(${labels.length}, 1fr)` }}>
-        {labels.map((l, i) => (
-          <span key={i} className="text-center text-[11px] text-[var(--ink-3)]">{l}</span>
-        ))}
-      </div>
-    </>
-  );
 }

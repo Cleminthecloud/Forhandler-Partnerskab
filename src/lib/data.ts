@@ -287,6 +287,30 @@ export const BLOG_POSTS: BlogPost[] = [
   { id: "b-006", titel: "Niveau 2-certificering: hvad får du adgang til?", excerpt: "Sølv-partnere kan nu booke Niveau 2-certificeringen. Her er produktlisten, marginerne og hvad næste step er for dig.", forfatter: "Tina Holm", forfatterRolle: "Træningschef · Sikring", dato: "5. maj 2026", kategori: "Værktøj", læsetid: "4 min", tema: "sommer-sikring", hero: "🎓" },
 ];
 
+/* ─────────────────────────── Partner performance series ─────────────────────────── */
+export const PARTNER_PERFORMANCE = {
+  leadsByWeek:       [3, 2, 4, 5, 3, 6, 4, 7],
+  conversionByWeek:  [38, 42, 45, 41, 48, 50, 49, 51],
+  pointsByWeek:      [820, 950, 1080, 1180, 1240, 1310, 1380, 1420],
+  weekLabels:        ["U17","U18","U19","U20","U21","U22","U23","U24"],
+
+  formatsThisMonth: [
+    { label: "Flyer A5",         value: 18, color: "#1158A3" },
+    { label: "Facebook-opslag",  value: 14, color: "#4D87C2" },
+    { label: "Magasin-annonce",  value: 9,  color: "#7CA5D2" },
+    { label: "Bilstreamer",      value: 4,  color: "#A8C2DF" },
+    { label: "Email-signatur",   value: 2,  color: "#C7D5E5" },
+  ],
+
+  activity: [
+    { tid: "for 18 min",   text: "Familien Birkholm sendte en lead-forespørgsel",       icon: "lead",     color: "#F49100" },
+    { tid: "for 2 t",      text: "Hentet flyer for 'Smid nøglerne væk'",                icon: "download", color: "#1158A3" },
+    { tid: "for 4 t",      text: "Jens Pedersen besvarede din chat om STROXX-cylindre", icon: "chat",     color: "#5B7F2C" },
+    { tid: "i går",        text: "Vundet sag · Birte Klausen (Smart lock)",             icon: "won",      color: "#2D4A0F" },
+    { tid: "2 dage siden", text: "Tilmeldt Faglig Fredag 5. juni",                      icon: "event",    color: "#6E6E73" },
+  ],
+};
+
 /* ─────────────────────────── Admin: aggregate stats ─────────────────────────── */
 export const ADMIN_STATS = {
   aktivePartnere: 47,
