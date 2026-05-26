@@ -1,142 +1,186 @@
 @import "tailwindcss";
 
-/* ──────────────────────────────────────────────────────────────
-   Carl Ras × Apple design language
-   Light-mode only. Tokens and components align with DESIGN.md.
-   ────────────────────────────────────────────────────────────── */
+/* ==============================================================
+   Carl Ras × Apple — design system v2
+   Built on:
+   - 60-30-10 color rule
+   - 8pt spacing grid
+   - 5-level type hierarchy
+   - Light mode only
+   - WCAG AA on all text-on-surface combinations
+   ============================================================== */
 
 :root {
   color-scheme: light;
 
-  /* Carl Ras brand (sampled from carl-ras.dk) */
-  --cr-blue:        #1158A3;
-  --cr-blue-press:  #0E4C90;
-  --cr-blue-tint:   #E8F0FA;
-  --cr-navy:        #002D59;
-  --cr-navy-deep:   #001A33;
+  /* ---------- 60% — Canvas (dominant) ---------- */
+  --canvas:        #FFFFFF;
+  --canvas-2:      #F5F5F7;   /* parchment, section breaks */
+  --canvas-3:      #FAFAFC;   /* pearl, subtler still */
 
-  /* Apple-aligned neutrals */
-  --ink:            #1D1D1F;
-  --ink-80:         #515154;       /* WCAG-AA on white (5.42:1) */
-  --ink-60:         #6E6E73;
-  --ink-40:         #86868B;       /* labels and chrome only */
-  --hairline:       #D2D2D7;
-  --divider:        #F0F0F0;
-  --canvas:         #FFFFFF;
-  --canvas-parchment: #F5F5F7;
-  --surface-pearl:  #FAFAFC;
-  --surface-chip:   #E8E8ED;
+  /* ---------- 30% — Structure & ink ---------- */
+  --ink:           #1D1D1F;   /* primary text — 16.7:1 on canvas */
+  --ink-2:         #515154;   /* secondary text — 7.4:1 on canvas */
+  --ink-3:         #6E6E73;   /* tertiary / eyebrow — 5.4:1 on canvas (AA) */
+  --ink-4:         #86868B;   /* labels, large text only */
+  --line:          #D2D2D7;   /* default hairline */
+  --line-2:        #E8E8ED;   /* lighter divider */
 
-  /* Theme accent — set per-theme by ThemeProvider */
-  --theme-accent:        #F49100;
-  --theme-accent-soft:   #FFF1DC;
-  --theme-accent-ink:    #6B3C00;  /* darker than accent for AA on accent-soft */
+  /* ---------- 10% — Accent (interactive ONLY) ---------- */
+  --accent:        #1158A3;
+  --accent-press:  #0E4C90;
+  --accent-tint:   #E8F0FA;
+  --accent-on:     #FFFFFF;
 
-  /* Type */
-  --font-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-  --font-text:    var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  /* Carl Ras navy for brand surfaces (top bar, find-page hero in dark mode) */
+  --navy:          #1D1D1F;
+  --navy-2:        #2B2B2E;
 
-  /* Radii from DESIGN.md */
-  --r-xs: 5px;
-  --r-sm: 8px;
-  --r-md: 11px;
-  --r-lg: 18px;
+  /* ---------- Theme accent (orange/green/red) ----------
+     STRICT USE: only the theme-switcher chip, the active campaign card,
+     and the theme tag on /find. Nowhere else. Eyebrow text uses --ink-3. */
+  --theme:         #F49100;
+  --theme-soft:    #FFF1DC;
+  --theme-ink:     #5C3500;   /* AAA on theme-soft */
 
-  /* Elevation — Apple-soft */
-  --shadow-rest:  none;
-  --shadow-hover: 0 4px 16px rgba(0, 26, 51, 0.06);
-  --shadow-lift:  0 12px 30px rgba(0, 26, 51, 0.10);
+  /* ---------- Spacing (strict 8pt grid) ---------- */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  24px;
+  --s-6:  32px;
+  --s-7:  48px;
+  --s-8:  64px;
+  --s-9:  96px;
+  --s-10: 128px;
 
-  /* App heights */
-  --topbar-h: 48px;
+  /* ---------- Radii ---------- */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  20px;
+  --r-2xl: 24px;
+  --r-pill: 9999px;
 
-  /* Aliases for existing components (don't reference these in new code) */
-  --ink-muted-80: var(--ink-80);
-  --ink-muted-48: var(--ink-60);
-  --divider-soft: var(--divider);
+  /* ---------- Elevation (whisper-soft, Apple-style) ---------- */
+  --shadow-0: none;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-2: 0 6px 20px rgba(0, 26, 51, 0.06);
+  --shadow-3: 0 14px 36px rgba(0, 26, 51, 0.10);
+  --shadow-4: 0 28px 64px rgba(0, 26, 51, 0.14);
+
+  /* ---------- Motion ---------- */
+  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:  cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-fast:    120ms;
+  --t-base:    200ms;
+  --t-slow:    320ms;
+
+  /* ---------- Layout ---------- */
+  --topbar-h:  48px;
+  --sidebar-w: 260px;
+  --container: 1200px;
+
+  /* ---------- Legacy aliases (don't use in new code) ---------- */
+  --cr-blue:        var(--accent);
+  --cr-blue-press:  var(--accent-press);
+  --cr-blue-tint:   var(--accent-tint);
+  --cr-navy:        var(--ink);
+  --cr-navy-deep:   #1D1D1F;
+  --ink-80:         var(--ink-2);
+  --ink-60:         var(--ink-3);
+  --ink-40:         var(--ink-4);
+  --ink-muted-80:   var(--ink-2);
+  --ink-muted-48:   var(--ink-3);
+  --hairline:       var(--line);
+  --divider:        var(--line-2);
+  --divider-soft:   var(--line-2);
+  --canvas-parchment: var(--canvas-2);
+  --surface-pearl:  var(--canvas-3);
+  --surface-chip:   var(--line);
+  --theme-accent:        var(--theme);
+  --theme-accent-soft:   var(--theme-soft);
+  --theme-accent-ink:    var(--theme-ink);
 }
 
+/* === Tailwind v4 theme bridge === */
 @theme inline {
   --color-background: var(--canvas);
   --color-foreground: var(--ink);
 
   --color-canvas: var(--canvas);
-  --color-canvas-parchment: var(--canvas-parchment);
-  --color-surface-pearl: var(--surface-pearl);
-  --color-surface-chip: var(--surface-chip);
-
+  --color-canvas-2: var(--canvas-2);
+  --color-canvas-3: var(--canvas-3);
   --color-ink: var(--ink);
-  --color-ink-80: var(--ink-80);
-  --color-ink-60: var(--ink-60);
-  --color-ink-40: var(--ink-40);
-  --color-hairline: var(--hairline);
-  --color-divider: var(--divider);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-accent: var(--accent);
+  --color-accent-tint: var(--accent-tint);
+  --color-theme: var(--theme);
+  --color-theme-soft: var(--theme-soft);
+  --color-theme-ink: var(--theme-ink);
 
-  --color-cr-blue: var(--cr-blue);
-  --color-cr-blue-tint: var(--cr-blue-tint);
-  --color-cr-navy: var(--cr-navy);
-  --color-cr-navy-deep: var(--cr-navy-deep);
+  --color-cr-blue: var(--accent);
+  --color-cr-blue-tint: var(--accent-tint);
+  --color-cr-navy: var(--ink);
+  --color-cr-navy-deep: var(--navy);
+  --color-canvas-parchment: var(--canvas-2);
+  --color-surface-pearl: var(--canvas-3);
+  --color-hairline: var(--line);
+  --color-divider: var(--line-2);
 
-  --color-theme-accent: var(--theme-accent);
-  --color-theme-accent-soft: var(--theme-accent-soft);
-  --color-theme-accent-ink: var(--theme-accent-ink);
-
-  --font-display: var(--font-display);
-  --font-sans: var(--font-text);
+  --font-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
 }
 
+/* === Document baseline === */
 html, body {
   background: var(--canvas);
   color: var(--ink);
-  font-family: var(--font-text);
-  font-size: 17px;
-  line-height: 1.47;
-  letter-spacing: -0.022em;
+  font-family: var(--font-inter), -apple-system, "SF Pro Text", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
 }
 
-::selection { background: var(--cr-blue); color: white; }
+::selection { background: var(--accent); color: white; }
 
-/* ───────── Type scale — DESIGN.md exact values ───────── */
-.t-hero {
-  font-family: var(--font-display);
-  font-size: clamp(40px, 5.4vw, 56px);
-  font-weight: 600;
-  line-height: 1.07;
-  letter-spacing: -0.005em;
-  color: var(--ink);
+/* Focus ring — appears on keyboard nav only */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
 }
-.t-display-lg {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 3.6vw, 40px);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: 0;
-  color: var(--ink);
-}
+
+/* === Typography (5-level hierarchy) === */
 .t-display {
-  font-family: var(--font-display);
-  font-size: clamp(22px, 2.4vw, 28px);
+  font-size: clamp(36px, 5vw, 52px);
   font-weight: 600;
-  line-height: 1.18;
-  letter-spacing: 0.007em;
+  line-height: 1.08;
+  letter-spacing: -0.022em;
   color: var(--ink);
 }
-.t-lead {
-  font-family: var(--font-display);
-  font-size: clamp(17px, 1.5vw, 21px);
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: 0.011em;
-  color: var(--ink-80);
-}
-.t-body-strong {
-  font-size: 17px;
+.t-h2 {
+  font-size: clamp(24px, 2.6vw, 32px);
   font-weight: 600;
-  line-height: 1.24;
-  letter-spacing: -0.022em;
+  line-height: 1.15;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+.t-h3 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.28;
+  letter-spacing: -0.014em;
   color: var(--ink);
 }
 .t-body {
@@ -144,134 +188,243 @@ html, body {
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: -0.011em;
-  color: var(--ink-80);
+  color: var(--ink-2);
+}
+.t-body-lg {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.014em;
+  color: var(--ink-2);
 }
 .t-caption {
   font-size: 13px;
   font-weight: 400;
   line-height: 1.4;
-  letter-spacing: -0.012em;
-  color: var(--ink-60);
+  letter-spacing: -0.006em;
+  color: var(--ink-3);
 }
-.t-caption-strong {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  color: var(--ink);
-}
-.t-tagline {
-  font-family: var(--font-display);
+.t-eyebrow {
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--cr-blue);
-}
-.t-nav {
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  color: var(--ink-3);    /* CRITICAL: NOT accent. Reduces visual noise. */
 }
 
-/* ───────── Buttons / pills ───────── */
+/* Legacy class aliases — keep existing components working */
+.t-display-lg { font-size: clamp(36px, 5vw, 52px); font-weight: 600; line-height: 1.08; letter-spacing: -0.022em; color: var(--ink); }
+.t-hero       { font-size: clamp(40px, 5.4vw, 56px); font-weight: 600; line-height: 1.07; letter-spacing: -0.022em; color: var(--ink); }
+.t-lead       { font-size: clamp(17px, 1.6vw, 19px); font-weight: 400; line-height: 1.45; letter-spacing: -0.014em; color: var(--ink-2); }
+.t-body-strong { font-size: 15px; font-weight: 600; letter-spacing: -0.011em; color: var(--ink); }
+.t-tagline    { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.t-caption-strong { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+/* === Buttons === */
+.btn,
 .pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  border-radius: 9999px;
-  padding: 8px 18px;
+  gap: var(--s-2);
+  font-family: inherit;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1;
   letter-spacing: -0.01em;
-  transition: background-color 160ms ease, color 160ms ease, transform 100ms ease, box-shadow 160ms ease;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  border: 1px solid transparent;
   cursor: pointer;
-  border: none;
   white-space: nowrap;
   text-decoration: none;
+  transition:
+    background-color var(--t-base) var(--ease),
+    border-color var(--t-base) var(--ease),
+    color var(--t-base) var(--ease),
+    transform var(--t-fast) var(--ease),
+    box-shadow var(--t-base) var(--ease);
+  user-select: none;
 }
-.pill:active { transform: scale(0.98); }
+.btn:active,
+.pill:active { transform: scale(0.97); }
 
-.pill-primary { background: var(--cr-blue); color: #FFFFFF; }
-.pill-primary:hover { background: var(--cr-blue-press); }
+/* Primary — single solid accent */
+.btn-primary,
+.pill-primary {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+.btn-primary:hover,
+.pill-primary:hover { background: var(--accent-press); box-shadow: var(--shadow-1); }
 
-.pill-ghost { background: transparent; color: var(--cr-blue); }
-.pill-ghost:hover { background: var(--cr-blue-tint); }
+/* Secondary — outline on white */
+.btn-secondary {
+  background: var(--canvas);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-secondary:hover { border-color: var(--ink-4); background: var(--canvas-3); }
 
-.pill-light { background: var(--canvas-parchment); color: var(--ink); }
-.pill-light:hover { background: var(--surface-chip); }
+/* Ghost — quietest */
+.btn-ghost,
+.pill-ghost {
+  background: transparent;
+  color: var(--accent);
+}
+.btn-ghost:hover,
+.pill-ghost:hover { background: var(--accent-tint); }
 
-.pill-dark { background: var(--ink); color: #FFFFFF; }
-.pill-dark:hover { background: #333; }
+/* Light — neutral pill */
+.pill-light {
+  background: var(--canvas-2);
+  color: var(--ink);
+}
+.pill-light:hover { background: var(--line); }
 
-.pill-lg { padding: 11px 22px; font-size: 15px; }
-.pill-xl { padding: 14px 28px; font-size: 16px; font-weight: 400; }
+/* Sizes */
+.btn-lg, .pill-lg { padding: 12px 22px; font-size: 15px; }
+.btn-sm, .pill-sm { padding: 7px 14px; font-size: 13px; }
 
-/* Text link */
+/* Link */
 .link {
-  color: var(--cr-blue);
+  color: var(--accent);
   font-weight: 500;
   text-decoration: none;
-  transition: color 160ms ease;
+  transition: color var(--t-base) var(--ease);
 }
-.link:hover { color: var(--cr-blue-press); text-decoration: underline; text-underline-offset: 3px; }
+.link:hover { color: var(--accent-press); text-decoration: underline; text-underline-offset: 3px; }
 
-/* ───────── Cards ───────── */
+/* === Cards === */
 .card {
   background: var(--canvas);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: 24px;
-  border: 1px solid var(--hairline);
-  transition: box-shadow 200ms ease, border-color 200ms ease;
+  padding: var(--s-5);
+  transition:
+    transform var(--t-base) var(--ease),
+    box-shadow var(--t-base) var(--ease),
+    border-color var(--t-base) var(--ease);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+  border-color: var(--line-2);
 }
 .card-flat {
-  background: var(--canvas-parchment);
+  background: var(--canvas-2);
   border-radius: var(--r-lg);
-  padding: 24px;
+  padding: var(--s-5);
   border: none;
 }
 .card-pearl {
-  background: var(--surface-pearl);
+  background: var(--canvas-3);
+  border: 1px solid var(--line-2);
   border-radius: var(--r-lg);
-  padding: 24px;
-  border: 1px solid var(--divider);
+  padding: var(--s-5);
 }
-.card-hover:hover {
-  box-shadow: var(--shadow-hover);
-  border-color: var(--surface-chip);
-}
-.card-tile {
-  background: var(--canvas);
-  border-radius: var(--r-lg);
-  padding: 32px;
-  border: 1px solid var(--hairline);
+.card-lg {
+  padding: var(--s-6);
+  border-radius: var(--r-xl);
 }
 
-/* Surfaces */
-.surface-parchment { background: var(--canvas-parchment); }
-.surface-pearl     { background: var(--surface-pearl); }
-.surface-dark      { background: var(--cr-navy-deep); color: #FFFFFF; }
+/* === Surfaces === */
+.surface-canvas      { background: var(--canvas); }
+.surface-parchment   { background: var(--canvas-2); }
+.surface-pearl       { background: var(--canvas-3); }
+.surface-dark        { background: var(--ink); color: var(--canvas); }
 
-/* Form controls */
-.field {
+/* === Inputs === */
+.field,
+input.field,
+select.field,
+textarea.field {
   width: 100%;
   padding: 10px 14px;
   border-radius: var(--r-md);
-  background: var(--surface-pearl);
+  background: var(--canvas-2);
   font-size: 15px;
   color: var(--ink);
   outline: none;
   border: 1px solid transparent;
-  transition: background 160ms ease, border-color 160ms ease;
+  transition: background var(--t-base) var(--ease), border-color var(--t-base) var(--ease);
   font-family: inherit;
 }
-.field::placeholder { color: var(--ink-40); }
-.field:hover { background: var(--surface-chip); }
-.field:focus { background: var(--canvas); border-color: var(--cr-blue); }
+.field::placeholder { color: var(--ink-4); }
+.field:hover { background: var(--line-2); }
+.field:focus { background: var(--canvas); border-color: var(--accent); }
 
-/* Subtle scrollbar */
+/* === Tags / badges (semantic) === */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.tag-neutral  { background: var(--canvas-2); color: var(--ink-2); }
+.tag-info     { background: #E8F0FA; color: #0C447C; }
+.tag-success  { background: #E1EFD2; color: #2D4A0F; }
+.tag-warning  { background: #FCE9C8; color: #6F3F00; }
+.tag-danger   { background: #FBE2E2; color: #791F1F; }
+
+/* Tier badge backgrounds — AA contrast pre-checked */
+.tag-bronze   { background: #FBE9DC; color: #7A3F12; }
+.tag-soelv    { background: #ECEEF1; color: #4A4F55; }
+.tag-guld     { background: #FCEFCA; color: #6B4A00; }
+
+/* === Theme accent (USE WITH RESTRAINT) === */
+.theme-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--theme);
+}
+.theme-card {
+  background: var(--theme-soft);
+  border-radius: var(--r-xl);
+  padding: var(--s-6);
+  border: none;
+}
+
+/* === Utility === */
+.divide-line > * + * { border-top: 1px solid var(--line-2); }
+.hairline-y { border-color: var(--line); }
+.hairline-b { border-bottom: 1px solid var(--line); }
+
+/* === Scrollbar === */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: var(--surface-chip); border-radius: 5px; }
-::-webkit-scrollbar-thumb:hover { background: var(--hairline); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* === Animations === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeIn var(--t-slow) var(--ease-out) both; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--canvas-3) 0%, var(--canvas-2) 50%, var(--canvas-3) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Subtle theme cross-fade — feeds Instant Feedback principle */
+[data-theme-active] {
+  transition:
+    background-color var(--t-slow) var(--ease),
+    color var(--t-slow) var(--ease),
+    border-color var(--t-slow) var(--ease);
+}
