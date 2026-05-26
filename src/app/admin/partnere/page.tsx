@@ -21,9 +21,9 @@ export default function AdminPartnere() {
   const regions: Array<Region | "Alle"> = ["Alle", "Nordsjælland", "Vestkysten", "Bornholm", "Lolland-Falster", "Hovedstaden", "Østjylland", "Nordjylland"];
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>PARTNERE · ADMINISTRATION</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Partnere</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Partnere</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         {PARTNERS.length} aktive partnere på tværs af Gruppens selskaber. Klik for at se profil og opgradere niveau.
       </p>

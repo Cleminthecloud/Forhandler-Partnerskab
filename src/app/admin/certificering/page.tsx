@@ -8,9 +8,9 @@ export default function AdminCertificering() {
   const all = [...CERTS_HELD.map((c) => c.cert), ...CERTS_AVAILABLE.map((c) => c.cert)];
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>CERTIFICERING · ADMINISTRATION</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Certificeringsprogrammer</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Certificeringsprogrammer</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         Hvert program er en tema-koblet motor til partner-progression. Niveau 1 åbner Sølv, Niveau 2 åbner Guld.
       </p>

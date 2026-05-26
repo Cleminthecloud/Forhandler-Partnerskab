@@ -44,12 +44,11 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
-      <div className="t-tagline" style={{ color: theme.accentInk }}>LEADS · CARL-RAS.DK PARTNERFINDER</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Leads</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
-        Sommerhusejere finder dig på <strong>carl-ras.dk</strong>. Når de udfylder kontaktformularen,
-        lander leadet her. Acceptér, kontakt, og opdatér status efterhånden som sagen flytter sig.
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+      <div className="t-eyebrow">Leads · Carl-ras.dk Partnerfinder</div>
+      <h1 className="t-display mt-3">Leads</h1>
+      <p className="t-body-lg mt-3 max-w-[680px]">
+        Sommerhusejere finder dig på <strong className="text-[var(--ink)] font-semibold">carl-ras.dk</strong>. Når de udfylder kontaktformularen, lander leadet her.
       </p>
 
       {/* Status pipeline */}
@@ -62,9 +61,10 @@ export default function LeadsPage() {
 
       {/* Leads table */}
       <div className="mt-6 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_120px_140px] gap-4 px-5 py-3 border-b border-[var(--hairline)] bg-[var(--surface-pearl)] text-[11px] uppercase tracking-wider text-[var(--ink-muted-48)] font-semibold">
+        <div className="grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[11px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <div>Kunde · Behov</div>
-          <div>Sted</div>
+          <div>Postnr</div>
+          <div>By</div>
           <div>Værdi</div>
           <div>Status</div>
         </div>
@@ -76,19 +76,15 @@ export default function LeadsPage() {
           <button
             key={l.id}
             onClick={() => setOpenLead(l)}
-            className="w-full grid grid-cols-[1fr_120px_120px_140px] gap-4 px-5 py-4 border-b border-[var(--divider-soft)] last:border-b-0 hover:bg-[var(--surface-pearl)] text-left transition-colors items-center"
+            className="w-full grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 hover:bg-[var(--canvas-2)] text-left transition-colors items-center"
           >
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="t-body-strong text-[var(--cr-navy-deep)] truncate">{l.kunde}</span>
-                <span className="text-[10px] text-[var(--ink-muted-48)] uppercase tracking-wide">
-                  {THEMES.find((t) => t.id === l.tema)?.label.split(" ")[0] ?? l.tema}
-                </span>
-              </div>
-              <div className="text-[13px] text-[var(--ink-muted-80)] truncate">{l.behov}</div>
+              <div className="text-[15px] font-semibold text-[var(--ink)] truncate">{l.kunde}</div>
+              <div className="text-[13px] text-[var(--ink-2)] truncate">{l.behov}</div>
             </div>
-            <div className="text-[13px] text-[var(--ink-muted-80)]">{l.postnr} {l.by}</div>
-            <div className="text-[13px] text-[var(--ink-muted-80)]">{l.værdi ?? "—"}</div>
+            <div className="text-[13px] text-[var(--ink-2)] tabular-nums">{l.postnr}</div>
+            <div className="text-[13px] text-[var(--ink-2)] truncate">{l.by}</div>
+            <div className="text-[13px] text-[var(--ink-2)] tabular-nums">{l.værdi ?? "—"}</div>
             <div>
               <StatusBadge status={l.status} />
             </div>

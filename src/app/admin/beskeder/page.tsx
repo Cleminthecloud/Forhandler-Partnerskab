@@ -14,9 +14,9 @@ export default function AdminBeskeder() {
   const segment = computeSegment(tier, region, tema);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>TARGETED MESSAGING</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Send besked til en partner-segment</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Send besked til en partner-segment</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         Beskeder bliver pushet til partnernes inbox + email. Personalisering via flettefelter.
       </p>

@@ -19,9 +19,9 @@ export default function NyhederPage() {
   const rest = filtered.slice(1);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>NYHEDER FRA CARL RAS</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Hvad er nyt</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Hvad er nyt</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         Vores specialister deler markedsindsigt, produktnyheder, cases, og hvad næste tema bringer.
         Læs hvad der virker for andre partnere.

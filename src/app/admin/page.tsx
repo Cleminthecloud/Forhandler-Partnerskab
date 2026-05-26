@@ -13,7 +13,7 @@ export default function AdminOverview() {
   const omsætningGrowth = Math.round(((ADMIN_STATS.omsætningDenneMåned - ADMIN_STATS.omsætningForrigeMåned) / ADMIN_STATS.omsætningForrigeMåned) * 100);
 
   return (
-    <div className="px-6 lg:px-12 py-10 lg:py-14 max-w-[1200px] animate-in">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
       {/* Header */}
       <header className="flex flex-wrap items-end justify-between gap-6 mb-12">
         <div>
@@ -33,7 +33,7 @@ export default function AdminOverview() {
       </header>
 
       {/* KPI tiles — 4 across, equal weight */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-12">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 mb-8">
         <Kpi label="Aktive partnere"      value={ADMIN_STATS.aktivePartnere} delta="+6 i denne måned"  positive />
         <Kpi label="Leads denne uge"      value={ADMIN_STATS.leadsDenneUge}  delta={`${leadGrowth > 0 ? "+" : ""}${leadGrowth}% vs. forrige`} positive={leadGrowth > 0} />
         <Kpi label="Konvertering"         value={`${Math.round(ADMIN_STATS.leadsKonverteret * 100)}%`} delta="3 pp over Q1-mål" positive />

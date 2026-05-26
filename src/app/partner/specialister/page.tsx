@@ -17,9 +17,9 @@ export default function SpecialisterPage() {
   }
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>TAL MED CARL RAS</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Specialister</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Specialister</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         Stuck i et installationsproblem? Brug for prisliste, salgsargument, eller en demovideo?
         Stil din Carl Ras-specialist et spørgsmål direkte. Svar inden for arbejdsdagen.

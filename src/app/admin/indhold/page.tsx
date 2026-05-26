@@ -5,9 +5,9 @@ import { useApp } from "@/components/AppState";
 export default function AdminIndhold() {
   const { pushToast } = useApp();
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>INDHOLD · MODERATION</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Blog, forum &amp; specialist-chat</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Blog, forum &amp; specialist-chat</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         Publicér artikler, modérer trådene, hold øje med specialist-svartider.
       </p>

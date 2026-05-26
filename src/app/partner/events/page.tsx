@@ -35,9 +35,9 @@ export default function EventsPage() {
   const regions: Array<"Alle" | Region | "Online"> = ["Alle", "Nordsjælland", "Vestkysten", "Bornholm", "Hovedstaden", "Østjylland", "Nordjylland", "Online"];
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: theme.accentInk }}>EVENTS &amp; KALENDER</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Faglige Fredage, regionsmøder &amp; certificering</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Faglige Fredage, regionsmøder &amp; certificering</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         Hver Faglig Fredag er en lokal halv eftermiddag med en Carl Ras-specialist. Vi viser nyt sortiment,
         I deler erfaringer, og I går hjem med konkrete salgsargumenter.

@@ -23,26 +23,27 @@ export default function KampagnerPage() {
   const [confirm, setConfirm] = useState<null | { kind: "print" | "digital"; label: string }>(null);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
-      <div className="t-tagline" style={{ color: theme.accentInk }}>MARKETING-VÆRKTØJSKASSE</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Kampagner</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
-        Færdige co-brandede materialer — print og digitalt. Dit firma, logo og kontaktoplysninger
-        er hentet automatisk fra din profil. Vælg format, se preview, bestil.
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+      <div className="t-eyebrow">Marketing-værktøjskasse</div>
+      <h1 className="t-display mt-3">Kampagner</h1>
+      <p className="t-body-lg mt-3 max-w-[720px]">
+        Færdige co-brandede materialer — print og digitalt. Dit firma, logo og kontaktoplysninger er hentet automatisk fra din profil.
       </p>
 
       {/* Theme's campaigns */}
-      <div className="mt-8">
-        <div className="text-[12px] font-semibold mb-3 text-[var(--ink-muted-80)]">
-          Aktivt tema · <span style={{ color: theme.accentInk }}>{theme.label}</span>
+      <div className="mt-10">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="theme-dot" style={{ background: theme.accent }} />
+          <span className="text-[13px] font-semibold text-[var(--ink)]">Aktivt tema · {theme.label}</span>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {themed.map((c) => (
             <CampaignCard
               key={c.id}
               campaign={c}
               accent={theme.accent}
               accentSoft={theme.accentSoft}
+              accentInk={theme.accentInk}
               active={activeCampaign?.id === c.id}
               onClick={() => { setActiveCampaignId(c.id); setFormat(c.formater[0]); }}
             />
@@ -53,14 +54,15 @@ export default function KampagnerPage() {
       {/* Other themes' campaigns */}
       {other.length > 0 && (
         <div className="mt-10">
-          <div className="text-[12px] font-semibold mb-3 text-[var(--ink-muted-80)]">Øvrige temaer i årshjulet</div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="text-[13px] font-semibold mb-4 text-[var(--ink-3)]">Øvrige temaer i årshjulet · kommer senere</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 opacity-60">
             {other.map((c) => (
               <CampaignCard
                 key={c.id}
                 campaign={c}
                 accent="#9CA3AF"
                 accentSoft="#F3F4F6"
+                accentInk="#52595E"
                 muted
                 active={activeCampaign?.id === c.id}
                 onClick={() => { setActiveCampaignId(c.id); setFormat(c.formater[0]); }}
@@ -163,26 +165,36 @@ export default function KampagnerPage() {
   );
 }
 
-function CampaignCard({ campaign, accent, accentSoft, active, onClick, muted }: { campaign: Campaign; accent: string; accentSoft: string; active: boolean; onClick: () => void; muted?: boolean }) {
+function CampaignCard({ campaign, accent, accentSoft, accentInk, active, onClick, muted }: { campaign: Campaign; accent: string; accentSoft: string; accentInk: string; active: boolean; onClick: () => void; muted?: boolean }) {
   return (
     <button
       onClick={onClick}
-      className={"card text-left transition-all " + (active ? "ring-2 ring-[var(--cr-blue)]" : "hover:shadow-[0_10px_24px_rgba(0,45,89,0.06)]") + (muted ? " opacity-90" : "")}
+      className={"card text-left transition-all relative " + (active ? "!border-transparent shadow-[var(--shadow-2)]" : "card-hover")}
+      style={active ? { background: accentSoft, borderColor: "transparent" } : undefined}
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="size-12 rounded-xl grid place-items-center text-2xl shrink-0" style={{ background: accentSoft }}>
+      {active && (
+        <span className="absolute top-3 right-3 size-6 rounded-full grid place-items-center text-white" style={{ background: accent }} aria-label="Valgt">
+          <svg width="12" height="12" viewBox="0 0 14 14"><path d="M2 7l3 3 7-7" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </span>
+      )}
+      <div className="flex items-center gap-3">
+        <div className="size-12 rounded-xl grid place-items-center text-2xl shrink-0" style={{ background: active ? "white" : accentSoft }}>
           {campaign.heroEmoji}
         </div>
-        <span
-          className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide"
-          style={{ background: accentSoft, color: accent === "#9CA3AF" ? "#444" : "var(--theme-accent-ink)" }}
-        >
-          {campaign.status}
-        </span>
+        {!active && (
+          <span
+            className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wider ml-auto"
+            style={{ background: accentSoft, color: accentInk }}
+          >
+            {campaign.status}
+          </span>
+        )}
       </div>
-      <div className="mt-4 t-body-strong text-[var(--cr-navy-deep)]">{campaign.titel}</div>
-      <p className="t-caption mt-1 line-clamp-2">{campaign.hovedbudskab}</p>
-      <div className="mt-3 text-[11px] text-[var(--ink-muted-48)]">{campaign.formater.length} formater · klar at bruge</div>
+      <div className="mt-4 text-[15px] font-semibold leading-snug" style={{ color: active ? accentInk : "var(--ink)" }}>{campaign.titel}</div>
+      <p className="mt-1 text-[13px] leading-[1.45] line-clamp-2" style={{ color: active ? accentInk : "var(--ink-3)", opacity: active ? 0.75 : 1 }}>{campaign.hovedbudskab}</p>
+      <div className="mt-3 text-[11px]" style={{ color: active ? accentInk : "var(--ink-3)", opacity: active ? 0.6 : 1 }}>
+        {campaign.formater.length} formater {muted ? "(forhåndsvisning)" : "· klar at bruge"}
+      </div>
     </button>
   );
 }

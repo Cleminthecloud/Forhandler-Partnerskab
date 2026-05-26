@@ -32,7 +32,7 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
             </span>
             <span className="flex flex-col leading-tight">
               <span className="text-[12px] font-semibold tracking-tight">Carl Ras</span>
-              <span className="text-[9px] uppercase tracking-[0.16em] text-white/55 hidden sm:block">Forhandler&nbsp;Partnerskab</span>
+              <span className="text-[9px] uppercase tracking-[0.16em] text-white/70 hidden sm:block">Forhandler&nbsp;Partnerskab</span>
             </span>
           </Link>
         )}

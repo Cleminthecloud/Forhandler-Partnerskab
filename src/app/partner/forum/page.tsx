@@ -26,9 +26,9 @@ export default function ForumPage() {
   }, []);
 
   return (
-    <div className="p-6 lg:p-10 max-w-[1280px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
       <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>FORUM &amp; PEER-NETVÆRK</div>
-      <h1 className="t-display-lg mt-3 text-[var(--cr-navy-deep)]">Forum</h1>
+      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Forum</h1>
       <p className="t-lead mt-2 max-w-[680px]">
         Stil et spørgsmål til de andre partnere. Del en tip. Find en ligesindet i din region eller faggruppe.
       </p>

@@ -30,7 +30,7 @@ export default function FindPartnerPage() {
       {/* ─── HERO ──────────────────────────────────────────────────
           Single dominant headline, generous whitespace, calm.        */}
       <section className="surface-parchment hairline-b border-b">
-        <div className="mx-auto max-w-[1200px] px-6 lg:px-10 py-16 lg:py-24">
+        <div className="mx-auto max-w-[1280px] px-6 lg:px-10 py-16 lg:py-20">
           <div className="t-eyebrow">Find en partner</div>
 
           <h1 className="t-display mt-3 max-w-[820px]">
@@ -93,7 +93,7 @@ export default function FindPartnerPage() {
       </section>
 
       {/* ─── RESULTS ─────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-[1200px] px-6 lg:px-10 py-16">
+      <section className="mx-auto max-w-[1440px] px-6 lg:px-10 py-12">
         <div className="flex flex-wrap items-baseline justify-between gap-3 mb-8">
           <h2 className="t-h2">{filtered.length} partnere matcher</h2>
           <span className="t-caption">Sorteret efter nærmeste</span>
@@ -171,7 +171,7 @@ export default function FindPartnerPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block bg-[var(--canvas-2)] rounded-[14px] px-3.5 py-2.5">
-      <span className="block text-[11px] font-medium text-[var(--ink-3)]">{label}</span>
+      <span className="block text-[11px] font-semibold text-[var(--ink-2)]">{label}</span>
       <div className="mt-0.5 -mx-1">{children}</div>
       <style>{`
         label .field { background: transparent; padding: 4px 4px; font-size: 14px; font-weight: 500; }
