@@ -3,7 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { ADMIN_STATS, PARTNERS, Region, Tier } from "@/lib/data";
-import { Sparkline, AreaChart, Donut, BarMini } from "@/components/Charts";
+import { Sparkline, Donut, BarMini } from "@/components/Charts";
+import { InteractiveArea } from "@/components/ChartsInteractive";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -98,11 +99,11 @@ export default function AdminOverview() {
               <div className="text-[12px] font-semibold text-[#2D4A0F] mt-1">+{leadGrowth}%</div>
             </div>
           </div>
-          <AreaChart
-            values={leadSeries}
-            labels={["U17","U18","U19","U20","U21","U22","U23","U24"]}
+          <InteractiveArea
+            data={leadSeries.map((v, i) => ({ label: ["U17","U18","U19","U20","U21","U22","U23","U24"][i], value: v }))}
             color={theme.accent}
-            height={200}
+            height={220}
+            unit="leads"
           />
         </div>
 
@@ -161,8 +162,8 @@ export default function AdminOverview() {
           </div>
           <ul className="space-y-4">
             {[
-              { tid: "for 18 min", body: <><strong>Blokhus Byg &amp; Bolig</strong> opgraderet til Guld-partner.</>, color: "#C99A20" },
-              { tid: "for 42 min", body: <><strong>3 nye leads</strong> routet fra carl-ras.dk → Hornbæk Låseservice.</>, color: theme.accent },
+              { tid: "for 18 min", body: <><Link href="/admin/partnere/p-blokhus-byg" className="font-semibold text-[var(--ink)] hover:text-[var(--accent)] hover:underline">Blokhus Byg &amp; Bolig</Link> opgraderet til Guld-partner.</>, color: "#C99A20" },
+              { tid: "for 42 min", body: <><strong>3 nye leads</strong> routet fra carl-ras.dk → <Link href="/admin/partnere/p-hornbaek-laas" className="font-semibold text-[var(--ink)] hover:text-[var(--accent)] hover:underline">Hornbæk Låseservice</Link>.</>, color: theme.accent },
               { tid: "for 1 t",    body: <><strong>Faglig Fredag Bornholm</strong> nåede 8/18 tilmeldte.</>, color: "var(--accent)" },
               { tid: "for 2 t",    body: <><strong>Nyt blogindlæg</strong> publiceret: &quot;Vinterklargøring kommer Q4&quot;.</>, color: "#5B7F2C" },
               { tid: "i går",      body: <><strong>Targeted besked</strong> sendt til 21 Sølv-partnere.</>, color: "#7E8993" },
@@ -189,13 +190,17 @@ export default function AdminOverview() {
           <span>Partner</span><span>Tier</span><span>Sager</span><span>Rating</span><span>Region</span>
         </div>
         {PARTNERS.slice(0, 6).map((p) => (
-          <div key={p.id} className="grid grid-cols-[1fr_80px_70px_80px_110px] gap-4 px-2 py-3 border-t border-[var(--line-2)] items-center">
+          <Link
+            key={p.id}
+            href={`/admin/partnere/${p.id}`}
+            className="grid grid-cols-[1fr_80px_70px_80px_110px] gap-4 px-2 py-3 border-t border-[var(--line-2)] items-center hover:bg-[var(--canvas-2)] -mx-2 px-4 rounded-md transition-colors group"
+          >
             <div className="flex items-center gap-3 min-w-0">
               <div className="size-9 rounded-lg grid place-items-center text-white text-[11px] font-semibold shrink-0" style={{ background: p.logoBg }} aria-hidden="true">
                 {p.initialer}
               </div>
               <div className="min-w-0">
-                <div className="text-[14px] font-semibold text-[var(--ink)] truncate">{p.firma}</div>
+                <div className="text-[14px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors">{p.firma}</div>
                 <div className="text-[12px] text-[var(--ink-3)] truncate">{p.faggruppe} · {p.by}</div>
               </div>
             </div>
@@ -203,7 +208,7 @@ export default function AdminOverview() {
             <span className="text-[13px] tabular-nums">{p.antalSager}</span>
             <span className="text-[13px] tabular-nums">{p.rating} ★</span>
             <span className="text-[12px] text-[var(--ink-3)]">{p.region}</span>
-          </div>
+          </Link>
         ))}
       </section>
     </div>

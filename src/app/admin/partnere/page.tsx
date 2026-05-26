@@ -1,8 +1,14 @@
 "use client";
 import { useMemo, useState } from "react";
-import { PARTNERS, Region, Tier, Faggruppe } from "@/lib/data";
+import Link from "next/link";
+import { PARTNERS, Region, Tier } from "@/lib/data";
 
 const TIERS: Tier[] = ["Bronze", "Sølv", "Guld"];
+
+function tierClass(tier: Tier) {
+  const map = { Bronze: "tag tag-bronze", Sølv: "tag tag-soelv", Guld: "tag tag-guld" } as const;
+  return map[tier];
+}
 
 export default function AdminPartnere() {
   const [q, setQ] = useState("");
@@ -21,10 +27,10 @@ export default function AdminPartnere() {
   const regions: Array<Region | "Alle"> = ["Alle", "Nordsjælland", "Vestkysten", "Bornholm", "Lolland-Falster", "Hovedstaden", "Østjylland", "Nordjylland"];
 
   return (
-    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
-      <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>PARTNERE · ADMINISTRATION</div>
-      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Partnere</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+      <div className="t-eyebrow">Partnere · administration</div>
+      <h1 className="t-display mt-3">Partnere</h1>
+      <p className="t-body-lg mt-3 max-w-[680px]">
         {PARTNERS.length} aktive partnere på tværs af Gruppens selskaber. Klik for at se profil og opgradere niveau.
       </p>
 
@@ -35,12 +41,12 @@ export default function AdminPartnere() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Søg firma, ejer eller by…"
-          className="flex-1 min-w-[200px] rounded-full px-4 py-2 bg-[var(--surface-pearl)] text-[14px] outline-none focus:ring-2 focus:ring-[var(--cr-blue)] border border-transparent"
+          className="flex-1 min-w-[200px] rounded-full px-4 py-2 bg-[var(--canvas-2)] text-[14px] outline-none focus:ring-2 focus:ring-[var(--accent)] border border-transparent"
         />
         <select
           value={tierFilter}
           onChange={(e) => setTierFilter(e.target.value as Tier | "Alle")}
-          className="rounded-full px-4 py-2 bg-[var(--surface-pearl)] text-[14px] border border-transparent focus:ring-2 focus:ring-[var(--cr-blue)] outline-none"
+          className="rounded-full px-4 py-2 bg-[var(--canvas-2)] text-[14px] border border-transparent focus:ring-2 focus:ring-[var(--accent)] outline-none"
         >
           <option value="Alle">Alle niveauer</option>
           {TIERS.map((t) => <option key={t} value={t}>{t}-partner</option>)}
@@ -48,19 +54,19 @@ export default function AdminPartnere() {
         <select
           value={regionFilter}
           onChange={(e) => setRegionFilter(e.target.value as Region | "Alle")}
-          className="rounded-full px-4 py-2 bg-[var(--surface-pearl)] text-[14px] border border-transparent focus:ring-2 focus:ring-[var(--cr-blue)] outline-none"
+          className="rounded-full px-4 py-2 bg-[var(--canvas-2)] text-[14px] border border-transparent focus:ring-2 focus:ring-[var(--accent)] outline-none"
         >
           {regions.map((r) => <option key={r} value={r}>{r}</option>)}
         </select>
       </div>
 
-      <div className="mt-4 text-[12px] text-[var(--ink-muted-48)]">
+      <div className="mt-4 text-[12px] text-[var(--ink-3)]">
         Viser {filtered.length} af {PARTNERS.length} partnere
       </div>
 
       {/* Partner table */}
       <div className="mt-4 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_140px_100px_100px_120px] gap-4 px-5 py-3 border-b border-[var(--hairline)] bg-[var(--surface-pearl)] text-[11px] uppercase tracking-wider text-[var(--ink-muted-48)] font-semibold">
+        <div className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[11px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <span>Firma · ejer</span>
           <span>Tier</span>
           <span>Faggruppe</span>
@@ -69,27 +75,26 @@ export default function AdminPartnere() {
           <span>Handling</span>
         </div>
         {filtered.map((p) => (
-          <div key={p.id} className="grid grid-cols-[1fr_120px_140px_100px_100px_120px] gap-4 px-5 py-4 border-b border-[var(--divider-soft)] last:border-b-0 items-center hover:bg-[var(--surface-pearl)] transition-colors">
+          <Link
+            key={p.id}
+            href={`/admin/partnere/${p.id}`}
+            className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 items-center hover:bg-[var(--canvas-2)] transition-colors cursor-pointer group"
+          >
             <div className="flex items-center gap-3 min-w-0">
               <div className="size-10 rounded-xl grid place-items-center text-white text-[12px] font-semibold shrink-0" style={{ background: p.logoBg }}>
                 {p.initialer}
               </div>
               <div className="min-w-0">
-                <div className="text-[14px] font-semibold text-[var(--cr-navy-deep)] truncate">{p.firma}</div>
-                <div className="text-[12px] text-[var(--ink-muted-48)] truncate">{p.ejer} · {p.by}</div>
+                <div className="text-[14px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors">{p.firma}</div>
+                <div className="text-[12px] text-[var(--ink-3)] truncate">{p.ejer} · {p.by}</div>
               </div>
             </div>
-            <span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{
-                background: p.tier === "Guld" ? "#FFF4D6" : p.tier === "Sølv" ? "#F1F3F5" : "#FBE9DC",
-                color: p.tier === "Guld" ? "#7A5300" : p.tier === "Sølv" ? "#52595E" : "#7A3F12",
-              }}>{p.tier}</span>
-            </span>
-            <span className="text-[13px] text-[var(--ink-muted-80)]">{p.faggruppe}</span>
-            <span className="text-[13px] text-[var(--ink-muted-80)]">{p.region}</span>
-            <span className="text-[13px] text-[var(--cr-navy-deep)] font-medium">{p.antalSager}</span>
-            <button className="text-[13px] font-semibold text-[var(--cr-blue)] text-left">Åbn profil →</button>
-          </div>
+            <span className={tierClass(p.tier)}>{p.tier}</span>
+            <span className="text-[13px] text-[var(--ink-2)]">{p.faggruppe}</span>
+            <span className="text-[13px] text-[var(--ink-2)]">{p.region}</span>
+            <span className="text-[13px] text-[var(--ink)] font-medium tabular-nums">{p.antalSager}</span>
+            <span className="text-[13px] font-semibold text-[var(--accent)] text-left inline-flex items-center gap-1">Åbn profil →</span>
+          </Link>
         ))}
       </div>
     </div>

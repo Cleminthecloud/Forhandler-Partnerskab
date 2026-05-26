@@ -351,6 +351,187 @@ export const ADMIN_STATS = {
   aktiveTema: "sommer-sikring" as ThemeId,
 };
 
+/* ─────────────────────────── Partner sales analytics (admin profile) ─────────────────────────── */
+export interface PartnerSales {
+  // YoY rollups
+  omsætning12mo: number;
+  omsætningYoY: number;        // +/- percent
+  sagerYTD: number;
+  sagerYoY: number;
+  rabatTotalDKK: number;       // total discount granted, this year
+  rabatPct: number;            // effective discount %
+  kontaktOmkostningPerSag: number;  // cost-per-sale (visits + delivery + support)
+  npsScore: number;            // -100 to +100
+  npsRespondenter: number;
+  betalingsdageGns: number;    // average days-to-pay
+  // Monthly series (last 12 months, oldest first)
+  monthlyOmsætning: number[];
+  monthlyLabels: string[];
+  monthlySager: number[];
+  // Category breakdown of spend
+  kategoriSplit: { label: string; value: number; color: string }[];
+  // Insights — what we've learned
+  insights: { title: string; body: string; emoji: string }[];
+  // Activity log
+  activity: { tid: string; type: "ordre" | "lead" | "kursus" | "kontakt" | "tier"; text: string }[];
+  // Predicted next purchase (used by "Send forudsigt-tilbud")
+  predictedOffer: {
+    productIds: string[];        // ids that exist in PRODUCTS
+    reason: string;              // 1-line explanation
+    estimatedValue: string;      // pretty kr
+    confidence: number;          // 0–100
+  };
+}
+
+const DA_MONTHS = ["Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "Maj"];
+
+/** Generate plausible sales data for a partner based on tier + faggruppe. */
+function buildPartnerSales(tier: Tier, faggruppe: Faggruppe, seed: number): PartnerSales {
+  // Tier-driven base figures
+  const tierMult = tier === "Guld" ? 2.4 : tier === "Sølv" ? 1.0 : 0.42;
+  const baseAnnual = 120000 * tierMult;
+  const omsætning12mo = Math.round(baseAnnual * (0.85 + ((seed % 30) / 100)));
+  const omsætningYoY = Math.round(((seed * 13) % 28) - 4);  // -4..+23
+  const sagerYTD = Math.round((tier === "Guld" ? 180 : tier === "Sølv" ? 95 : 28) * (0.85 + ((seed % 20) / 100)));
+  const sagerYoY = Math.round(((seed * 17) % 22) - 2);
+  const rabatPct = +(tier === "Guld" ? 14 : tier === "Sølv" ? 10 : 5).toFixed(0);
+  const rabatTotalDKK = Math.round(omsætning12mo * (rabatPct / 100));
+  const kontaktOmkostningPerSag = tier === "Guld" ? 145 : tier === "Sølv" ? 220 : 310;
+  const npsScore = tier === "Guld" ? 72 + (seed % 18) : tier === "Sølv" ? 48 + (seed % 22) : 22 + (seed % 28);
+  const betalingsdageGns = tier === "Guld" ? 14 + (seed % 6) : tier === "Sølv" ? 21 + (seed % 8) : 28 + (seed % 12);
+
+  // Monthly omsætning — slight upward trend, with seasonal wobble
+  const monthlyOmsætning = DA_MONTHS.map((_, i) => {
+    const base = baseAnnual / 12;
+    const seasonal = Math.sin((i + (seed % 6)) / 12 * Math.PI * 2) * 0.18;
+    const trend = i * 0.012;
+    const noise = ((seed * (i + 1)) % 17) / 100 - 0.08;
+    return Math.round(base * (1 + seasonal + trend + noise));
+  });
+  const monthlySager = monthlyOmsætning.map((v) => Math.max(1, Math.round(v / 950)));
+
+  // Category split by faggruppe
+  const split = (() => {
+    switch (faggruppe) {
+      case "Låsesmed":
+        return [
+          { label: "Smart Lock", value: 38 + (seed % 8), color: "#1158A3" },
+          { label: "Adgangskontrol", value: 22 + (seed % 6), color: "#4D87C2" },
+          { label: "Alarm & sensor", value: 18 + (seed % 5), color: "#7CA5D2" },
+          { label: "Beslag & cylinder", value: 14, color: "#A8C2DF" },
+          { label: "Værktøj", value: 8, color: "#C7D5E5" },
+        ];
+      case "Tømrer":
+        return [
+          { label: "Værktøj", value: 32, color: "#5B7F2C" },
+          { label: "Befæstigelse", value: 26, color: "#7AA13D" },
+          { label: "Beslag", value: 18, color: "#A0BE71" },
+          { label: "Arbejdstøj", value: 14, color: "#C2D6A0" },
+          { label: "Smart Lock (nyt)", value: 10, color: "#1158A3" },
+        ];
+      case "VVS":
+        return [
+          { label: "Vand & frostsikring", value: 35, color: "#0C447C" },
+          { label: "Værktøj", value: 24, color: "#4D87C2" },
+          { label: "Beslag", value: 16, color: "#7CA5D2" },
+          { label: "Alarm", value: 15, color: "#A8C2DF" },
+          { label: "Smart Lock", value: 10, color: "#1158A3" },
+        ];
+      default:
+        return [
+          { label: "Værktøj", value: 32, color: "#1158A3" },
+          { label: "Arbejdstøj", value: 24, color: "#4D87C2" },
+          { label: "Sikring", value: 18, color: "#7CA5D2" },
+          { label: "Beslag", value: 16, color: "#A8C2DF" },
+          { label: "Andet", value: 10, color: "#C7D5E5" },
+        ];
+    }
+  })();
+
+  // Insights vary by tier + faggruppe — meaningful, brand-relevant observations
+  const insights = (() => {
+    const base = [
+      { emoji: "📈", title: "Køber 1.8× smart-lock vs. region-snittet", body: "Stærkt forspring på Smart Lock-segmentet. Oplagt at flytte konsulent-besøg til 1. tirsdag i måneden hvor de typisk bestiller." },
+      { emoji: "🕒", title: "Bestiller typisk mandag–tirsdag", body: "73% af ordrer falder i ugens første dage. Marketing-pushes om søndag aften har 2× højere åbningsrate." },
+      { emoji: "💸", title: `Effektiv rabat-sats: ${rabatPct}%`, body: tier === "Guld" ? "Tæt på det maksimale for tier. Overvej værdi-add fremfor flere %." : tier === "Sølv" ? "I midten af partner-segmentet. Performer over forventning." : "Lav effektiv rabat — vækstpotentiale via volume." },
+    ];
+    if (faggruppe === "Låsesmed") base.push({ emoji: "🔓", title: "Aldrig købt vinterklargøring", body: "Klassisk cross-sell mulighed når Q4-temaet lanceres. Smart-lock kunder konverterer godt på frostsikring." });
+    return base;
+  })();
+
+  const activity = [
+    { tid: "i går · 14:22",     type: "ordre" as const,   text: `Ordre #{${(seed * 31).toString(36).slice(0,6)}} · 8.420 kr · Smart Lock ST-2 + Gateway` },
+    { tid: "2 dage siden",      type: "lead" as const,    text: "Lead modtaget fra carl-ras.dk — Familien Birkholm, Hornbæk" },
+    { tid: "5 dage siden",      type: "kursus" as const,  text: "Færdig: ABUS Smart Lock Certified · score 92%" },
+    { tid: "1 uge siden",       type: "kontakt" as const, text: "Konsulent-besøg af Tina H. · 2 timer" },
+    { tid: "2 uger siden",      type: "ordre" as const,   text: "Ordre · 14.110 kr · 3× Smart Lock + tilbehør" },
+    { tid: "3 uger siden",      type: "tier" as const,    text: tier === "Bronze" ? "Tilmeldt programmet · Bronze" : `Opgraderet til ${tier}-partner` },
+  ];
+
+  // Predicted offer based on faggruppe — pick from real PRODUCTS
+  const predictedOffer = (() => {
+    if (faggruppe === "Låsesmed") {
+      return {
+        productIds: ["40013955", "40013216", "55011841"],
+        reason: "Baseret på køb af 3× Smart Lock ST-2 sort i de sidste 60 dage og 11 leads i pipeline. Mangler typisk gateway + ekstra røgalarmer.",
+        estimatedValue: "≈ 8.900 kr",
+        confidence: 84,
+      };
+    }
+    if (faggruppe === "Tømrer") {
+      return {
+        productIds: ["40013215", "55011840"],
+        reason: "Vintertema lanceres Q4. Tømrere køber typisk smart-lock som cross-sell efter første sommer-job.",
+        estimatedValue: "≈ 4.200 kr",
+        confidence: 62,
+      };
+    }
+    return {
+      productIds: ["55011840", "55011841", "41008815"],
+      reason: "Genbestillings-mønster: køber alarm-produkter hver 4. måned. Tid til ny bestilling om 2 uger.",
+      estimatedValue: "≈ 3.100 kr",
+      confidence: 71,
+    };
+  })();
+
+  return {
+    omsætning12mo,
+    omsætningYoY,
+    sagerYTD,
+    sagerYoY,
+    rabatTotalDKK,
+    rabatPct,
+    kontaktOmkostningPerSag,
+    npsScore,
+    npsRespondenter: Math.round(sagerYTD * 0.22),
+    betalingsdageGns,
+    monthlyOmsætning,
+    monthlyLabels: DA_MONTHS,
+    monthlySager,
+    kategoriSplit: split,
+    insights,
+    activity,
+    predictedOffer,
+  };
+}
+
+/** Lazy-computed per-partner sales data. */
+const SALES_CACHE = new Map<string, PartnerSales>();
+export function salesFor(partnerId: string): PartnerSales {
+  const cached = SALES_CACHE.get(partnerId);
+  if (cached) return cached;
+  const p = PARTNERS.find((x) => x.id === partnerId);
+  if (!p) {
+    return buildPartnerSales("Sølv", "Låsesmed", 7);
+  }
+  // Stable deterministic seed from partner id
+  let seed = 0;
+  for (let i = 0; i < partnerId.length; i++) seed = (seed * 31 + partnerId.charCodeAt(i)) >>> 0;
+  const data = buildPartnerSales(p.tier, p.faggruppe, seed % 100);
+  SALES_CACHE.set(partnerId, data);
+  return data;
+}
+
 /* ─────────────────────────── Carl Ras products (real PDPs) ─────────────────────────── */
 export interface Product {
   id: string;
