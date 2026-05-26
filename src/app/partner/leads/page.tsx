@@ -93,8 +93,8 @@ export default function LeadsPage() {
       {/* Side panel */}
       {openLead && (
         <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setOpenLead(null)}>
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="relative w-full max-w-[480px] bg-white h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative w-full max-w-[720px] bg-white h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b border-[var(--hairline)] flex items-center justify-between">
               <div>
                 <div className="t-tagline" style={{ color: STATUS_COLOR[openLead.status].ink }}>LEAD #{openLead.id.replace("l-", "")}</div>
@@ -241,8 +241,13 @@ function WonProjectUpsell({ behov }: { behov: string }) {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors group"
               >
-                <div className="size-12 rounded-lg bg-[var(--canvas-2)] grid place-items-center text-2xl shrink-0">
-                  {p.emoji}
+                <div className="size-16 rounded-lg bg-[var(--canvas-2)] overflow-hidden grid place-items-center shrink-0">
+                  {p.image ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={p.image} alt={p.navn} className="size-full object-cover" />
+                  ) : (
+                    <span className="text-2xl">{p.emoji}</span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>

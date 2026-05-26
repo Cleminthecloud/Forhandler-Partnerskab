@@ -18,32 +18,28 @@ export interface CampaignImage {
 
 export const DEFAULT_IMAGES: CampaignImage[] = [
   {
-    id: "lifestyle",
-    label: "Lifestyle",
-    bg: "linear-gradient(135deg, #F8C77A 0%, #E89A4A 55%, #B86825 100%)",
-    glyph: "🏖️",
+    id: "family",
+    label: "Familie",
+    bg: "url(/campaigns/sommerhus-family.jpg) center/cover",
     fg: "light",
   },
   {
-    id: "atmosfaere",
-    label: "Atmosfære",
-    bg: "linear-gradient(160deg, #6A8AAB 0%, #2C476A 60%, #1A2D45 100%)",
-    glyph: "🌅",
+    id: "dusk",
+    label: "Skumring",
+    bg: "url(/campaigns/sommerhus-dusk.jpg) center/cover",
     fg: "light",
   },
   {
-    id: "produkt",
+    id: "lock-pov",
+    label: "Smart lock",
+    bg: "url(/campaigns/sommerhus-lock-pov.jpg) center/cover",
+    fg: "light",
+  },
+  {
+    id: "product",
     label: "Produkt",
-    bg: "linear-gradient(135deg, #E0D4C2 0%, #B89A78 60%, #7A5B3E 100%)",
-    glyph: "🔐",
+    bg: "url(/campaigns/stroxx-product.jpg) center/cover",
     fg: "dark",
-  },
-  {
-    id: "studio",
-    label: "Studio",
-    bg: "linear-gradient(180deg, #2A2A2C 0%, #0E0E10 100%)",
-    glyph: "📱",
-    fg: "light",
   },
 ];
 
@@ -83,110 +79,143 @@ function PhotoArea({ image, height = "100%", className }: { image: CampaignImage
           {image.glyph}
         </div>
       )}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 100%, rgba(0,0,0,0.18) 0%, transparent 60%)" }} />
     </div>
   );
 }
 
-function CertBadge({ dense }: { dense?: boolean }) {
+function CarlRasMark({ size = 14 }: { size?: number }) {
   return (
-    <div
-      className="rounded shrink-0 grid text-white text-center content-center"
-      style={{
-        background: "#1158A3",
-        width: dense ? 44 : 56,
-        height: dense ? 26 : 32,
-        padding: dense ? "3px 4px" : "4px 6px",
-      }}
-    >
-      <div style={{ fontSize: dense ? 6 : 7, fontWeight: 700, letterSpacing: "0.06em", lineHeight: 1 }}>CARL RAS</div>
-      <div style={{ fontSize: dense ? 7 : 9, fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1.1, marginTop: 1 }}>PARTNER</div>
-    </div>
+    <span className="inline-flex items-center gap-1.5">
+      <span className="rounded grid place-items-center shrink-0" style={{ background: "#1158A3", width: size, height: size }}>
+        <span style={{ fontSize: size * 0.55, color: "white", fontWeight: 900, lineHeight: 1, letterSpacing: "-0.05em" }}>CR</span>
+      </span>
+    </span>
   );
 }
 
-function PartnerFooter({ partner }: { partner: PartnerProfile }) {
+/** Editorial co-brand footer used on print formats. White text on dark photo. */
+function CoBrandFooterLight({ partner, layout = "stacked" }: { partner: PartnerProfile; layout?: "stacked" | "wide" }) {
   return (
-    <div className="flex items-center gap-2">
-      <div
-        className="rounded-md grid place-items-center text-white font-bold shrink-0"
-        style={{ background: partner.logoBg, width: 36, height: 36, fontSize: 11 }}
-      >
-        {partner.initialer}
-      </div>
-      <div className="leading-tight min-w-0">
-        <div className="font-bold truncate" style={{ fontSize: 12, color: "#1D1D1F" }}>{partner.firma}</div>
-        <div className="truncate" style={{ fontSize: 9.5, color: "#515154" }}>{partner.faggruppe} · {partner.by}</div>
-        <div className="truncate" style={{ fontSize: 9.5, color: "#515154" }}>{partner.telefon} · {partner.webadresse}</div>
-      </div>
-      <CertBadge />
-    </div>
-  );
-}
-
-/* =================== Flyer A5 =================== */
-function FlyerA5({ campaign, partner, theme, image }: { campaign: Campaign; partner: PartnerProfile; theme: Theme; image: CampaignImage }) {
-  return (
-    <div
-      className="bg-white shadow-[0_20px_60px_rgba(0,26,51,0.18)] flex flex-col overflow-hidden"
-      style={{ width: 360, aspectRatio: "148/210", borderRadius: 4 }}
-    >
-      <PhotoArea image={image} height="56%" />
-      <div className="flex-1 flex flex-col px-5 pt-4 pb-3">
-        <h3 className="font-bold leading-[1.05] tracking-tight" style={{ color: "#1D1D1F", fontSize: 24 }}>
-          {campaign.hovedbudskab}
-        </h3>
-        <p className="mt-2 leading-[1.4]" style={{ color: "#515154", fontSize: 12 }}>
-          {campaign.underbudskab}
-        </p>
-        <div className="mt-3">
-          <span
-            className="inline-block px-3.5 py-1.5 rounded-full text-white font-semibold"
-            style={{ background: theme.accent, fontSize: 11 }}
-          >
-            {campaign.cta}
-          </span>
+    <div className={layout === "wide" ? "flex items-end justify-between gap-4" : "text-center"}>
+      <div className={layout === "wide" ? "" : ""}>
+        <div className="font-extrabold text-white tracking-[0.04em]" style={{ fontSize: 20, lineHeight: 1.0 }}>
+          {partner.firma.toUpperCase()}
         </div>
-        <div className="mt-auto pt-3 border-t border-[#E5E5EA]">
-          <PartnerFooter partner={partner} />
+        <div className="text-white/75 mt-1" style={{ fontSize: 9.5, letterSpacing: "0.1em" }}>
+          {partner.webadresse.toUpperCase()} · {partner.telefon}
         </div>
       </div>
+      <div className={(layout === "wide" ? "" : "mt-2 ") + "flex items-center gap-2 " + (layout === "wide" ? "" : "justify-center")}>
+        <span className="text-white/65" style={{ fontSize: 8, letterSpacing: "0.16em" }}>I SAMARBEJDE MED</span>
+        <CarlRasMark size={14} />
+        <span className="font-bold text-white" style={{ fontSize: 10, letterSpacing: "0.08em" }}>CARL RAS</span>
+        <span className="px-1 py-0.5 rounded text-white" style={{ background: "#E30613", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", lineHeight: 1 }}>
+          SIKRING
+        </span>
+      </div>
     </div>
   );
 }
 
-/* =================== Poster A3 =================== */
-function PosterA3({ campaign, partner, theme, image }: { campaign: Campaign; partner: PartnerProfile; theme: Theme; image: CampaignImage }) {
+/** Dark variant — for ads with light photos */
+function CoBrandFooterDark({ partner, layout = "stacked" }: { partner: PartnerProfile; layout?: "stacked" | "wide" }) {
+  return (
+    <div className={layout === "wide" ? "flex items-end justify-between gap-4" : "text-center"}>
+      <div>
+        <div className="font-extrabold tracking-[0.04em]" style={{ fontSize: 20, lineHeight: 1.0, color: "#1D1D1F" }}>
+          {partner.firma.toUpperCase()}
+        </div>
+        <div className="mt-1" style={{ fontSize: 9.5, letterSpacing: "0.1em", color: "#515154" }}>
+          {partner.webadresse.toUpperCase()} · {partner.telefon}
+        </div>
+      </div>
+      <div className={(layout === "wide" ? "" : "mt-2 ") + "flex items-center gap-2 " + (layout === "wide" ? "" : "justify-center")}>
+        <span style={{ fontSize: 8, letterSpacing: "0.16em", color: "#6E6E73" }}>I SAMARBEJDE MED</span>
+        <CarlRasMark size={14} />
+        <span className="font-bold" style={{ fontSize: 10, letterSpacing: "0.08em", color: "#1D1D1F" }}>CARL RAS</span>
+        <span className="px-1 py-0.5 rounded text-white" style={{ background: "#E30613", fontSize: 7, fontWeight: 800, letterSpacing: "0.1em", lineHeight: 1 }}>
+          SIKRING
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* =================== Flyer A5 — editorial full-bleed (PDF p.15) =================== */
+function FlyerA5({ campaign, partner, image }: { campaign: Campaign; partner: PartnerProfile; theme: Theme; image: CampaignImage }) {
+  const overlayDark = image.fg === "light";
   return (
     <div
-      className="bg-white shadow-[0_20px_60px_rgba(0,26,51,0.18)] flex flex-col overflow-hidden"
-      style={{ width: 340, aspectRatio: "297/420", borderRadius: 4 }}
+      className="shadow-[0_20px_60px_rgba(0,26,51,0.22)] relative overflow-hidden"
+      style={{ width: 380, aspectRatio: "148/210", borderRadius: 4, background: image.bg }}
     >
-      <PhotoArea image={image} height="62%" />
-      <div className="flex-1 flex flex-col px-5 pt-4 pb-3">
-        <h3 className="font-bold leading-[1.02] tracking-tight" style={{ color: "#1D1D1F", fontSize: 26 }}>
-          {campaign.hovedbudskab}
-        </h3>
-        <p className="mt-2 leading-[1.4]" style={{ color: "#515154", fontSize: 12 }}>
-          {campaign.underbudskab}
-        </p>
-        <div className="mt-auto pt-3 border-t border-[#E5E5EA] flex items-center gap-2">
-          <span
-            className="inline-block px-3 py-1.5 rounded-full text-white font-semibold shrink-0"
-            style={{ background: theme.accent, fontSize: 10 }}
-          >
-            {campaign.cta}
-          </span>
-          <div className="flex-1 flex items-center gap-2 min-w-0">
-            <div className="rounded-md grid place-items-center text-white font-bold shrink-0" style={{ background: partner.logoBg, width: 26, height: 26, fontSize: 9 }}>
-              {partner.initialer}
-            </div>
-            <div className="leading-tight min-w-0 flex-1">
-              <div className="font-bold truncate text-[10px] text-[#1D1D1F]">{partner.firma}</div>
-              <div className="text-[#515154] truncate text-[8px]">{partner.telefon}</div>
-            </div>
-            <CertBadge dense />
+      {/* CERTIFIED sticker — only when product variant is in use, top-left */}
+      {image.id === "product" && (
+        <div className="absolute top-5 left-5 size-16 rounded-full bg-white shadow-md grid place-items-center text-center" style={{ border: "2px solid #5DBA47" }}>
+          <div>
+            <div className="text-[8px] text-[#5DBA47]" style={{ fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1 }}>✓</div>
+            <div className="text-[8px]" style={{ fontWeight: 900, letterSpacing: "0.04em", lineHeight: 1.1 }}>CERTIFIED</div>
+            <div className="text-[5px] mt-0.5" style={{ color: "#5DBA47", letterSpacing: "0.06em" }}>X LOCK</div>
           </div>
+        </div>
+      )}
+
+      {/* Bottom scrim for text legibility */}
+      <div className="absolute inset-x-0 bottom-0 h-[58%] pointer-events-none" style={{
+        background: overlayDark
+          ? "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.10) 75%, transparent 100%)"
+          : "linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.55) 40%, transparent 100%)",
+      }} />
+
+      {/* Headline + body — anchored to bottom */}
+      <div className="absolute inset-x-0 bottom-0 px-6 pb-5">
+        <h3 className="font-bold leading-[0.98] tracking-tight" style={{ color: overlayDark ? "white" : "#1D1D1F", fontSize: 30 }}>
+          {campaign.hovedbudskab}
+        </h3>
+        <p className="mt-3 leading-[1.4]" style={{ color: overlayDark ? "rgba(255,255,255,0.92)" : "#1D1D1F", fontSize: 11, columnCount: 2, columnGap: 12 }}>
+          {campaign.underbudskab} Hos os får du en lokal låsesmed der kender området, og produkterne kommer direkte fra Carl Ras&apos; lager. Gratis hjemmebesøg — vi vurderer og giver tilbud på under en time.
+        </p>
+        <div className="mt-4">
+          {overlayDark ? <CoBrandFooterLight partner={partner} /> : <CoBrandFooterDark partner={partner} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =================== Poster A3 — editorial full-bleed =================== */
+function PosterA3({ campaign, partner, image }: { campaign: Campaign; partner: PartnerProfile; theme: Theme; image: CampaignImage }) {
+  const overlayDark = image.fg === "light";
+  return (
+    <div
+      className="shadow-[0_20px_60px_rgba(0,26,51,0.22)] relative overflow-hidden"
+      style={{ width: 360, aspectRatio: "297/420", borderRadius: 4, background: image.bg }}
+    >
+      {image.id === "product" && (
+        <div className="absolute top-5 left-5 size-16 rounded-full bg-white shadow-md grid place-items-center text-center" style={{ border: "2px solid #5DBA47" }}>
+          <div>
+            <div className="text-[8px] text-[#5DBA47]" style={{ fontWeight: 800, lineHeight: 1 }}>✓</div>
+            <div className="text-[8px]" style={{ fontWeight: 900, letterSpacing: "0.04em", lineHeight: 1.1 }}>CERTIFIED</div>
+            <div className="text-[5px] mt-0.5" style={{ color: "#5DBA47", letterSpacing: "0.06em" }}>X LOCK</div>
+          </div>
+        </div>
+      )}
+
+      <div className="absolute inset-x-0 bottom-0 h-[54%] pointer-events-none" style={{
+        background: overlayDark
+          ? "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.45) 40%, transparent 100%)"
+          : "linear-gradient(to top, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.55) 40%, transparent 100%)",
+      }} />
+
+      <div className="absolute inset-x-0 bottom-0 px-6 pb-5">
+        <h3 className="font-bold leading-[0.96] tracking-tight" style={{ color: overlayDark ? "white" : "#1D1D1F", fontSize: 34 }}>
+          {campaign.hovedbudskab}
+        </h3>
+        <p className="mt-3 leading-[1.4]" style={{ color: overlayDark ? "rgba(255,255,255,0.92)" : "#1D1D1F", fontSize: 11, columnCount: 2, columnGap: 12 }}>
+          {campaign.underbudskab} Hos os får du en lokal låsesmed der kender området, og produkterne kommer direkte fra Carl Ras&apos; lager.
+        </p>
+        <div className="mt-4">
+          {overlayDark ? <CoBrandFooterLight partner={partner} /> : <CoBrandFooterDark partner={partner} />}
         </div>
       </div>
     </div>
