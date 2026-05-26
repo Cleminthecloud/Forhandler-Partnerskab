@@ -81,7 +81,7 @@ export function PartnerSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              title={collapsed ? item.label : undefined}
+              {...(collapsed ? { "data-tt": item.label, "data-tt-pos": "right" } : {})}
               className={
                 "flex items-center gap-3 rounded-[11px] text-[14px] font-medium transition-colors mb-0.5 relative " +
                 (collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2") +

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { ADMIN_STATS, PARTNERS, Region, Tier } from "@/lib/data";
-import { Donut, BarMini } from "@/components/Charts";
-import { InteractiveArea, MiniArea } from "@/components/ChartsInteractive";
+import { BarMini } from "@/components/Charts";
+import { InteractiveArea, MiniArea, InteractivePie } from "@/components/ChartsInteractive";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -115,12 +115,12 @@ export default function AdminOverview() {
           </div>
           <p className="text-[12px] text-[var(--ink-3)] mb-4">Andele af niveauer</p>
 
-          <div className="flex items-center justify-center gap-5 mt-2">
-            <div className="relative grid place-items-center">
-              <Donut segments={tierSegments} size={140} thickness={16} />
-              <div className="absolute inset-0 grid place-items-center text-center">
+          <div className="flex items-center justify-center mt-2">
+            <div className="relative">
+              <InteractivePie data={tierSegments} size={180} innerRadius={62} />
+              <div className="absolute inset-0 grid place-items-center text-center pointer-events-none">
                 <div>
-                  <div className="text-[24px] font-semibold leading-none tabular-nums">{ADMIN_STATS.aktivePartnere}</div>
+                  <div className="text-[26px] font-semibold leading-none tabular-nums">{ADMIN_STATS.aktivePartnere}</div>
                   <div className="text-[10px] text-[var(--ink-3)] mt-1 uppercase tracking-wider">aktive</div>
                 </div>
               </div>

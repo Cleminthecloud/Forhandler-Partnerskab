@@ -4,6 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
+import { CommandPaletteTrigger } from "./CommandPalette";
 
 const PERSONAS = [
   { href: "/partner", label: "Partner" },
@@ -43,8 +44,11 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
           </span>
         )}
 
+        {/* Command palette trigger */}
+        {!floating && <div className="ml-auto"><CommandPaletteTrigger /></div>}
+
         {/* Persona switcher (segmented) */}
-        <nav className={(floating ? "" : "ml-auto ") + "flex items-center rounded-full bg-white/[0.08] p-[3px]"}>
+        <nav className={(floating ? "" : "") + "flex items-center rounded-full bg-white/[0.08] p-[3px]"}>
           {PERSONAS.map((p) => {
             const active = pathname === p.href || (p.href !== "/" && pathname?.startsWith(p.href));
             return (

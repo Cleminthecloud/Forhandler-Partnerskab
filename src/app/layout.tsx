@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppStateProvider } from "@/components/AppState";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +25,10 @@ export default function RootLayout({
     <html lang="da" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full">
         <AppStateProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            {children}
+            <CommandPalette />
+          </ThemeProvider>
         </AppStateProvider>
       </body>
     </html>

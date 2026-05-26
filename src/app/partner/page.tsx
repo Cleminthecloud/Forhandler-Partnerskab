@@ -14,8 +14,8 @@ import {
   FORUM_THREADS,
   PARTNER_PERFORMANCE,
 } from "@/lib/data";
-import { AreaChart, Radial, BarMini } from "@/components/Charts";
-import { MiniArea } from "@/components/ChartsInteractive";
+import { Radial, BarMini } from "@/components/Charts";
+import { MiniArea, InteractiveArea } from "@/components/ChartsInteractive";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -231,11 +231,11 @@ export default function PartnerDashboard() {
               <span className="text-[12px] font-semibold text-[#2D4A0F]">+3 vs. forrige</span>
             </div>
           </div>
-          <AreaChart
-            values={PARTNER_PERFORMANCE.leadsByWeek}
-            labels={PARTNER_PERFORMANCE.weekLabels}
+          <InteractiveArea
+            data={PARTNER_PERFORMANCE.leadsByWeek.map((v, i) => ({ label: PARTNER_PERFORMANCE.weekLabels[i], value: v }))}
             color={theme.accent}
-            height={160}
+            height={200}
+            unit="leads"
           />
         </div>
 
