@@ -245,9 +245,9 @@ export default function KampagnerPage() {
             </div>
           </div>
 
-          {/* PREVIEW STAGE — auto-fit, no overflow */}
+          {/* PREVIEW STAGE — auto-fit, no overflow. Generous pb so it never bumps the dock. */}
           {activeCampaign && (
-            <div className="absolute inset-0 grid place-items-center px-6 pt-20 pb-36 lg:pb-32">
+            <div className="absolute inset-0 grid place-items-center px-6 pt-20 pb-48 lg:pb-44">
               <div className="relative max-w-full max-h-full grid place-items-center">
                 <CampaignPreview
                   campaign={activeCampaign}
@@ -261,7 +261,7 @@ export default function KampagnerPage() {
           )}
 
           {/* FLOATING BOTTOM — format dock + action bar (single unit) */}
-          <div className="absolute left-3 right-3 bottom-3 z-20 pointer-events-none">
+          <div className="absolute left-4 right-4 bottom-4 z-20 pointer-events-none">
             <div className="pointer-events-auto bg-white/90 backdrop-blur-md rounded-[var(--r-xl)] border border-[var(--line-2)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] overflow-hidden">
               {/* Format dock */}
               <div className="px-3 py-2 border-b border-[var(--line-2)] flex items-center gap-2 overflow-x-auto">
