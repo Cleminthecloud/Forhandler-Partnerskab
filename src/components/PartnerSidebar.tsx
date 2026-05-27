@@ -1,9 +1,18 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import { CURRENT_PARTNER } from "@/lib/data";
 import { useApp } from "./AppState";
 import { useSidebarCollapsed, CollapseToggle } from "./SidebarToggle";
+
+/* =====================================================================
+   Partner sidebar — workspace-style three-block layout:
+   1. Business profile (firma, tier, points progress)
+   2. Nav with "PARTNER MENU" section label, notification badges, active state
+   3. User account cell (ejer name + email) that opens a profile/settings menu
+   Collapsed state shows icons + initials only with right-side tooltips.
+   ===================================================================== */
 
 // Icons reviewed for semantic match: kampagner = megaphone, certificering = medal
 // w/ ribbon, specialister = speech bubble, forum = people cluster, nyheder = newspaper.
@@ -21,7 +30,7 @@ const NAV: { href: string; label: string; icon: string }[] = [
 
 export function PartnerSidebar() {
   const pathname = usePathname();
-  const { leads } = useApp();
+  const { leads, pushToast } = useApp();
   const { collapsed, toggle } = useSidebarCollapsed();
   const newLeads = leads.filter((l) => l.partnerId === CURRENT_PARTNER.id && l.status === "Ny").length;
   const pct = Math.round((CURRENT_PARTNER.points / CURRENT_PARTNER.pointsTilNæste) * 100);
@@ -29,28 +38,30 @@ export function PartnerSidebar() {
   return (
     <aside
       className={
-        "hidden lg:flex flex-col shrink-0 border-r border-[var(--hairline)] bg-[var(--canvas)] " +
+        "hidden lg:flex flex-col shrink-0 border-r border-[var(--line)] bg-[var(--canvas)] " +
         "sticky top-[48px] h-[calc(100vh-48px)] overflow-y-auto scrollbar-hidden " +
         "transition-[width] duration-300 ease-out " +
-        (collapsed ? "w-[64px]" : "w-[260px]")
+        (collapsed ? "w-[64px]" : "w-[264px]")
       }
     >
-      {/* Partner profile card */}
-      <div className={"border-b border-[var(--divider)] " + (collapsed ? "p-3" : "p-5")}>
+      {/* ─── BUSINESS HEADER ─── */}
+      <div className={"border-b border-[var(--line-2)] " + (collapsed ? "p-3" : "px-5 pt-5 pb-4")}>
         <div className={"flex items-center gap-3 " + (collapsed ? "justify-center" : "")}>
           <div
-            className="size-11 rounded-xl text-white font-semibold grid place-items-center shrink-0 text-[14px]"
+            className="size-11 rounded-xl text-white font-semibold grid place-items-center shrink-0 text-[14px] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
             style={{ background: CURRENT_PARTNER.logoBg }}
             title={collapsed ? CURRENT_PARTNER.firma : undefined}
+            data-tt={collapsed ? CURRENT_PARTNER.firma : undefined}
+            data-tt-pos={collapsed ? "right" : undefined}
           >
             {CURRENT_PARTNER.initialer}
           </div>
           {!collapsed && (
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="text-[14px] font-semibold text-[var(--ink)] truncate leading-tight">
                 {CURRENT_PARTNER.firma}
               </div>
-              <div className="text-[12px] text-[var(--ink-3)] truncate mt-0.5">
+              <div className="text-[11.5px] text-[var(--ink-3)] truncate mt-0.5">
                 {CURRENT_PARTNER.by} · {CURRENT_PARTNER.region}
               </div>
             </div>
@@ -59,25 +70,34 @@ export function PartnerSidebar() {
 
         {!collapsed && (
           <>
-            <div className="mt-4 flex items-center gap-1.5 text-[12px]">
+            <div className="mt-3.5 flex items-center gap-1.5">
               <TierBadge tier={CURRENT_PARTNER.tier} />
-              <span className="font-semibold text-[var(--ink)]">{CURRENT_PARTNER.tier}-partner</span>
+              <span className="text-[12.5px] font-semibold text-[var(--ink)]">{CURRENT_PARTNER.tier}-partner</span>
             </div>
 
             <div className="mt-3">
-              <div className="flex items-center justify-between text-[11px] text-[var(--ink-3)] mb-1.5">
-                <span>{CURRENT_PARTNER.points.toLocaleString("da-DK")} point</span>
-                <span>{Math.max(0, CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points)} til Guld</span>
+              <div className="flex items-baseline justify-between text-[11px] mb-1.5">
+                <span className="text-[var(--ink-2)] font-medium tabular-nums">{CURRENT_PARTNER.points.toLocaleString("da-DK")} <span className="text-[var(--ink-3)] font-normal">point</span></span>
+                <span className="text-[var(--ink-3)] tabular-nums">{Math.max(0, CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points)} til Guld</span>
               </div>
-              <div className="h-1.5 rounded-full bg-[var(--divider)] overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: pct + "%", background: "var(--cr-blue)" }} />
+              <div className="h-1.5 rounded-full bg-[var(--canvas-2)] overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700 ease-out"
+                  style={{ width: pct + "%", background: "linear-gradient(90deg, var(--accent), var(--accent-press))" }}
+                />
               </div>
             </div>
           </>
         )}
       </div>
 
-      <nav className={"flex-1 overflow-y-auto py-3 " + (collapsed ? "px-2" : "px-3")}>
+      {/* ─── NAV ─── */}
+      <nav className={"flex-1 py-4 " + (collapsed ? "px-2" : "px-3")}>
+        {!collapsed && (
+          <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--ink-3)]">
+            Partner menu
+          </div>
+        )}
         {NAV.map((item) => {
           const active = item.href === "/partner" ? pathname === item.href : pathname?.startsWith(item.href);
           return (
@@ -86,15 +106,25 @@ export function PartnerSidebar() {
               href={item.href}
               {...(collapsed ? { "data-tt": item.label, "data-tt-pos": "right" } : {})}
               className={
-                "flex items-center gap-3 rounded-[11px] text-[14px] font-medium transition-colors mb-0.5 relative " +
+                "flex items-center gap-3 rounded-[10px] text-[13.5px] font-medium transition-colors mb-0.5 relative " +
                 (collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2") +
                 " " +
                 (active
-                  ? "bg-[var(--cr-blue-tint)] text-[var(--cr-navy)]"
-                  : "text-[var(--ink-80)] hover:bg-[var(--surface-pearl)]")
+                  ? "bg-[var(--accent-tint)] text-[var(--accent-press)]"
+                  : "text-[var(--ink-2)] hover:bg-[var(--canvas-2)] hover:text-[var(--ink)]")
               }
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={"shrink-0 " + (active ? "opacity-100" : "opacity-80")}
+              >
                 <path d={item.icon} />
               </svg>
               {!collapsed && <span className="flex-1">{item.label}</span>}
@@ -104,9 +134,9 @@ export function PartnerSidebar() {
                     "text-[10px] font-semibold rounded-full text-white shrink-0 " +
                     (collapsed
                       ? "absolute top-1 right-1 size-4 grid place-items-center text-[8px]"
-                      : "px-1.5 py-0.5")
+                      : "min-w-[20px] h-[20px] px-1.5 grid place-items-center")
                   }
-                  style={{ background: "var(--cr-blue)" }}
+                  style={{ background: "var(--accent)" }}
                 >
                   {newLeads}
                 </span>
@@ -116,10 +146,13 @@ export function PartnerSidebar() {
         })}
       </nav>
 
-      {/* Footer with toggle */}
-      <div className={"border-t border-[var(--divider)] " + (collapsed ? "p-2 flex justify-center" : "px-3 py-3 flex items-center justify-between gap-3")}>
+      {/* ─── USER ACCOUNT (with popover menu) ─── */}
+      <UserCell collapsed={collapsed} pushToast={pushToast} />
+
+      {/* ─── Footer: collapse toggle + label ─── */}
+      <div className={"border-t border-[var(--line-2)] " + (collapsed ? "p-2 flex justify-center" : "px-3 py-2.5 flex items-center justify-between gap-2")}>
         {!collapsed && (
-          <span className="text-[11px] text-[var(--ink-3)] truncate">
+          <span className="text-[10.5px] text-[var(--ink-3)] truncate">
             Partner siden {CURRENT_PARTNER.medlemSiden}
           </span>
         )}
@@ -129,10 +162,177 @@ export function PartnerSidebar() {
   );
 }
 
+/* =====================================================================
+   User account cell + popover menu
+   ===================================================================== */
+
+function UserCell({ collapsed, pushToast }: { collapsed: boolean; pushToast: (text: string, kind?: "info" | "success") => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function onDown(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
+    document.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function openCmdK() {
+    setOpen(false);
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
+  }
+
+  const initials = CURRENT_PARTNER.ejer.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+
+  return (
+    <div ref={ref} className="relative border-t border-[var(--line-2)]">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        {...(collapsed ? { "data-tt": CURRENT_PARTNER.ejer, "data-tt-pos": "right" } : {})}
+        className={
+          "w-full flex items-center gap-3 hover:bg-[var(--canvas-2)] transition-colors text-left " +
+          (collapsed ? "justify-center p-3" : "px-3 py-2.5")
+        }
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <div
+          className="size-9 rounded-full grid place-items-center text-white font-semibold text-[12px] shrink-0"
+          style={{ background: "linear-gradient(135deg, #515154, #1D1D1F)" }}
+        >
+          {initials}
+        </div>
+        {!collapsed && (
+          <>
+            <div className="min-w-0 flex-1">
+              <div className="text-[13px] font-semibold text-[var(--ink)] truncate leading-tight">{CURRENT_PARTNER.ejer}</div>
+              <div className="text-[11px] text-[var(--ink-3)] truncate mt-0.5">{CURRENT_PARTNER.email}</div>
+            </div>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={"text-[var(--ink-3)] shrink-0 transition-transform " + (open ? "rotate-180" : "")}
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </>
+        )}
+      </button>
+
+      {/* Popover menu — opens upward, positioned via absolute */}
+      {open && (
+        <div
+          className={
+            "absolute z-30 bg-white rounded-[var(--r-md)] border border-[var(--line)] shadow-[0_12px_32px_rgba(0,0,0,0.14)] py-1.5 overflow-hidden " +
+            (collapsed ? "left-[calc(100%+8px)] bottom-2 w-[240px]" : "left-3 right-3 bottom-[calc(100%+8px)]")
+          }
+          style={{ animation: "slideUpFade 200ms cubic-bezier(0.22,1,0.36,1)" }}
+          role="menu"
+        >
+          {/* Header — only when there's room (the popover hugs the cell on the sidebar) */}
+          {collapsed && (
+            <div className="px-3 py-2.5 border-b border-[var(--line-2)]">
+              <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{CURRENT_PARTNER.ejer}</div>
+              <div className="text-[11px] text-[var(--ink-3)] truncate">{CURRENT_PARTNER.email}</div>
+            </div>
+          )}
+
+          <MenuItem
+            label="Min profil"
+            hint="Stamdata + indstillinger"
+            icon="M12 12a4 4 0 100-8 4 4 0 000 8z M4 21a8 8 0 0116 0"
+            onClick={() => { pushToast("Min profil-siden kommer snart"); setOpen(false); }}
+          />
+          <MenuItem
+            label="Indstillinger"
+            hint="Notifikationer, integrationer"
+            icon="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06A2 2 0 113.4 16.96l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06A2 2 0 116.04 3.4l.06.06a1.65 1.65 0 001.82.33H8a1.65 1.65 0 001-1.51V2a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06A2 2 0 1120.6 6.04l-.06.06a1.65 1.65 0 00-.33 1.82V8a1.65 1.65 0 001.51 1H22a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            onClick={() => { pushToast("Indstillinger-siden kommer snart"); setOpen(false); }}
+          />
+          <MenuItem
+            label="Søg overalt"
+            hint=""
+            kbd="⌘K"
+            icon="M21 21l-4.3-4.3M11 18a7 7 0 110-14 7 7 0 010 14z"
+            onClick={openCmdK}
+          />
+          <MenuItem
+            label="Hjælp & support"
+            hint=""
+            icon="M9.1 9a3 3 0 015.83 1c0 2-3 3-3 3 M12 17h.01 M12 22a10 10 0 100-20 10 10 0 000 20z"
+            onClick={() => { pushToast("Skriv til support@carl-ras.dk"); setOpen(false); }}
+          />
+
+          <div className="h-px bg-[var(--line-2)] my-1.5" />
+
+          <MenuItem
+            label="Log ud"
+            hint=""
+            icon="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4 M16 17l5-5-5-5 M21 12H9"
+            onClick={() => { pushToast("Logget ud (demo)"); setOpen(false); }}
+            danger
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MenuItem({
+  label, hint, icon, kbd, onClick, danger = false,
+}: {
+  label: string;
+  hint?: string;
+  icon: string;
+  kbd?: string;
+  onClick: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      role="menuitem"
+      className={
+        "w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors " +
+        (danger
+          ? "text-[#8a1f1f] hover:bg-[#FBE2E2]"
+          : "text-[var(--ink-2)] hover:bg-[var(--canvas-2)] hover:text-[var(--ink)]")
+      }
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
+        <path d={icon} />
+      </svg>
+      <span className="flex-1 min-w-0">
+        <div className="text-[13px] font-medium leading-tight">{label}</div>
+        {hint && <div className="text-[10.5px] text-[var(--ink-3)] truncate mt-0.5">{hint}</div>}
+      </span>
+      {kbd && (
+        <kbd className="text-[10px] font-semibold text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-1.5 py-0.5 font-mono">
+          {kbd}
+        </kbd>
+      )}
+    </button>
+  );
+}
+
 function TierBadge({ tier }: { tier: "Bronze" | "Sølv" | "Guld" }) {
   const color = tier === "Guld" ? "#C99A20" : tier === "Sølv" ? "#7E8993" : "#9C6A3F";
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill={color}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill={color}>
       <path d="M12 2l3 6 6 1-4.5 4.5L18 21l-6-3.5L6 21l1.5-7.5L3 9l6-1z" />
     </svg>
   );
