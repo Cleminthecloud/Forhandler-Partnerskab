@@ -61,9 +61,9 @@ export default function PartnerDashboard() {
   );
 
   return (
-    <div className="px-6 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+    <div className="px-6 lg:px-10 xl:px-12 py-10 lg:py-12 animate-in space-y-10 lg:space-y-12">
       {/* ─── HEADER ─── */}
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
+      <header className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <div className="t-eyebrow flex items-center gap-2">
             <span className="theme-dot" style={{ background: theme.accent }} />
@@ -92,7 +92,7 @@ export default function PartnerDashboard() {
       </header>
 
       {/* ─── KPI ROW (4 tall tiles with sparklines) ─── */}
-      <section aria-label="Nøgletal" className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <section aria-label="Nøgletal" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiTile
           label="Nye leads"
           value={newLeads.length}
@@ -127,7 +127,7 @@ export default function PartnerDashboard() {
       </section>
 
       {/* ─── HERO ROW: Active campaign + Tier radial ─── */}
-      <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr] mb-4">
+      <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
         {/* Active campaign card — bold, image-feeling */}
         {activeCampaign && (
           <Link
@@ -227,7 +227,7 @@ export default function PartnerDashboard() {
       </section>
 
       {/* ─── PERFORMANCE ROW ─── */}
-      <section className="grid gap-4 lg:grid-cols-[1.6fr_1fr] mb-4">
+      <section className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         <div className="card card-lg">
           <div className="flex items-baseline justify-between mb-4">
             <div>
@@ -262,7 +262,7 @@ export default function PartnerDashboard() {
       </section>
 
       {/* ─── 3-COL DATA ROW ─── */}
-      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mb-4">
+      <section className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {/* Nye leads */}
         <Link href="/partner/leads" className="card card-hover block">
           <div className="flex items-baseline justify-between mb-3">
@@ -345,7 +345,7 @@ export default function PartnerDashboard() {
       </section>
 
       {/* ─── DIN CARL RAS KONSULENT (CRM hero card) ─── */}
-      <section className="mb-4">
+      <section>
         <div
           className="rounded-[var(--r-xl)] overflow-hidden border flex flex-wrap items-center gap-6 p-6 lg:p-7"
           style={{ borderColor: "#0C447C20", background: "linear-gradient(135deg, #F0F6FC 0%, #FFFFFF 55%)" }}
@@ -415,8 +415,8 @@ export default function PartnerDashboard() {
       </section>
 
       {/* ─── CARL RAS ANBEFALER (product push) ─── */}
-      <section aria-label="Carl Ras anbefaler" className="mb-4">
-        <div className="flex items-baseline justify-between mb-3">
+      <section aria-label="Carl Ras anbefaler">
+        <div className="flex items-baseline justify-between mb-5">
           <div>
             <h2 className="t-h2">Carl Ras anbefaler</h2>
             <p className="t-caption mt-0.5">Udvalgte produkter til {theme.label.toLowerCase()} — direkte links til carl-ras.dk</p>
@@ -495,7 +495,7 @@ export default function PartnerDashboard() {
       </section>
 
       {/* ─── ACTIVITY + CONTENT ROW ─── */}
-      <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr]">
+      <section className="grid gap-5 lg:grid-cols-[1.4fr_1fr_1fr]">
         {/* Activity feed */}
         <div className="card card-lg">
           <div className="flex items-baseline justify-between mb-5">

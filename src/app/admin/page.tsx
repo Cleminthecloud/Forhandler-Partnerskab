@@ -32,9 +32,9 @@ export default function AdminOverview() {
     .map(([t, v]) => ({ label: t, value: v, color: TIER_COLOR[t] }));
 
   return (
-    <div className="px-6 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+    <div className="px-6 lg:px-10 xl:px-12 py-10 lg:py-12 animate-in space-y-10 lg:space-y-12">
       {/* ─── HEADER ─── */}
-      <header className="flex flex-wrap items-end justify-between gap-6 mb-8">
+      <header className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <div className="t-eyebrow flex items-center gap-2">
             <span className="theme-dot" style={{ background: theme.accent }} />
@@ -53,7 +53,7 @@ export default function AdminOverview() {
       </header>
 
       {/* ─── KPI ROW ─── */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiTile
           label="Aktive partnere"
           value={ADMIN_STATS.aktivePartnere}
@@ -90,7 +90,7 @@ export default function AdminOverview() {
       </section>
 
       {/* ─── HERO ROW: Big leads chart + Tier donut ─── */}
-      <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr] mb-4">
+      <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
         {/* Big leads chart */}
         <div className="card card-lg">
           <div className="flex items-baseline justify-between mb-5">
@@ -117,7 +117,7 @@ export default function AdminOverview() {
             <h3 className="t-h3">Niveau-fordeling</h3>
             <span className="t-caption">{ADMIN_STATS.aktivePartnere} partnere</span>
           </div>
-          <p className="text-[12px] text-[var(--ink-3)] mb-4">Andele af niveauer</p>
+          <p className="text-[12px] text-[var(--ink-3)]">Andele af niveauer</p>
 
           <div className="flex items-center justify-center mt-2">
             <div className="relative">
@@ -146,7 +146,7 @@ export default function AdminOverview() {
       </section>
 
       {/* ─── REGION + ACTIVITY ─── */}
-      <section className="grid gap-4 lg:grid-cols-2 mb-4">
+      <section className="grid gap-4 lg:grid-cols-2">
         <div className="card card-lg">
           <div className="flex items-baseline justify-between mb-5">
             <h3 className="t-h3">Partnere pr. region</h3>
