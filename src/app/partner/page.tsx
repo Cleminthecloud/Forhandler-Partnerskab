@@ -421,16 +421,16 @@ export default function PartnerDashboard() {
             Få faglig sparring <ArrowRight />
           </Link>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 auto-rows-fr">
           {PRODUCTS.map((p) => (
             <a
               key={p.id}
               href={p.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="card card-hover !p-0 overflow-hidden block group"
+              className="card card-hover !p-0 overflow-hidden flex flex-col group h-full"
             >
-              <div className="relative aspect-square bg-white border-b border-[var(--line-2)] grid place-items-center p-3">
+              <div className="relative aspect-square bg-white border-b border-[var(--line-2)] grid place-items-center p-3 shrink-0">
                 {p.image ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={p.image} alt={p.navn} className="size-full object-contain group-hover:scale-[1.03] transition-transform duration-300" />
@@ -439,19 +439,24 @@ export default function PartnerDashboard() {
                 )}
                 {p.badge && <ProductBadgePill badge={p.badge} />}
               </div>
-              <div className="p-3.5">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
-                <div className="text-[13px] font-semibold text-[var(--ink)] line-clamp-2 mt-0.5 leading-snug min-h-[34px]">{p.navn.split("·")[0].trim()}</div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-[14px] font-semibold text-[var(--ink)] tabular-nums">{p.pris}</span>
-                  {p.førpris && <span className="text-[11px] text-[var(--ink-3)] tabular-nums line-through">{p.førpris}</span>}
-                </div>
-                {p.margin && (
-                  <div className="text-[10.5px] text-[var(--ink-3)] mt-1 inline-flex items-center gap-1">
-                    <span className="size-1 rounded-full" style={{ background: "var(--accent)" }} />
-                    {p.margin}
+              <div className="p-3.5 flex flex-col flex-1 min-h-0">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] leading-none">{p.brand}</div>
+                <div className="text-[13px] font-semibold text-[var(--ink)] line-clamp-2 mt-1.5 leading-[1.35] h-[36px]">{p.navn.split("·")[0].trim()}</div>
+                {/* Pris block pinned to bottom of card body so all cards align */}
+                <div className="mt-auto pt-3">
+                  <div className="flex items-baseline gap-2 h-[20px]">
+                    <span className="text-[14px] font-semibold text-[var(--ink)] tabular-nums leading-none">{p.pris}</span>
+                    {p.førpris && <span className="text-[11px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.førpris}</span>}
                   </div>
-                )}
+                  <div className="h-[15px] mt-1.5 flex items-center">
+                    {p.margin ? (
+                      <div className="text-[10.5px] text-[var(--ink-3)] inline-flex items-center gap-1.5 leading-none">
+                        <span className="size-1 rounded-full" style={{ background: "var(--accent)" }} />
+                        {p.margin}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               </div>
             </a>
           ))}

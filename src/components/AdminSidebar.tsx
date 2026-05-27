@@ -16,7 +16,7 @@ import { useSidebarCollapsed, CollapseToggle } from "./SidebarToggle";
 // indhold = layered docs, beskeder = chat bubble, data = bar chart.
 const NAV = [
   { href: "/admin",                  label: "Oversigt",       icon: "M3 12l9-9 9 9M5 10v10h14V10" },
-  { href: "/admin/partnere",         label: "Partnere",       icon: "M3 7a4 4 0 118 0M3 21h14M5 21v-4a4 4 0 014-4h0a4 4 0 014 4v4" },
+  { href: "/admin/partnere",         label: "Partnere",       icon: "M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2 M9 11a4 4 0 100-8 4 4 0 000 8z M22 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75" },
   { href: "/admin/kalender",         label: "Kalender",       icon: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" },
   { href: "/admin/certificering",    label: "Certificering",  icon: "M12 3a6 6 0 110 12 6 6 0 010-12z M8 14l-2 7 6-3 6 3-2-7" },
   { href: "/admin/kampagner",        label: "Kampagner",      icon: "M3 10v4l13 5V5L3 10z M18 9a4 4 0 010 6" },
