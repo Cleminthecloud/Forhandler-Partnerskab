@@ -1,6 +1,6 @@
 "use client";
 import { Campaign, FormatKind, PartnerProfile } from "@/lib/data";
-import { Theme } from "@/lib/themes";
+import { Theme, ThemeId } from "@/lib/themes";
 import { CarlRasSikringLogo, CarlRasPartnerLogo } from "./BrandLogos";
 
 /* =====================================================================
@@ -17,34 +17,39 @@ export interface CampaignImage {
   bg: string;          // CSS background — gradient or url(...) center/cover
   glyph?: string;      // emoji placeholder if no real photo yet
   fg?: "light" | "dark"; // hint for overlay text color
+  /** Themes this image fits. Used to filter the image-picker per active theme. */
+  themes?: ThemeId[];
 }
 
+/* Unsplash CDN helper for non-sommerhus themes (vinter, indbrud) until we have
+   licensed Carl Ras photography for those. */
+const U = (id: string) => `url(https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=80) center/cover`;
+
 export const DEFAULT_IMAGES: CampaignImage[] = [
-  {
-    id: "family",
-    label: "Familie",
-    bg: "url(/campaigns/sommerhus-family.jpg) center/cover",
-    fg: "light",
-  },
-  {
-    id: "dusk",
-    label: "Skumring",
-    bg: "url(/campaigns/sommerhus-dusk.jpg) center/cover",
-    fg: "light",
-  },
-  {
-    id: "lock-pov",
-    label: "Smart lock",
-    bg: "url(/campaigns/sommerhus-lock-pov.jpg) center/cover",
-    fg: "light",
-  },
-  {
-    id: "product",
-    label: "Produkt",
-    bg: "url(/campaigns/stroxx-product.jpg) center/cover",
-    fg: "dark",
-  },
+  /* ─── Sommer-sikring ─── */
+  { id: "family",    label: "Familie",     bg: "url(/campaigns/sommerhus-family.jpg) center/cover",   fg: "light", themes: ["sommer-sikring"] },
+  { id: "dusk",      label: "Skumring",    bg: "url(/campaigns/sommerhus-dusk.jpg) center/cover",     fg: "light", themes: ["sommer-sikring"] },
+  { id: "lock-pov",  label: "Smart lock",  bg: "url(/campaigns/sommerhus-lock-pov.jpg) center/cover", fg: "light", themes: ["sommer-sikring"] },
+  { id: "product",   label: "Produkt",     bg: "url(/campaigns/stroxx-product.jpg) center/cover",     fg: "dark",  themes: ["sommer-sikring"] },
+
+  /* ─── Vinter-byg — snow, frost, winter house ─── */
+  { id: "snow-road",   label: "Sne",        bg: U("1483728642387-6c3bdd6c93e5"), fg: "light", themes: ["vinter-byg"] },
+  { id: "winter-house",label: "Vinterhus",  bg: U("1486754735734-325b5831c3ad"), fg: "light", themes: ["vinter-byg"] },
+  { id: "frost-tools", label: "Værktøj",    bg: U("1611348586804-61bf6c080437"), fg: "dark",  themes: ["vinter-byg"] },
+  { id: "winter-roof", label: "Tagrender",  bg: U("1517299321609-52687d1bc55a"), fg: "light", themes: ["vinter-byg"] },
+
+  /* ─── Indbrud-efterar — dusk, security, autumn ─── */
+  { id: "dusk-home",   label: "Skumring",   bg: U("1568605114967-8130f3a36994"), fg: "light", themes: ["indbrud-efterar"] },
+  { id: "night-house", label: "Mørke",      bg: U("1531545514256-b1400bc00f31"), fg: "light", themes: ["indbrud-efterar"] },
+  { id: "lit-window",  label: "Lys på",     bg: U("1606857521015-7f9fcf423740"), fg: "light", themes: ["indbrud-efterar"] },
+  { id: "autumn-evening",label: "Efterår",  bg: U("1559548331-f9cb98001426"),    fg: "light", themes: ["indbrud-efterar"] },
 ];
+
+/** Filter images for a given theme. Falls back to all images if none tagged. */
+export function imagesForTheme(themeId: ThemeId): CampaignImage[] {
+  const tagged = DEFAULT_IMAGES.filter((i) => !i.themes || i.themes.includes(themeId));
+  return tagged.length > 0 ? tagged : DEFAULT_IMAGES;
+}
 
 interface Props {
   campaign: Campaign;

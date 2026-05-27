@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
 import { CAMPAIGNS, FORMATS, CURRENT_PARTNER, FormatKind, Campaign, type ArtDirection } from "@/lib/data";
-import { CampaignPreview, DEFAULT_IMAGES } from "@/components/CampaignPreview";
+import { CampaignPreview, imagesForTheme } from "@/components/CampaignPreview";
 import { PageHeader } from "@/components/PageHeader";
 import { THEMES } from "@/lib/themes";
 
@@ -18,7 +18,6 @@ export default function KampagnerPage() {
   const { pushToast } = useApp();
 
   const themed = useMemo(() => CAMPAIGNS.filter((c) => c.tema === theme.id), [theme.id]);
-  const other = useMemo(() => CAMPAIGNS.filter((c) => c.tema !== theme.id), [theme.id]);
 
   const [activeCampaignId, setActiveCampaignId] = useState<string | null>(themed[0]?.id ?? null);
   const baseCampaign: Campaign | null = useMemo(
@@ -42,8 +41,26 @@ export default function KampagnerPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [drawerOpen]);
 
-  const variants = DEFAULT_IMAGES;
-  const currentImage = variants[imageVariant];
+  // Image variants filtered by active theme — sommer photos for sommer-sikring,
+  // winter for vinter-byg, dusk/autumn for indbrud-efterar.
+  const variants = useMemo(() => imagesForTheme(theme.id), [theme.id]);
+  const safeIdx = Math.min(imageVariant, variants.length - 1);
+  const currentImage = variants[safeIdx];
+
+  // React 19 "adjust state during render" pattern (https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes).
+  // When the theme tab changes, reset the image picker AND jump to the first
+  // campaign of the new theme so the canvas stays on-theme.
+  const [prevThemeId, setPrevThemeId] = useState(theme.id);
+  if (prevThemeId !== theme.id) {
+    setPrevThemeId(theme.id);
+    setImageVariant(0);
+    const firstInTheme = themed[0];
+    if (firstInTheme) {
+      setActiveCampaignId(firstInTheme.id);
+      setFormat(firstInTheme.formater[0]);
+      setCategory(firstInTheme.formater[0].startsWith("print") ? "print" : "digital");
+    }
+  }
   const isUnpublished = baseCampaign?.tema !== theme.id;
 
   // Apply edits to the base campaign
@@ -104,10 +121,33 @@ export default function KampagnerPage() {
         {/* LEFT — campaign picker + image variants (scrollbar visually hidden) */}
         <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1 scrollbar-hidden">
           <div className="card !p-3">
-            <div className="px-2 py-1 mb-1 flex items-center gap-2">
-              <span className="theme-dot" style={{ background: theme.accent }} />
-              <span className="t-eyebrow !text-[12px]">{theme.label}</span>
+            {/* Theme tabs — pick the årshjul, see only its campaigns below */}
+            <div className="flex gap-1 mb-3 p-1 bg-[var(--canvas-2)] rounded-[var(--r-md)]" role="tablist" aria-label="Vælg tema">
+              {THEMES.map((t) => {
+                const isActive = t.id === theme.id;
+                const count = CAMPAIGNS.filter((c) => c.tema === t.id).length;
+                return (
+                  <button
+                    key={t.id}
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setThemeId(t.id)}
+                    className={
+                      "flex-1 px-2.5 py-2 rounded-[8px] text-[12px] font-semibold transition-colors flex flex-col items-center gap-1 " +
+                      (isActive
+                        ? "bg-white text-[var(--ink)] shadow-[var(--shadow-1)]"
+                        : "text-[var(--ink-3)] hover:text-[var(--ink-2)]")
+                    }
+                    title={t.label}
+                  >
+                    <span className="size-2 rounded-full" style={{ background: t.accent }} aria-hidden="true" />
+                    <span className="truncate w-full text-center leading-tight">{t.label.split(" ")[0]}</span>
+                    <span className="text-[10px] text-[var(--ink-4)] tabular-nums">{count}</span>
+                  </button>
+                );
+              })}
             </div>
+
             <ul>
               {themed.map((c) => {
                 const isActive = activeCampaign?.id === c.id;
@@ -134,46 +174,6 @@ export default function KampagnerPage() {
               })}
             </ul>
 
-            {other.length > 0 && (
-              <>
-                <div className="px-2 pt-3 mt-2 border-t border-[var(--line-2)] mb-1 flex items-center justify-between">
-                  <span className="t-eyebrow !text-[12px] !text-[var(--ink-3)]">Andre temaer</span>
-                  <span className="text-[12px] text-[var(--ink-3)]">Klik for preview</span>
-                </div>
-                <ul>
-                  {other.map((c) => {
-                    const otherTheme = THEMES.find((t) => t.id === c.tema);
-                    return (
-                      <li key={c.id}>
-                        <button
-                          onClick={() => {
-                            if (c.tema !== theme.id && otherTheme) setThemeId(otherTheme.id);
-                            setActiveCampaignId(c.id);
-                            setFormat(c.formater[0]);
-                            setCategory(c.formater[0].startsWith("print") ? "print" : "digital");
-                          }}
-                          className="w-full text-left flex items-start gap-3 p-2.5 rounded-[var(--r-md)] transition-colors hover:bg-[var(--canvas-2)]"
-                        >
-                          <div className="size-9 rounded-lg grid place-items-center text-xl shrink-0" style={{ background: otherTheme?.accentSoft ?? "var(--canvas-2)" }}>
-                            {c.heroEmoji}
-                          </div>
-                          <div className="flex-1 min-w-0 pt-0.5">
-                            <div className="text-[13px] font-medium text-[var(--ink)] leading-tight truncate">{c.titel}</div>
-                            <div className="text-[12px] text-[var(--ink-3)] mt-0.5 flex flex-wrap items-center gap-1.5">
-                              <span className="inline-flex items-center gap-1">
-                                <span className="size-1.5 rounded-full" style={{ background: otherTheme?.accent }} />
-                                {otherTheme?.label}
-                              </span>
-                              {c.artDirection && <ArtDirectionChip dir={c.artDirection} />}
-                            </div>
-                          </div>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
-            )}
           </div>
 
           {/* Image variant strip */}
