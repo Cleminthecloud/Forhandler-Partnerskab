@@ -20,9 +20,11 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
   return (
     <header
       className={
-        floating
-          ? "fixed top-3 right-3 z-50 rounded-full bg-[var(--accent-press)]/95 text-white shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-md"
-          : "sticky top-0 z-40 bg-[var(--accent)] text-white"
+        "app-chrome " + (
+          floating
+            ? "fixed top-3 right-3 z-50 rounded-full bg-[var(--accent-press)]/95 text-white shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-md"
+            : "sticky top-0 z-40 bg-[var(--accent)] text-white"
+        )
       }
     >
       <div className={floating ? "px-2.5 h-10 flex items-center gap-2.5" : "mx-auto max-w-[1440px] px-6 h-[48px] flex items-center gap-6"}>

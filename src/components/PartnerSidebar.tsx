@@ -38,7 +38,7 @@ export function PartnerSidebar() {
   return (
     <aside
       className={
-        "hidden lg:flex flex-col shrink-0 border-r border-[var(--line)] bg-[var(--canvas)] " +
+        "app-chrome hidden lg:flex flex-col shrink-0 border-r border-[var(--line)] bg-[var(--canvas)] " +
         "sticky top-[48px] h-[calc(100vh-48px)] overflow-y-auto scrollbar-hidden " +
         "transition-[width] duration-300 ease-out " +
         (collapsed ? "w-[64px]" : "w-[264px]")

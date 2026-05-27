@@ -481,12 +481,42 @@ textarea.field {
    the transformed ancestor instead of the viewport). We learned this the hard
    way: drawers were rendering as tall as their page wrapper instead of full
    viewport because every page wrapper had `.animate-in` which kept a residual
-   `transform: translateY(0)` after the animation. Opacity-only avoids this. */
+   `transform: translateY(0)` after the animation. Opacity-only avoids this.
+
+   APP FEEL: page fade-in is intentionally snappy (160ms, fast curve) so
+   navigating between pages feels native, not web-y. Chrome (topbar, sidebar,
+   sticky elements) MUST be marked .app-chrome — that opts them out of any
+   inherited animation and gives them a view-transition-name so the browser
+   can cross-fade or hold them in place during route transitions instead of
+   re-rendering. */
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-.animate-in { animation: fadeIn var(--t-slow) var(--ease-out) both; }
+.animate-in {
+  animation: fadeIn 160ms var(--ease-out) both;
+  will-change: opacity;
+}
+
+/* Persistent chrome — sidebar, topbar, fixed headers. Opt out of inherited
+   animations and tag for cross-fade view transitions when supported. */
+.app-chrome {
+  animation: none !important;
+  view-transition-name: app-chrome;
+}
+
+/* Respect users who prefer reduced motion — no animations on navigation. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-in { animation: none; }
+  .app-chrome { view-transition-name: none; }
+}
+
+/* Modern browsers: smooth cross-fade between routes (Chromium 111+, Safari
+   18+). Falls back to instant nav elsewhere — no jank, no fallback CSS
+   needed because the browser ignores the at-rule. */
+@view-transition {
+  navigation: auto;
+}
 
 @keyframes slideInRight {
   from { transform: translateX(16px); opacity: 0; }

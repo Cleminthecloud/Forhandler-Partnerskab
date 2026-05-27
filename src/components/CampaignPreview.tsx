@@ -300,13 +300,26 @@ function Magasin({ campaign, partner, theme, image }: { campaign: Campaign; part
   );
 }
 
-/* =================== Bilstreamer (wide horizontal) =================== */
+/* =================== Bilstreamer (wide horizontal) ===================
+   Layout: photo on the left (with Carl Ras Partner wordmark anchored
+   top-right over the image), navy text block on the right (with the
+   Carl Ras Partner wordmark anchored bottom-right — no blue box).
+   Both marks share the same padding rhythm so they read as a paired
+   diagonal — top-left and bottom-right of the visual centerline. */
 function Bilstreamer({ partner, image }: { campaign: Campaign; partner: PartnerProfile; theme: Theme; image: CampaignImage }) {
   return (
     <div className="relative shadow-[0_20px_60px_rgba(0,26,51,0.18)]" style={FRAME.bilstreamer}>
       <div className="absolute inset-0 flex overflow-hidden" style={{ borderRadius: 4, containerType: "inline-size" }}>
-        <PhotoArea image={image} className="shrink-0 w-[40%]" height="100%" />
-        <div className="flex-1 flex items-center" style={{ background: "#001A33", padding: "0 2.5cqw", gap: "2cqw" }}>
+        {/* LEFT — photo area with CRP wordmark in top-right corner */}
+        <div className="relative shrink-0 w-[40%] h-full">
+          <PhotoArea image={image} height="100%" />
+          <div className="absolute" style={{ top: "2cqw", right: "2cqw", height: "3.5cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.45))" }}>
+            <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
+          </div>
+        </div>
+
+        {/* RIGHT — navy text block with CRP wordmark anchored bottom-right */}
+        <div className="relative flex-1 flex items-center" style={{ background: "#001A33", padding: "0 2.5cqw", gap: "2cqw" }}>
           <div className="rounded grid place-items-center text-white font-bold shrink-0" style={{ background: partner.logoBg, width: "5.6cqw", height: "5.6cqw", fontSize: "1.6cqw" }}>
             {partner.initialer}
           </div>
@@ -315,7 +328,7 @@ function Bilstreamer({ partner, image }: { campaign: Campaign; partner: PartnerP
             <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "1.1cqw", marginTop: "0.4cqw" }}>{partner.faggruppe} · {partner.by}</div>
             <div style={{ color: "white", fontSize: "1.5cqw", fontWeight: 600, marginTop: "0.8cqw" }}>{partner.telefon} · {partner.webadresse}</div>
           </div>
-          <div className="rounded shrink-0 grid place-items-center" style={{ background: "#1158A3", padding: "0.8cqw 1.4cqw", height: "6cqw" }}>
+          <div className="absolute" style={{ bottom: "2cqw", right: "2.5cqw", height: "3.5cqw" }}>
             <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
           </div>
         </div>

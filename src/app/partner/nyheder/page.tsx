@@ -92,36 +92,49 @@ export default function NyhederPage() {
 
 /* ──────────────────────── Cards ──────────────────────── */
 
+/* All three card variants share the /find Airbnb-feel pattern:
+   bg-[var(--canvas)] → rounded-[var(--r-xl)] (22px) → overflow-hidden,
+   hover lifts the card 1px and bumps shadow from --shadow-1 to --shadow-3,
+   image zooms 1.05 over 600ms. Anchors on the photo: category top-left,
+   theme top-right, reading time bottom-right. */
+
 function FeaturedCard({ post }: { post: BlogPost }) {
   const tema = post.tema ? THEMES.find((t) => t.id === post.tema) : null;
   return (
-    <article className="card !p-0 overflow-hidden flex flex-col group cursor-pointer hover:shadow-[var(--shadow-3)] transition-shadow h-full min-h-[420px]">
+    <article className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex flex-col h-full min-h-[420px]">
       <div className="relative aspect-[16/9] overflow-hidden bg-[var(--canvas-2)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={post.image} alt={post.titel} className="size-full object-cover group-hover:scale-[1.02] transition-transform duration-500" loading="eager" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 to-transparent" />
-        <div className="absolute top-4 left-4 flex flex-wrap gap-1.5">
+        <img src={post.image} alt={post.titel} className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] group-hover:scale-[1.05]" loading="eager" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 35%, transparent 60%)" }} />
+
+        {/* Top-left: kategori chip */}
+        <div className="absolute top-3 left-3">
           <KategoriPill kategori={post.kategori} />
-          {tema && (
-            <span
-              className="text-[12px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide"
-              style={{ background: tema.accentSoft, color: tema.accentInk }}
-            >
-              {tema.label}
-            </span>
-          )}
         </div>
-        <div className="absolute bottom-3 right-4 inline-flex items-center gap-1.5 text-[12px] text-white/90 font-medium">
+
+        {/* Top-right: tema chip on blurred white */}
+        {tema && (
+          <span
+            className="absolute top-3 right-3 text-[11.5px] font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide backdrop-blur-md"
+            style={{ background: "rgba(255,255,255,0.92)", color: tema.accentInk }}
+          >
+            <span className="inline-block size-1.5 rounded-full mr-1.5 align-middle" style={{ background: tema.accent }} />
+            {tema.label}
+          </span>
+        )}
+
+        {/* Bottom-right: reading time on the image */}
+        <div className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 text-[12px] text-white font-semibold drop-shadow">
           <Icon name="clock" size={11} /> {post.læsetid}
         </div>
       </div>
       <div className="p-6 lg:p-7 flex-1 flex flex-col">
-        <h2 className="text-[26px] lg:text-[28px] font-semibold text-[var(--cr-navy-deep)] leading-[1.2] tracking-tight">{post.titel}</h2>
+        <h2 className="text-[26px] lg:text-[28px] font-semibold text-[var(--cr-navy-deep)] leading-[1.2] tracking-tight group-hover:text-[var(--accent-press)] transition-colors">{post.titel}</h2>
         <p className="text-[14.5px] text-[var(--ink-2)] mt-3 leading-[1.6] line-clamp-3">{post.excerpt}</p>
-        <div className="mt-auto pt-5 flex items-center gap-3">
+        <div className="mt-auto pt-5 border-t border-[var(--line-2)] flex items-center gap-3">
           <AuthorChip post={post} size="md" />
           <div className="flex-1" />
-          <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--accent-press)] group-hover:gap-2 transition-all">
+          <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--accent)] group-hover:gap-2 transition-all">
             Læs artiklen <Icon name="chevron-right" size={14} />
           </span>
         </div>
@@ -132,19 +145,21 @@ function FeaturedCard({ post }: { post: BlogPost }) {
 
 function SecondaryCard({ post }: { post: BlogPost }) {
   return (
-    <article className="card !p-0 overflow-hidden flex group cursor-pointer hover:shadow-[var(--shadow-2)] transition-shadow">
+    <article className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex">
       <div className="relative w-[40%] shrink-0 overflow-hidden bg-[var(--canvas-2)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={post.image} alt={post.titel} className="size-full object-cover group-hover:scale-[1.04] transition-transform duration-500" loading="lazy" />
+        <img src={post.image} alt={post.titel} className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] group-hover:scale-[1.05]" loading="lazy" />
       </div>
       <div className="p-4 lg:p-5 flex-1 flex flex-col min-w-0">
         <div className="flex items-center gap-2">
           <KategoriPill kategori={post.kategori} small />
-          <span className="text-[12px] text-[var(--ink-3)] tabular-nums">{post.læsetid}</span>
+          <span className="text-[12px] text-[var(--ink-3)] tabular-nums inline-flex items-center gap-1">
+            <Icon name="clock" size={10} /> {post.læsetid}
+          </span>
         </div>
-        <h3 className="mt-2 text-[15.5px] font-semibold text-[var(--cr-navy-deep)] leading-[1.3] line-clamp-3">{post.titel}</h3>
+        <h3 className="mt-2 text-[15.5px] font-semibold text-[var(--cr-navy-deep)] leading-[1.3] line-clamp-3 group-hover:text-[var(--accent-press)] transition-colors">{post.titel}</h3>
         <p className="text-[12.5px] text-[var(--ink-3)] mt-1.5 leading-[1.5] line-clamp-2">{post.excerpt}</p>
-        <div className="mt-auto pt-3">
+        <div className="mt-auto pt-3 border-t border-[var(--line-2)]">
           <AuthorChip post={post} size="sm" />
         </div>
       </div>
@@ -153,22 +168,39 @@ function SecondaryCard({ post }: { post: BlogPost }) {
 }
 
 function ArticleCard({ post }: { post: BlogPost }) {
+  const tema = post.tema ? THEMES.find((t) => t.id === post.tema) : null;
   return (
-    <article className="card !p-0 overflow-hidden flex flex-col h-full group cursor-pointer hover:shadow-[var(--shadow-2)] transition-shadow">
+    <article className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex flex-col h-full">
       <div className="relative aspect-[16/10] overflow-hidden bg-[var(--canvas-2)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={post.image} alt={post.titel} className="size-full object-cover group-hover:scale-[1.04] transition-transform duration-500" loading="lazy" />
+        <img src={post.image} alt={post.titel} className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] group-hover:scale-[1.05]" loading="lazy" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 40%)" }} />
+
+        {/* Top-left: kategori chip */}
         <div className="absolute top-3 left-3">
           <KategoriPill kategori={post.kategori} />
         </div>
+
+        {/* Bottom-right: reading time on the image */}
+        <div className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 text-[12px] text-white font-semibold drop-shadow">
+          <Icon name="clock" size={11} /> {post.læsetid}
+        </div>
+
+        {/* Bottom-left: theme dot if present */}
+        {tema && (
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 text-[11.5px] text-white font-semibold drop-shadow">
+            <span className="size-2 rounded-full" style={{ background: tema.accent }} />
+            {tema.label}
+          </span>
+        )}
       </div>
       <div className="p-4 lg:p-5 flex-1 flex flex-col">
-        <h3 className="text-[15.5px] font-semibold text-[var(--cr-navy-deep)] leading-[1.3] line-clamp-2 min-h-[40px]">{post.titel}</h3>
+        <h3 className="text-[15.5px] font-semibold text-[var(--cr-navy-deep)] leading-[1.3] line-clamp-2 min-h-[40px] group-hover:text-[var(--accent-press)] transition-colors">{post.titel}</h3>
         <p className="text-[12.5px] text-[var(--ink-3)] mt-2 leading-[1.5] line-clamp-3 flex-1">{post.excerpt}</p>
         <div className="mt-3 pt-3 border-t border-[var(--line-2)] flex items-center justify-between gap-3">
           <AuthorChip post={post} size="sm" />
-          <span className="text-[12px] text-[var(--ink-3)] tabular-nums inline-flex items-center gap-1 shrink-0">
-            <Icon name="clock" size={10} /> {post.læsetid}
+          <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-[var(--accent)] group-hover:gap-1.5 transition-all shrink-0">
+            Læs <Icon name="chevron-right" size={12} />
           </span>
         </div>
       </div>
