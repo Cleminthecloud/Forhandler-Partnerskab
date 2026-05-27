@@ -469,12 +469,21 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
           href="/partner/specialister"
           className="flex items-center gap-3 p-3 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors group"
         >
-          <div
-            className="size-12 rounded-full grid place-items-center text-white font-semibold text-[13px] shrink-0"
-            style={{ background: specialist.bg }}
-          >
-            {specialist.initialer}
-          </div>
+          {specialist.portrait ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={specialist.portrait}
+              alt={specialist.navn}
+              className="size-12 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div
+              className="size-12 rounded-full grid place-items-center text-white font-semibold text-[13px] shrink-0"
+              style={{ background: specialist.bg }}
+            >
+              {specialist.initialer}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{specialist.navn}</div>
             <div className="text-[12px] text-[var(--ink-3)]">

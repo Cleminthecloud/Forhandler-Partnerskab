@@ -525,13 +525,22 @@ export default function PartnerDashboard() {
         <Link href="/partner/specialister" className="card card-hover block">
           <h3 className="t-h3 mb-4">Tal med Carl Ras</h3>
           <div className="flex items-center gap-3 mb-3">
-            <div
-              className="size-10 rounded-full text-white font-semibold grid place-items-center shrink-0 text-[13px]"
-              style={{ background: latestChatSpec.bg }}
-              aria-hidden="true"
-            >
-              {latestChatSpec.initialer}
-            </div>
+            {latestChatSpec.portrait ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={latestChatSpec.portrait}
+                alt={latestChatSpec.navn}
+                className="size-10 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div
+                className="size-10 rounded-full text-white font-semibold grid place-items-center shrink-0 text-[13px]"
+                style={{ background: latestChatSpec.bg }}
+                aria-hidden="true"
+              >
+                {latestChatSpec.initialer}
+              </div>
+            )}
             <div className="min-w-0">
               <div className="text-[14px] font-semibold text-[var(--ink)]">{latestChatSpec.navn}</div>
               <div className="text-[12px] text-[var(--ink-3)]">{latestChatSpec.bu}</div>

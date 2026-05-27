@@ -124,30 +124,35 @@ function EventDetailModal({
     <div className="fixed inset-0 z-50 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[880px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[880px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
-        {/* Hero header (sticky top) */}
-        <div className="relative h-[200px] overflow-hidden shrink-0" style={{ background: detail.hero }}>
-          <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 70%, rgba(0,0,0,0.25) 0%, transparent 70%)" }} />
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 size-9 rounded-full bg-white/95 hover:bg-white text-[var(--ink)] grid place-items-center transition-colors z-10"
-            aria-label="Luk"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-          <div className="absolute bottom-5 left-6 right-6 text-white">
-            <span className="inline-block text-[12px] font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md uppercase tracking-wider">
+        {/* Thin accent strip — uses theme accent or event-type color */}
+        <div className="h-1 shrink-0" style={{ background: detail.hero }} />
+
+        {/* Clean hero header — light, generous, on white */}
+        <div className="px-8 pt-7 pb-6 border-b border-[var(--line-2)] flex items-start justify-between gap-4 shrink-0">
+          <div className="flex-1 min-w-0">
+            <span
+              className="inline-block text-[12px] font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider mb-3"
+              style={{ background: detail.hero, color: "white" }}
+            >
               {event.type}
             </span>
-            <h2 className="mt-3 text-[26px] font-semibold leading-[1.1] tracking-tight" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.35)" }}>
+            <h2 className="text-[26px] font-bold text-[var(--ink)] leading-[1.15] tracking-tight">
               {event.titel}
             </h2>
           </div>
+          <button
+            onClick={onClose}
+            className="size-9 rounded-full hover:bg-[var(--canvas-2)] grid place-items-center text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors shrink-0"
+            aria-label="Luk"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         {/* Scrollable body */}
@@ -165,9 +170,18 @@ function EventDetailModal({
 
           {host && (
             <div className="mb-6 p-4 rounded-[var(--r-lg)] bg-[var(--canvas-2)] flex items-center gap-3">
-              <div className="size-12 rounded-full text-white font-semibold grid place-items-center shrink-0 text-[14px]" style={{ background: host.bg }}>
-                {host.initialer}
-              </div>
+              {host.portrait ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={host.portrait}
+                  alt={host.navn}
+                  className="size-12 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <div className="size-12 rounded-full text-white font-semibold grid place-items-center shrink-0 text-[14px]" style={{ background: host.bg }}>
+                  {host.initialer}
+                </div>
+              )}
               <div className="flex-1">
                 <div className="t-caption">Vært</div>
                 <div className="text-[15px] font-semibold text-[var(--ink)]">{host.navn}</div>

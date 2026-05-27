@@ -173,9 +173,18 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
             <section>
               <div className="t-eyebrow mb-3">Vært</div>
               <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
-                <div className="size-12 rounded-full grid place-items-center text-white font-semibold text-[14px] shrink-0" style={{ background: host.bg }}>
-                  {host.initialer}
-                </div>
+                {host.portrait ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={host.portrait}
+                    alt={host.navn}
+                    className="size-12 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="size-12 rounded-full grid place-items-center text-white font-semibold text-[14px] shrink-0" style={{ background: host.bg }}>
+                    {host.initialer}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="text-[14px] font-semibold text-[var(--ink)]">{host.navn}</div>
                   <div className="text-[11.5px] text-[var(--ink-3)]">{host.rolle} · {host.bu}</div>

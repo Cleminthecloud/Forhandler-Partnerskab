@@ -3,7 +3,7 @@
 // Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
 // heavy Recharts components that can hang Next.js static page generation.
 export const dynamic = "force-dynamic";
-import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -15,6 +15,7 @@ import { useApp } from "@/components/AppState";
 import { PageHeader } from "@/components/PageHeader";
 import { ProjectPlanner } from "@/components/ProjectPlanner";
 import { BookVisitDialog } from "@/components/BookVisitDialog";
+import { Icon } from "@/components/Icon";
 
 const STATUS_ORDER: ProjectStatus[] = ["Konsultation", "Tilbud", "Aftalt", "I gang", "Færdig"];
 
@@ -518,28 +519,26 @@ function ProjectDrawer({
           </button>
         </div>
 
-        {/* Status pipeline picker */}
-        <div className="px-8 py-3 border-b border-[var(--line-2)] flex items-center gap-1">
-          {STATUS_ORDER.map((s, i) => {
-            const sel = project.status === s;
-            const passed = STATUS_ORDER.indexOf(project.status) > i;
-            return (
-              <button
-                key={s}
-                onClick={() => onUpdateStatus(project.id, s)}
-                className={
-                  "flex-1 text-[12px] font-semibold uppercase tracking-wider py-1.5 rounded transition-colors border " +
-                  (sel
-                    ? "bg-[var(--ink)] text-white border-[var(--ink)]"
-                    : passed
-                      ? "bg-[var(--canvas-2)] text-[var(--ink-2)] border-transparent"
-                      : "bg-transparent text-[var(--ink-3)] border-transparent hover:bg-[var(--canvas-2)] hover:text-[var(--ink-2)]")
-                }
-              >
-                {s}
-              </button>
-            );
-          })}
+        {/* Slim status progress strip — visual only. Advance/skip via footer CTA + overflow. */}
+        <div className="px-8 py-4 border-b border-[var(--line-2)] flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1 flex-1">
+            {STATUS_ORDER.map((s, i) => {
+              const currentIdx = STATUS_ORDER.indexOf(project.status);
+              const reached = i <= currentIdx;
+              return (
+                <div key={s} className="flex-1 flex items-center gap-1">
+                  <span
+                    className={"text-[11px] font-semibold uppercase tracking-wider " + (i === currentIdx ? "text-[var(--ink)]" : "text-[var(--ink-3)]")}
+                  >
+                    {s}
+                  </span>
+                  {i < STATUS_ORDER.length - 1 && (
+                    <span className="flex-1 h-[2px] rounded-full" style={{ background: reached ? style.dot : "var(--line-2)" }} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
@@ -623,9 +622,18 @@ function ProjectDrawer({
             <div className="t-eyebrow mb-3">Specialist</div>
             {specialist ? (
               <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
-                <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[13px] shrink-0" style={{ background: specialist.bg }}>
-                  {specialist.initialer}
-                </div>
+                {specialist.portrait ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={specialist.portrait}
+                    alt={specialist.navn}
+                    className="size-10 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[13px] shrink-0" style={{ background: specialist.bg }}>
+                    {specialist.initialer}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-semibold text-[var(--ink)]">{specialist.navn}</div>
                   <div className="text-[11.5px] text-[var(--ink-3)]">
@@ -700,18 +708,13 @@ function ProjectDrawer({
           </section>
         </div>
 
-        {/* Footer actions */}
-        <div className="px-8 py-5 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
-          <span className="text-[12px] text-[var(--ink-3)]">Projekt #{project.id.replace("pr-", "")}</span>
-          <div className="flex gap-2">
-            <button onClick={onAddAllToBasket} className="btn btn-secondary !py-1.5" data-tt={`Læg alle ${project.produktIds.length} produkter ×${project.enheder} i kurv`}>
-              Læg alt i kurv
-            </button>
-            <button onClick={onSendTilbud} className="btn btn-primary !py-1.5">
-              Send tilbud til kunde
-            </button>
-          </div>
-        </div>
+        {/* Footer — context-aware primary CTA + overflow */}
+        <ProjectFooter
+          project={project}
+          onUpdateStatus={onUpdateStatus}
+          onAddAllToBasket={onAddAllToBasket}
+          onSendTilbud={onSendTilbud}
+        />
       </aside>
     </div>
   );
@@ -720,6 +723,112 @@ function ProjectDrawer({
 /* =====================================================================
    Small UI primitives
    ===================================================================== */
+
+/* ─────────────────────────── Project drawer footer ──────────────────────
+   Single context-aware primary CTA based on current status + overflow menu
+   for everything else (skip-to-status, "Læg alt i kurv", etc.). Mirrors the
+   lead drawer footer pattern.
+   ───────────────────────────────────────────────────────────────────────── */
+
+function nextStepForProject(status: ProjectStatus): { label: string; next: ProjectStatus | null } {
+  switch (status) {
+    case "Konsultation": return { label: "Send tilbud",         next: "Tilbud" };
+    case "Tilbud":       return { label: "Marker som aftalt",   next: "Aftalt" };
+    case "Aftalt":       return { label: "Start projekt",       next: "I gang" };
+    case "I gang":       return { label: "Marker som færdig",   next: "Færdig" };
+    case "Færdig":       return { label: "Genåbn projekt",      next: "I gang" };
+  }
+}
+
+function ProjectFooter({
+  project,
+  onUpdateStatus,
+  onAddAllToBasket,
+  onSendTilbud,
+}: {
+  project: Project;
+  onUpdateStatus: (id: string, status: ProjectStatus) => void;
+  onAddAllToBasket: () => void;
+  onSendTilbud: () => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { label, next } = nextStepForProject(project.status);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onDown(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setMenuOpen(false); }
+    document.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
+  function doPrimary() {
+    // "Send tilbud" wires through onSendTilbud (which also advances status to Tilbud)
+    if (project.status === "Konsultation") {
+      onSendTilbud();
+    } else if (next) {
+      onUpdateStatus(project.id, next);
+    }
+  }
+
+  return (
+    <div className="px-8 py-5 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
+      <span className="text-[12px] text-[var(--ink-3)]">Projekt #{project.id.replace("pr-", "")}</span>
+      <div className="flex items-center gap-2">
+        <button onClick={doPrimary} className="btn btn-primary">
+          {label}
+        </button>
+        <div ref={menuRef} className="relative">
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="btn btn-secondary !px-3"
+            aria-label="Flere handlinger"
+            aria-expanded={menuOpen}
+          >
+            <Icon name="ellipsis" size={16} />
+          </button>
+          {menuOpen && (
+            <div
+              className="absolute bottom-full right-0 mb-2 w-[260px] bg-white rounded-[var(--r-md)] border border-[var(--line-2)] shadow-[var(--shadow-3)] py-1.5 z-10 animate-in"
+              role="menu"
+            >
+              <button
+                role="menuitem"
+                onClick={() => { onAddAllToBasket(); setMenuOpen(false); }}
+                className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
+              >
+                <Icon name="plus" size={14} className="text-[var(--ink-3)]" />
+                Læg alle produkter i kurv
+              </button>
+              <div className="h-px bg-[var(--line-2)] my-1.5" />
+              <div className="px-3 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+                Skift status
+              </div>
+              {STATUS_ORDER.filter((s) => s !== project.status).map((s) => (
+                <button
+                  key={s}
+                  role="menuitem"
+                  onClick={() => { onUpdateStatus(project.id, s); setMenuOpen(false); }}
+                  className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
+                >
+                  <span className="size-2 rounded-full" style={{ background: STATUS_STYLE[s].dot }} />
+                  Marker som {s.toLowerCase()}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Tile({ label, value, delta, subtle = false }: { label: string; value: string; delta?: string; subtle?: boolean }) {
   return (
