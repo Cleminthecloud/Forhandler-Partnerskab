@@ -968,7 +968,7 @@ export function applyTemplate(
 export const PROJECTS: Project[] = [
   {
     id: "pr-001",
-    partnerId: "p-001",
+    partnerId: "p-hornbaek-laas",
     kunde: "Sommerhusforening Hornbæk Strand",
     kontakt: "best@hornbaek-strand.dk",
     type: "Udlejning",
@@ -999,7 +999,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "pr-002",
-    partnerId: "p-001",
+    partnerId: "p-hornbaek-laas",
     kunde: "Familie Eriksen",
     kontakt: "te@eriksen.dk",
     type: "Sommerhus",
@@ -1020,7 +1020,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "pr-003",
-    partnerId: "p-001",
+    partnerId: "p-hornbaek-laas",
     kunde: "Ejendomsservice Nordsjælland A/S",
     kontakt: "indkøb@ens-as.dk",
     type: "Ejendom",
@@ -1039,7 +1039,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "pr-004",
-    partnerId: "p-001",
+    partnerId: "p-hornbaek-laas",
     kunde: "Café Hornbæk Havn",
     kontakt: "kim@cafehavnen.dk",
     type: "Erhverv",
@@ -1069,7 +1069,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "pr-005",
-    partnerId: "p-001",
+    partnerId: "p-hornbaek-laas",
     kunde: "Familie Birk",
     kontakt: "+45 28 14 02 91",
     type: "Bolig",
@@ -1089,7 +1089,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "pr-006",
-    partnerId: "p-001",
+    partnerId: "p-hornbaek-laas",
     kunde: "Sommerhus Maja Lund",
     kontakt: "maja.lund@gmail.com",
     type: "Sommerhus",
