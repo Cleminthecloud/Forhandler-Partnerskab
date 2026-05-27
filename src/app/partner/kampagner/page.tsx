@@ -4,6 +4,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
 import { CAMPAIGNS, FORMATS, CURRENT_PARTNER, FormatKind, Campaign } from "@/lib/data";
 import { CampaignPreview, DEFAULT_IMAGES } from "@/components/CampaignPreview";
+import { PageHeader } from "@/components/PageHeader";
 import { THEMES } from "@/lib/themes";
 
 interface Edits {
@@ -80,29 +81,27 @@ export default function KampagnerPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-48px)] animate-in">
       {/* ─── COMPACT HEADER ─── */}
-      <header className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
-        <div className="flex items-baseline gap-3">
-          <div className="t-eyebrow flex items-center gap-2">
-            <span className="theme-dot" style={{ background: theme.accent }} />
-            <span>Marketing-værktøjskasse</span>
-          </div>
-          <span className="text-[var(--ink-4)]">·</span>
-          <h1 className="text-[20px] font-semibold tracking-tight text-[var(--ink)] leading-none">Kampagner</h1>
-        </div>
-        <div className="flex gap-2">
-          {hasEdits && (
-            <button onClick={resetEdits} className="btn btn-secondary" data-tt="Vend tilbage til original copy">
-              ⤺ Nulstil tekst
+      <div className="px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
+        <PageHeader
+          variant="compact"
+          eyebrow="Marketing-værktøjskasse"
+          title="Kampagner"
+          themeColor={theme.accent}
+          actions={<>
+            {hasEdits && (
+              <button onClick={resetEdits} className="btn btn-secondary" data-tt="Vend tilbage til original copy">
+                ⤺ Nulstil tekst
+              </button>
+            )}
+            <button onClick={() => setShowLogoSheet(true)} className="btn btn-secondary" data-tt="Upload eller skift firma-logo">
+              Skift logo
             </button>
-          )}
-          <button onClick={() => setShowLogoSheet(true)} className="btn btn-secondary" data-tt="Upload eller skift firma-logo">
-            Skift logo
-          </button>
-          <button onClick={() => pushToast("Gemt som skabelon")} className="btn btn-secondary" data-tt="Gem som personlig skabelon">
-            Gem skabelon
-          </button>
-        </div>
-      </header>
+            <button onClick={() => pushToast("Gemt som skabelon")} className="btn btn-secondary" data-tt="Gem som personlig skabelon">
+              Gem skabelon
+            </button>
+          </>}
+        />
+      </div>
 
       {/* ─── EDITOR: left rail + canvas. Generous pb so the floating dock never crowds the browser-window edge. */}
       <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-8 lg:pb-10 grid-cols-[280px_1fr] min-h-0">

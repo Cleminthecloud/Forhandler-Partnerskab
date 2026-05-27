@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useApp } from "@/components/AppState";
 import { CURRENT_PARTNER, Lead, LeadStatus, productsForBehov, CERTS_AVAILABLE, SPECIALISTS } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
+import { PageHeader } from "@/components/PageHeader";
 
 const STATUSES: LeadStatus[] = ["Ny", "Kontaktet", "Vundet", "Tabt"];
 
@@ -43,11 +44,11 @@ export default function LeadsPage() {
 
   return (
     <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
-      <div className="t-eyebrow">Leads · Carl-ras.dk Partnerfinder</div>
-      <h1 className="t-display mt-3">Leads</h1>
-      <p className="t-body-lg mt-3 max-w-[680px]">
-        Sommerhusejere finder dig på <strong className="text-[var(--ink)] font-semibold">carl-ras.dk</strong>. Når de udfylder kontaktformularen, lander leadet her.
-      </p>
+      <PageHeader
+        eyebrow="Leads · Carl-ras.dk Partnerfinder"
+        title="Leads"
+        lead="Sommerhusejere finder dig på carl-ras.dk. Når de udfylder kontaktformularen, lander leadet her."
+      />
 
       {/* Status pipeline */}
       <div className="mt-8 flex flex-wrap items-center gap-2">

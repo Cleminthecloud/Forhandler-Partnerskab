@@ -6,6 +6,7 @@ import {
   Product, Scenario, ScenarioChip, ScenarioStep,
 } from "@/lib/data";
 import { useApp } from "@/components/AppState";
+import { PageHeader } from "@/components/PageHeader";
 
 /* =====================================================================
    Specialister — AI-style scripted chat. Each scenario is a deterministic
@@ -197,17 +198,13 @@ export default function SpecialisterPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-48px)] animate-in">
       {/* ─── HEADER ─── */}
-      <header className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
-        <div className="flex items-baseline gap-3">
-          <div className="t-eyebrow flex items-center gap-2">
-            <span className="size-2 rounded-full bg-[var(--accent)]" />
-            <span>Tal med Carl Ras</span>
-          </div>
-          <span className="text-[var(--ink-4)]">·</span>
-          <h1 className="text-[20px] font-semibold tracking-tight text-[var(--ink)] leading-none">Specialister</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {basket.length > 0 && (
+      <div className="px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
+        <PageHeader
+          variant="compact"
+          eyebrow="Tal med Carl Ras"
+          title="Specialister"
+          themeColor="var(--accent)"
+          actions={basket.length > 0 ? (
             <a
               href="https://www.carl-ras.dk"
               target="_blank"
@@ -220,9 +217,9 @@ export default function SpecialisterPage() {
               </svg>
               Kurv ({basket.reduce((n, b) => n + b.qty, 0)})
             </a>
-          )}
-        </div>
-      </header>
+          ) : undefined}
+        />
+      </div>
 
       {/* ─── 3-pane editor ─── */}
       <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-6 grid-cols-[260px_1fr_300px] min-h-0">

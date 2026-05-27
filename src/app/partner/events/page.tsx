@@ -2,6 +2,7 @@
 import { useState, useMemo } from "react";
 import { useApp } from "@/components/AppState";
 import { EVENTS, CalendarEvent, Region, getEventDetail, SPECIALISTS } from "@/lib/data";
+import { PageHeader } from "@/components/PageHeader";
 
 const TYPE_COLOR: Record<CalendarEvent["type"], { bg: string; ink: string }> = {
   "Faglig Fredag":  { bg: "#FFF1DC", ink: "#7A4400" },
@@ -35,11 +36,11 @@ export default function EventsPage() {
 
   return (
     <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
-      <div className="t-eyebrow">Events &amp; kalender</div>
-      <h1 className="t-display mt-3">Faglige Fredage &amp; regionsmøder</h1>
-      <p className="t-body-lg mt-3 max-w-[680px]">
-        Hver Faglig Fredag er en lokal halv eftermiddag med en Carl Ras-specialist. Vi viser nyt sortiment, deler erfaringer, og I går hjem med konkrete salgsargumenter.
-      </p>
+      <PageHeader
+        eyebrow="Events & kalender"
+        title="Faglige Fredage & regionsmøder"
+        lead="Hver Faglig Fredag er en lokal halv eftermiddag med en Carl Ras-specialist. Vi viser nyt sortiment, deler erfaringer, og I går hjem med konkrete salgsargumenter."
+      />
 
       <div className="mt-8 flex flex-wrap gap-2">
         {regions.map((r) => (

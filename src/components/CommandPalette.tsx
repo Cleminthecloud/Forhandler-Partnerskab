@@ -1,16 +1,30 @@
 "use client";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { PARTNERS, CAMPAIGNS, EVENTS } from "@/lib/data";
 
 /* =====================================================================
    Cmd+K command palette.
+
+   PLATFORM-SCOPED — the three areas of this demo (Partner, Carl Ras HQ
+   admin, Find-en-partner public finder) don't share users in real life,
+   so the palette only ever shows nav for the area the user is currently
+   in. Pathname drives the scope. Recents are stored per-platform.
+
    Centered modal, results grouped by category with per-category icon
    chip, recently-used items surface when input is empty, keyboard nav
    with hint badges.
    ===================================================================== */
 
+type Platform = "partner" | "admin" | "find";
 type Category = "Side" | "Partner" | "Kampagne" | "Event" | "Carl Ras HQ" | "Senest besøgt";
+
+function detectPlatform(pathname: string | null): Platform {
+  if (!pathname) return "partner";
+  if (pathname.startsWith("/admin")) return "admin";
+  if (pathname.startsWith("/find"))  return "find";
+  return "partner";
+}
 
 interface CmdItem {
   id: string;
@@ -57,56 +71,104 @@ const CATEGORY_STYLE: Record<Category, { bg: string; ink: string }> = {
   "Senest besøgt":   { bg: "var(--canvas-2)",          ink: "var(--ink-3)" },
 };
 
-const RECENTS_KEY = "carl-ras-cmdk-recents-v1";
 const MAX_RECENTS = 5;
+const recentsKey = (p: Platform) => `carl-ras-cmdk-recents-v2-${p}`;
 
-function loadRecents(): string[] {
+function loadRecents(platform: Platform): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(RECENTS_KEY);
+    const raw = window.localStorage.getItem(recentsKey(platform));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed.slice(0, MAX_RECENTS) : [];
   } catch { return []; }
 }
 
+/* Which page-categories belong to which platform */
+const PLATFORM_PAGE_FILTER: Record<Platform, (item: CmdItem) => boolean> = {
+  // Partner area: partner pages only — no admin, no /find
+  partner: (i) => i.href.startsWith("/partner"),
+  // Admin: admin pages only
+  admin:   (i) => i.href.startsWith("/admin"),
+  // Find: /find pages — minimal nav, this surface is essentially one page
+  find:    (i) => i.href.startsWith("/find"),
+};
+
+/* Which entity categories make sense in each platform */
+const PLATFORM_ENTITIES: Record<Platform, Category[]> = {
+  partner: ["Kampagne", "Event"],   // partners browse their own campaigns + events
+  admin:   ["Partner", "Event"],    // HQ browses partners + events on calendar
+  find:    [],                       // customers just search partners directly on /find — no jump-list needed
+};
+
+const PLATFORM_LABEL: Record<Platform, string> = {
+  partner: "Partner-platform",
+  admin:   "Carl Ras HQ",
+  find:    "Find en partner",
+};
+
 export function CommandPalette() {
+  const pathname = usePathname();
+  const platform = detectPlatform(pathname);
+
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [activeIdx, setActiveIdx] = useState(0);
-  const [recents, setRecents] = useState<string[]>(loadRecents);
+  // Recents are derived from localStorage on each render. We bump a version
+  // counter inside `go()` to force re-derivation when we write — no effect needed.
+  const [recentsVersion, setRecentsVersion] = useState(0);
+  const recents = useMemo(() => {
+    void recentsVersion; // intentional dep — cache-buster after writes
+    return loadRecents(platform);
+  }, [platform, recentsVersion]);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  /* Build the full item index (pages + dynamic data) */
+  /* Build the full item index, but only what makes sense for current platform */
   const items: CmdItem[] = useMemo(() => {
-    const partnerItems: CmdItem[] = PARTNERS.map((p) => ({
-      id: "partner-" + p.id,
-      title: p.firma,
-      subtitle: `${p.faggruppe} · ${p.by} · ${p.tier}-partner`,
-      category: "Partner",
-      icon: ICONS.partner,
-      href: `/admin/partnere/${p.id}`,
-      keywords: [p.ejer, p.region, p.postnr],
-    }));
-    const campaignItems: CmdItem[] = CAMPAIGNS.map((c) => ({
-      id: "camp-" + c.id,
-      title: c.titel,
-      subtitle: c.hovedbudskab,
-      category: "Kampagne",
-      icon: ICONS.campaign,
-      href: "/partner/kampagner",
-    }));
-    const eventItems: CmdItem[] = EVENTS.map((e) => ({
-      id: "event-" + e.id,
-      title: e.titel,
-      subtitle: `${e.lokation.split(",")[0]} · ${new Date(e.dato).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}`,
-      category: "Event",
-      icon: ICONS.event,
-      href: "/partner/events",
-    }));
-    return [...PAGES, ...partnerItems, ...campaignItems, ...eventItems];
-  }, []);
+    // Page items — filtered by which platform's pathname they live under
+    const scopedPages = PAGES.filter(PLATFORM_PAGE_FILTER[platform]);
+
+    // Decide which entity sets to include for this platform
+    const includeEntities = PLATFORM_ENTITIES[platform];
+
+    const partnerItems: CmdItem[] = includeEntities.includes("Partner")
+      ? PARTNERS.map((p) => ({
+          id: "partner-" + p.id,
+          title: p.firma,
+          subtitle: `${p.faggruppe} · ${p.by} · ${p.tier}-partner`,
+          category: "Partner",
+          icon: ICONS.partner,
+          href: `/admin/partnere/${p.id}`,
+          keywords: [p.ejer, p.region, p.postnr],
+        }))
+      : [];
+
+    const campaignItems: CmdItem[] = includeEntities.includes("Kampagne")
+      ? CAMPAIGNS.map((c) => ({
+          id: "camp-" + c.id,
+          title: c.titel,
+          subtitle: c.hovedbudskab,
+          category: "Kampagne",
+          icon: ICONS.campaign,
+          href: "/partner/kampagner",
+        }))
+      : [];
+
+    const eventItems: CmdItem[] = includeEntities.includes("Event")
+      ? EVENTS.map((e) => ({
+          id: "event-" + e.id,
+          title: e.titel,
+          subtitle: `${e.lokation.split(",")[0]} · ${new Date(e.dato).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}`,
+          category: "Event",
+          icon: ICONS.event,
+          // Events live under /partner/events for partners; admin has their own /admin/kalender
+          href: platform === "admin" ? "/admin/kalender" : "/partner/events",
+        }))
+      : [];
+
+    return [...scopedPages, ...partnerItems, ...campaignItems, ...eventItems];
+  }, [platform]);
 
   /* Reset query + focus when palette opens */
   function handleOpen() {
@@ -144,15 +206,21 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  /* Filter + group results */
+  /* Filter + group results. Order changes per platform — admin foregrounds Partner,
+     partner foregrounds Sider, find barely needs grouping. */
   const groups: { category: Category; items: CmdItem[] }[] = useMemo(() => {
-    // No query → show Senest besøgt + Sider + Carl Ras HQ as the default landing
+    const order: Category[] = platform === "admin"
+      ? ["Senest besøgt", "Carl Ras HQ", "Partner", "Event"]
+      : platform === "partner"
+        ? ["Senest besøgt", "Side", "Kampagne", "Event"]
+        : ["Senest besøgt", "Side"];
+
+    // No query → show recents + top-of-each-section
     if (!q.trim()) {
       const recentItems = recents
         .map((id) => items.find((i) => i.id === id))
         .filter(Boolean) as CmdItem[];
 
-      const groupOrder: Category[] = ["Senest besøgt", "Side", "Carl Ras HQ", "Partner", "Kampagne", "Event"];
       const sections: { category: Category; items: CmdItem[] }[] = [];
       if (recentItems.length > 0) {
         sections.push({
@@ -160,15 +228,22 @@ export function CommandPalette() {
           items: recentItems.map((i) => ({ ...i, category: "Senest besøgt" })),
         });
       }
-      sections.push({ category: "Side", items: items.filter((i) => i.category === "Side") });
-      sections.push({ category: "Carl Ras HQ", items: items.filter((i) => i.category === "Carl Ras HQ") });
-      sections.push({ category: "Partner", items: items.filter((i) => i.category === "Partner").slice(0, 4) });
-      return sections.filter((s) => s.items.length > 0).sort((a, b) =>
-        groupOrder.indexOf(a.category) - groupOrder.indexOf(b.category)
-      );
+      // Always show full Side or Carl Ras HQ list — they're small
+      const pageCat: Category = platform === "admin" ? "Carl Ras HQ" : "Side";
+      sections.push({ category: pageCat, items: items.filter((i) => i.category === pageCat) });
+
+      // Show a preview of entity sections relevant to this platform (top 4 each)
+      PLATFORM_ENTITIES[platform].forEach((cat) => {
+        const list = items.filter((i) => i.category === cat).slice(0, 4);
+        if (list.length > 0) sections.push({ category: cat, items: list });
+      });
+
+      return sections
+        .filter((s) => s.items.length > 0)
+        .sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category));
     }
 
-    // Query — search across everything, then group
+    // Query — search across the scoped items only, then group
     const t = q.toLowerCase();
     const matches = items.filter((i) => {
       const hay = (i.title + " " + (i.subtitle ?? "") + " " + (i.keywords ?? []).join(" ")).toLowerCase();
@@ -181,11 +256,10 @@ export function CommandPalette() {
       list.push(m);
       grouped.set(m.category, list);
     });
-    const order: Category[] = ["Side", "Carl Ras HQ", "Partner", "Kampagne", "Event"];
     return order
       .filter((c) => grouped.has(c))
       .map((c) => ({ category: c, items: grouped.get(c)! }));
-  }, [q, items, recents]);
+  }, [q, items, recents, platform]);
 
   /* Flatten for keyboard nav */
   const flatItems = useMemo(
@@ -193,17 +267,18 @@ export function CommandPalette() {
     [groups]
   );
 
-  /* Persist + open */
+  /* Persist + open. Recents are stored per-platform so jumping between
+     partner / admin / find never bleeds history across surfaces. */
   const go = useCallback((item: CmdItem) => {
-    // Recents update
-    setRecents((prev) => {
+    try {
+      const prev = loadRecents(platform);
       const next = [item.id, ...prev.filter((id) => id !== item.id)].slice(0, MAX_RECENTS);
-      try { window.localStorage.setItem(RECENTS_KEY, JSON.stringify(next)); } catch {}
-      return next;
-    });
+      window.localStorage.setItem(recentsKey(platform), JSON.stringify(next));
+    } catch {}
+    setRecentsVersion((v) => v + 1); // force re-derivation of `recents`
     router.push(item.href);
     setOpen(false);
-  }, [router]);
+  }, [router, platform]);
 
   function onInputKey(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "ArrowDown") {
@@ -244,7 +319,7 @@ export function CommandPalette() {
             aria-modal="true"
             aria-label="Søg overalt"
           >
-            {/* Input */}
+            {/* Input — placeholder & scope chip reflect current platform */}
             <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[var(--line-2)] shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--ink-3)] shrink-0">
                 <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
@@ -254,9 +329,18 @@ export function CommandPalette() {
                 value={q}
                 onChange={(e) => onQueryChange(e.target.value)}
                 onKeyDown={onInputKey}
-                placeholder="Søg partnere, sider, kampagner, events…"
+                placeholder={
+                  platform === "admin"
+                    ? "Søg partnere, admin-sider, events…"
+                    : platform === "partner"
+                      ? "Søg sider, kampagner, events…"
+                      : "Søg på Find en partner…"
+                }
                 className="flex-1 text-[15px] outline-none bg-transparent text-[var(--ink)] placeholder:text-[var(--ink-4)]"
               />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-2 py-0.5">
+                {PLATFORM_LABEL[platform]}
+              </span>
               <kbd className="text-[11px] font-semibold text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-1.5 py-0.5">esc</kbd>
             </div>
 
