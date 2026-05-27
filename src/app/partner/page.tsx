@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
 import { BookVisitDialog } from "@/components/BookVisitDialog";
+import { Icon } from "@/components/Icon";
 import {
   CURRENT_PARTNER,
   CAMPAIGNS,
@@ -18,6 +19,8 @@ import {
   PARTNERS,
   FORUM_THREADS,
   PARTNER_PERFORMANCE,
+  PRODUCTS,
+  type ProductBadge,
 } from "@/lib/data";
 import { Radial, BarMini } from "@/components/Charts";
 import { MiniArea, InteractiveArea } from "@/components/ChartsInteractive";
@@ -386,24 +389,72 @@ export default function PartnerDashboard() {
           <div className="flex flex-wrap gap-2 shrink-0">
             <button
               onClick={() => setShowKonsulentBook(true)}
-              className="btn btn-primary"
+              className="btn btn-primary inline-flex items-center gap-1.5"
             >
-              📅 Book besøg
+              <Icon name="calendar" size={14} /> Book besøg
             </button>
             <button
               onClick={() => pushToast("Beskedseditor åbnes…")}
-              className="btn btn-secondary"
+              className="btn btn-secondary inline-flex items-center gap-1.5"
             >
-              Skriv til Dennis
+              <Icon name="mail" size={14} /> Skriv til Dennis
             </button>
             <a
               href="tel:+4570260111"
-              className="btn btn-secondary"
+              className="btn btn-secondary inline-flex items-center justify-center !px-3"
               aria-label="Ring til Dennis"
             >
-              📞
+              <Icon name="phone" size={14} />
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* ─── CARL RAS ANBEFALER (product push) ─── */}
+      <section aria-label="Carl Ras anbefaler" className="mb-4">
+        <div className="flex items-baseline justify-between mb-3">
+          <div>
+            <h2 className="t-h2">Carl Ras anbefaler</h2>
+            <p className="t-caption mt-0.5">Udvalgte produkter til {theme.label.toLowerCase()} — direkte links til carl-ras.dk</p>
+          </div>
+          <Link href="/partner/specialister" className="link text-[13px] inline-flex items-center gap-1">
+            Få faglig sparring <ArrowRight />
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {PRODUCTS.map((p) => (
+            <a
+              key={p.id}
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="card card-hover !p-0 overflow-hidden block group"
+            >
+              <div className="relative aspect-square bg-white border-b border-[var(--line-2)] grid place-items-center p-3">
+                {p.image ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={p.image} alt={p.navn} className="size-full object-contain group-hover:scale-[1.03] transition-transform duration-300" />
+                ) : (
+                  <span className="text-5xl opacity-30">{p.emoji}</span>
+                )}
+                {p.badge && <ProductBadgePill badge={p.badge} />}
+              </div>
+              <div className="p-3.5">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                <div className="text-[13px] font-semibold text-[var(--ink)] line-clamp-2 mt-0.5 leading-snug min-h-[34px]">{p.navn.split("·")[0].trim()}</div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-[14px] font-semibold text-[var(--ink)] tabular-nums">{p.pris}</span>
+                  {p.førpris && <span className="text-[11px] text-[var(--ink-3)] tabular-nums line-through">{p.førpris}</span>}
+                </div>
+                {p.margin && (
+                  <div className="text-[10.5px] text-[var(--ink-3)] mt-1 inline-flex items-center gap-1">
+                    <span className="size-1 rounded-full" style={{ background: "var(--accent)" }} />
+                    {p.margin}
+                  </div>
+                )}
+              </div>
+            </a>
+          ))}
         </div>
       </section>
 
@@ -495,8 +546,8 @@ export default function PartnerDashboard() {
           setShowKonsulentBook(false);
           pushToast(
             d.akut
-              ? `📞 Akut-anmodning sendt — Dennis ringer inden for 30 min.`
-              : `📅 Besøg booket med Dennis ${d.when ? "· " + new Date(d.when).toLocaleDateString("da-DK", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}`,
+              ? `Akut-anmodning sendt — Dennis ringer inden for 30 min.`
+              : `Besøg booket med Dennis ${d.when ? "· " + new Date(d.when).toLocaleDateString("da-DK", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}`,
             "success"
           );
         }}
@@ -506,6 +557,24 @@ export default function PartnerDashboard() {
 }
 
 /* ─────────── small components ─────────── */
+
+function ProductBadgePill({ badge }: { badge: ProductBadge }) {
+  const styles: Record<ProductBadge, { bg: string; ink: string; label: string }> = {
+    "NEW":      { bg: "#0C447C", ink: "#FFFFFF", label: "NY" },
+    "OFFER":    { bg: "#C2410C", ink: "#FFFFFF", label: "TILBUD" },
+    "BLÅ PRIS": { bg: "#1158A3", ink: "#FFFFFF", label: "BLÅ PRIS" },
+  };
+  const s = styles[badge];
+  return (
+    <span
+      className="absolute top-2 left-2 inline-flex items-center text-[10px] font-bold tracking-wider px-2 py-1 rounded shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
+      style={{ background: s.bg, color: s.ink }}
+    >
+      {s.label}
+    </span>
+  );
+}
+
 
 function SegmentedRange({ value, onChange }: { value: DateRange; onChange: (v: DateRange) => void }) {
   const options: { id: DateRange; label: string }[] = [

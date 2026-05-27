@@ -8,6 +8,7 @@ import Link from "next/link";
 import { PARTNERS, PRODUCTS, salesFor, CURRENT_PARTNER } from "@/lib/data";
 import { useApp } from "@/components/AppState";
 import { InteractiveArea, InteractivePie, MiniArea } from "@/components/ChartsInteractive";
+import { Icon } from "@/components/Icon";
 
 const ACTIVITY_COLOR: Record<string, string> = {
   ordre:   "#2D4A0F",
@@ -118,14 +119,14 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => setShowVisitDialog(true)} className="btn btn-secondary">📅 Planlæg besøg</button>
+            <button onClick={() => setShowVisitDialog(true)} className="btn btn-secondary inline-flex items-center gap-1.5"><Icon name="calendar" size={14} /> Planlæg besøg</button>
             <button onClick={() => pushToast("Beskedseditor åbnes…")} className="btn btn-secondary">Send besked</button>
             <button
               onClick={() => setShowOfferDialog(true)}
               className="btn btn-primary"
               disabled={offerSent}
             >
-              {offerSent ? "✓ Tilbud sendt" : "Send forudsigt-tilbud"}
+              {offerSent ? <span className="inline-flex items-center gap-1.5"><Icon name="check" size={14} /> Tilbud sendt</span> : "Send forudsigt-tilbud"}
             </button>
           </div>
         </div>
@@ -148,9 +149,9 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <ContactRow label="Adresse" value={`${partner.postnr} ${partner.by}`} />
             </ul>
             <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
-              <a href={`tel:${partner.telefon.replace(/\s/g, "")}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5">📞 Ring</a>
-              <a href={`mailto:${partner.email}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5">✉ Email</a>
-              <button onClick={() => pushToast(`Note tilføjet til ${partner.firma}`)} className="btn btn-secondary text-[12px] !px-3 !py-1.5">＋ Note</button>
+              <a href={`tel:${partner.telefon.replace(/\s/g, "")}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="phone" size={12} /> Ring</a>
+              <a href={`mailto:${partner.email}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="mail" size={12} /> Email</a>
+              <button onClick={() => pushToast(`Note tilføjet til ${partner.firma}`)} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="plus" size={12} /> Note</button>
             </div>
           </div>
 
@@ -203,13 +204,13 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
             <div className="space-y-2 text-[12px] text-[var(--ink-2)] flex-1 leading-[1.5]">
               <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · Stroxx Q3-pipeline · genforhandling af bonusaftale</div>
               <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, Jens Pedersen (Sikring)</div>
-              <div className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
-                <span>✓</span> {partner.ejer} har bekræftet
+              <div className="inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
+                <Icon name="check" size={11} /> {partner.ejer} har bekræftet
               </div>
             </div>
             <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
               <button onClick={() => setShowVisitDialog(true)} className="btn btn-primary text-[12px] !px-3 !py-1.5">Genplanlæg</button>
-              <button onClick={() => pushToast("Besøg tilføjet til din Outlook-kalender")} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Tilføj kal.</button>
+              <button onClick={() => pushToast("Besøg tilføjet til din Outlook-kalender")} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="calendar" size={12} /> Tilføj</button>
               <button onClick={() => pushToast(`Aflysning sendt til ${partner.ejer}`)} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Aflys</button>
             </div>
           </div>
@@ -320,7 +321,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
           <div className="p-7 lg:p-8 flex flex-wrap items-start gap-6">
             <div className="flex-1 min-w-[280px]">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider" style={{ background: "#EAF1DC", color: "#324A14" }}>
-                <span>✨</span>
+                <Icon name="lightbulb" size={12} />
                 Forudsigt-tilbud · {sales.predictedOffer.confidence}% sikkerhed
               </div>
               <h2 className="t-h2 mt-3">Næste køb forudset — send tilbud med ét klik</h2>
@@ -334,7 +335,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 disabled={offerSent}
                 className="btn btn-primary mt-3"
               >
-                {offerSent ? "✓ Tilbud sendt" : "Send tilbud (1 klik)"}
+                {offerSent ? <span className="inline-flex items-center gap-1.5"><Icon name="check" size={14} /> Tilbud sendt</span> : "Send tilbud (1 klik)"}
               </button>
             </div>
           </div>
@@ -424,16 +425,16 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <div>
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Deltagere</label>
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="tag" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}>👤 {partner.ejer}</span>
-                  <span className="tag" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}>👤 Dennis Holmberg</span>
-                  <span className="tag" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}>＋ Tilføj</span>
+                  <span className="tag inline-flex items-center gap-1" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}><Icon name="user" size={11} /> {partner.ejer}</span>
+                  <span className="tag inline-flex items-center gap-1" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}><Icon name="user" size={11} /> Dennis Holmberg</span>
+                  <span className="tag inline-flex items-center gap-1" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}><Icon name="plus" size={11} /> Tilføj</span>
                 </div>
               </div>
             </div>
 
             <div className="mt-6 flex gap-2 justify-end">
               <button onClick={() => setShowVisitDialog(false)} className="btn btn-secondary">Annullér</button>
-              <button onClick={saveVisit} className="btn btn-primary">📅 Book &amp; underret</button>
+              <button onClick={saveVisit} className="btn btn-primary inline-flex items-center gap-1.5"><Icon name="calendar" size={14} /> Book &amp; underret</button>
             </div>
           </div>
         </div>

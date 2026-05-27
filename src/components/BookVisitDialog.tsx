@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { SPECIALISTS } from "@/lib/data";
+import { Icon, type IconName } from "./Icon";
 
 export type VisitReason =
   | "projekt"
@@ -11,13 +12,13 @@ export type VisitReason =
   | "ny-ejer"
   | "andet";
 
-const REASONS: { id: VisitReason; label: string; emoji: string; lane: "konsulent" | "specialist" }[] = [
-  { id: "projekt",     label: "Projekt på lokationen", emoji: "🔧", lane: "specialist" },
-  { id: "sparring",    label: "Faglig sparring",       emoji: "💡", lane: "specialist" },
-  { id: "reklamation", label: "Reklamation / fejl",    emoji: "⚠️",  lane: "konsulent" },
-  { id: "kontrakt",    label: "Kontrakt / bonus",      emoji: "📑", lane: "konsulent" },
-  { id: "ny-ejer",     label: "Ny ejer / overdragelse",emoji: "🤝", lane: "konsulent" },
-  { id: "andet",       label: "Andet",                 emoji: "•",  lane: "konsulent" },
+const REASONS: { id: VisitReason; label: string; icon: IconName; lane: "konsulent" | "specialist" }[] = [
+  { id: "projekt",     label: "Projekt på lokationen", icon: "wrench",          lane: "specialist" },
+  { id: "sparring",    label: "Faglig sparring",       icon: "lightbulb",       lane: "specialist" },
+  { id: "reklamation", label: "Reklamation / fejl",    icon: "alert-triangle",  lane: "konsulent" },
+  { id: "kontrakt",    label: "Kontrakt / bonus",      icon: "file-text",       lane: "konsulent" },
+  { id: "ny-ejer",     label: "Ny ejer / overdragelse",icon: "handshake",       lane: "konsulent" },
+  { id: "andet",       label: "Andet",                 icon: "ellipsis",        lane: "konsulent" },
 ];
 
 const SUGGESTED_TIMES = [
@@ -136,7 +137,9 @@ export function BookVisitDialog({
           {/* Customer context (project lane) */}
           {context.customerName && (
             <div className="rounded-[var(--r-md)] bg-[var(--canvas-2)] p-3 flex items-center gap-3">
-              <div className="size-9 rounded-lg bg-white grid place-items-center text-[18px] shrink-0 shadow-[var(--shadow-1)]">🏠</div>
+              <div className="size-9 rounded-lg bg-white grid place-items-center shrink-0 shadow-[var(--shadow-1)] text-[var(--ink-2)]">
+                <Icon name="home" size={18} />
+              </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Kunde</div>
                 <div className="text-[14px] font-semibold text-[var(--ink)] truncate">{context.customerName}</div>
@@ -153,13 +156,13 @@ export function BookVisitDialog({
                   key={r.id}
                   onClick={() => setReason(r.id)}
                   className={
-                    "flex items-center gap-2 px-3 py-2.5 rounded-[var(--r-md)] border text-left transition-colors " +
+                    "flex items-center gap-2.5 px-3 py-2.5 rounded-[var(--r-md)] border text-left transition-colors " +
                     (reason === r.id
                       ? "border-[var(--accent)] bg-[var(--accent-tint)] text-[var(--ink)]"
                       : "border-[var(--line-2)] bg-white text-[var(--ink-2)] hover:border-[var(--ink-3)]")
                   }
                 >
-                  <span className="text-[16px] shrink-0">{r.emoji}</span>
+                  <Icon name={r.icon} size={16} className={reason === r.id ? "text-[var(--accent-press)]" : "text-[var(--ink-3)]"} />
                   <span className="text-[12.5px] font-medium leading-tight">{r.label}</span>
                 </button>
               ))}
@@ -180,8 +183,8 @@ export function BookVisitDialog({
                 ))}
               </select>
               {selectedSpec && (
-                <div className="mt-2 text-[11.5px] text-[var(--ink-3)]">
-                  💡 {selectedSpec.bu}-specialist · typisk svartid 24 timer
+                <div className="mt-2 text-[11.5px] text-[var(--ink-3)] inline-flex items-center gap-1.5">
+                  <Icon name="clock" size={12} /> {selectedSpec.bu}-specialist · typisk svartid 24 timer
                 </div>
               )}
             </div>
@@ -258,19 +261,22 @@ export function BookVisitDialog({
 
         {/* Footer */}
         <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas-2)] flex items-center justify-between gap-3 rounded-b-[var(--r-xl)]">
-          <div className="text-[11.5px] text-[var(--ink-3)] leading-[1.4] flex-1 min-w-0">
-            {akut
-              ? "📞 Du bliver ringet op snarest."
-              : "✉ Du modtager en kalender-invite + email-bekræftelse."}
+          <div className="text-[11.5px] text-[var(--ink-3)] leading-[1.4] flex-1 min-w-0 inline-flex items-center gap-1.5">
+            {akut ? (
+              <><Icon name="phone-call" size={13} /> Du bliver ringet op snarest.</>
+            ) : (
+              <><Icon name="mail" size={13} /> Du modtager en kalender-invite + email-bekræftelse.</>
+            )}
           </div>
           <div className="flex gap-2 shrink-0">
             <button onClick={onClose} className="btn btn-secondary">Annullér</button>
             <button
               onClick={submit}
               disabled={!when || !description}
-              className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
             >
-              {akut ? "📞 Send akut-anmodning" : "📅 Book besøg"}
+              <Icon name={akut ? "phone-call" : "calendar"} size={14} />
+              {akut ? "Send akut-anmodning" : "Book besøg"}
             </button>
           </div>
         </div>

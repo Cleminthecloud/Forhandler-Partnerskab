@@ -198,6 +198,172 @@ export const CERTS_AVAILABLE: { cert: Certification; modulerFærdige: number }[]
   { cert: { id: "cert-cr-byg-1", titel: "Indbrudssikring · Niveau 1", udsteder: "Carl Ras Sikring", beskrivelse: "Næste sæsons fokus: parcelhus-segmentet om efteråret. Klargøres til lancering Q3.", niveau: "Niveau 1", moduler: 6, varighed: "12 timer", tema: "indbrud-efterar", ikon: "🔒" }, modulerFærdige: 0 },
 ];
 
+/* =====================================================================
+   Certification details — module curriculum, flow stages, partner enrollment.
+   Used by /admin/certificering to give a full picture of what's involved
+   and where each enrolled partner is in the flow.
+   ===================================================================== */
+
+export type CertStage =
+  | "Tilmeldt"      // signed up, hasn't started
+  | "I gang"        // working through modules
+  | "Eksamen booket" // modules done, exam scheduled
+  | "Bestået"       // passed, certified
+  | "Reprøve";      // failed exam, needs to retake
+
+export interface CertModule {
+  titel: string;
+  varighed: string;   // "2 timer"
+  format: "Online" | "E-learning" | "Workshop" | "Hjemmeopgave" | "Eksamen";
+}
+
+export interface CertCurriculum {
+  certId: string;
+  forudsætninger: string[];      // prerequisite cert titles or skills
+  eksamenFormat: string;          // description
+  beståelseskrav: string;          // pass requirements
+  honorar?: string;                // partner pay for completion
+  moduler: CertModule[];
+}
+
+export const CERT_CURRICULA: CertCurriculum[] = [
+  {
+    certId: "cert-cr-sikring-1",
+    forudsætninger: ["Aktiv Carl Ras-partner i mindst 3 måneder"],
+    eksamenFormat: "60 min multiple choice + 30 min praktisk montage hos Carl Ras Herlev",
+    beståelseskrav: "Min. 75% korrekt på teori + bestået montage",
+    honorar: "2.500 kr ved bestået (1. forsøg)",
+    moduler: [
+      { titel: "Sikringsmarkedet i Danmark — segmenter og kunder",   varighed: "1,5 timer", format: "E-learning" },
+      { titel: "Fysisk sikring — låse, cylindere, beslag",            varighed: "2,5 timer", format: "E-learning" },
+      { titel: "Elektronisk sikring — alarmer, sensorer, sirener",   varighed: "2 timer",   format: "E-learning" },
+      { titel: "Smart locks — Carl Ras' Stroxx-sortiment",            varighed: "2 timer",   format: "Workshop" },
+      { titel: "Salgssamtaler — fra leads til vundet sag",            varighed: "2 timer",   format: "Workshop" },
+      { titel: "Eksamen — teori + praktisk",                          varighed: "2 timer",   format: "Eksamen" },
+    ],
+  },
+  {
+    certId: "cert-abus-smart",
+    forudsætninger: ["Carl Ras Sikring · Niveau 1"],
+    eksamenFormat: "Online proctored eksamen via ABUS Academy",
+    beståelseskrav: "Min. 80% korrekt",
+    honorar: "1.500 kr + ABUS-installatør-status",
+    moduler: [
+      { titel: "ABUS Smart Lock-portefølje 2026",                 varighed: "2 timer", format: "E-learning" },
+      { titel: "Installation og konfiguration",                   varighed: "2 timer", format: "Workshop" },
+      { titel: "Fejlfinding og kundesupport",                     varighed: "2 timer", format: "Hjemmeopgave" },
+      { titel: "ABUS-certificeringseksamen",                      varighed: "2 timer", format: "Eksamen" },
+    ],
+  },
+  {
+    certId: "cert-cr-sikring-2",
+    forudsætninger: ["Carl Ras Sikring · Niveau 1", "Mindst 10 vundne sager i kategorien sikring"],
+    eksamenFormat: "90 min skriftlig + casebesvarelse + mundtlig forsvar af case",
+    beståelseskrav: "Min. 80% + godkendt case",
+    honorar: "5.000 kr + Guld-tier-adgang",
+    moduler: [
+      { titel: "Adgangskontrol i erhverv — teori og produktvalg",   varighed: "3 timer", format: "E-learning" },
+      { titel: "Smart home-integration: STROXX, ABUS, Yale",        varighed: "3 timer", format: "Workshop" },
+      { titel: "Salgsteknik mod udlejnings-segmentet",              varighed: "2 timer", format: "Online" },
+      { titel: "Kalkulation, tilbud og marginer",                    varighed: "2 timer", format: "Online" },
+      { titel: "Case: design en sikringsløsning for et boligkompleks", varighed: "4 timer", format: "Hjemmeopgave" },
+      { titel: "Servicekontrakter og opfølgning",                    varighed: "2 timer", format: "E-learning" },
+      { titel: "Lovgivning og forsikring",                            varighed: "1 time",  format: "E-learning" },
+      { titel: "Eksamen — skriftlig + case-forsvar",                  varighed: "1 time",  format: "Eksamen" },
+    ],
+  },
+  {
+    certId: "cert-yale",
+    forudsætninger: ["Carl Ras Sikring · Niveau 1"],
+    eksamenFormat: "Online proctored eksamen via ASSA ABLOY Academy",
+    beståelseskrav: "Min. 75% korrekt",
+    honorar: "2.000 kr + Yale Authorized Installer-mærke",
+    moduler: [
+      { titel: "Yale Doorman L3 — produktoverblik",                varighed: "2 timer", format: "E-learning" },
+      { titel: "Installation og opsætning",                         varighed: "2 timer", format: "Workshop" },
+      { titel: "Integration med boligforeninger og adgangsstyring", varighed: "2 timer", format: "Workshop" },
+      { titel: "Fejlfinding — case-baseret",                        varighed: "2 timer", format: "Hjemmeopgave" },
+      { titel: "Yale-certificeringseksamen",                        varighed: "2 timer", format: "Eksamen" },
+    ],
+  },
+  {
+    certId: "cert-vinter-1",
+    forudsætninger: ["Aktiv Carl Ras-partner"],
+    eksamenFormat: "60 min multiple choice + hjemmeopgave",
+    beståelseskrav: "Min. 75% + godkendt hjemmeopgave",
+    honorar: "2.500 kr ved bestået",
+    moduler: [
+      { titel: "Vinterklargøring — produktoverblik 2026",      varighed: "2 timer", format: "E-learning" },
+      { titel: "Tagrender og afløb — montage og rensning",     varighed: "2 timer", format: "Workshop" },
+      { titel: "Frostsikring af vandinstallationer",            varighed: "2 timer", format: "Workshop" },
+      { titel: "Vinterlukning af sommerhuse",                    varighed: "2 timer", format: "E-learning" },
+      { titel: "Salgssamtaler — sommerhusejer-segmentet",       varighed: "2 timer", format: "Online" },
+      { titel: "Eksamen + hjemmeopgave",                        varighed: "2 timer", format: "Eksamen" },
+    ],
+  },
+  {
+    certId: "cert-cr-byg-1",
+    forudsætninger: ["Aktiv Carl Ras-partner"],
+    eksamenFormat: "60 min multiple choice + praktisk demo",
+    beståelseskrav: "Min. 75% + bestået demo",
+    honorar: "2.500 kr ved bestået",
+    moduler: [
+      { titel: "Indbrudssikring — markedsoverblik efterår 2026",  varighed: "2 timer", format: "E-learning" },
+      { titel: "Forstærkning af døre og vinduer",                  varighed: "2 timer", format: "Workshop" },
+      { titel: "Sensorer og kameraer — parcelhus-segmentet",       varighed: "2 timer", format: "Workshop" },
+      { titel: "Salg til boligejere — argumentation og pris",      varighed: "2 timer", format: "Online" },
+      { titel: "Servicekontrakter og opfølgning",                   varighed: "2 timer", format: "E-learning" },
+      { titel: "Eksamen + praktisk demo",                           varighed: "2 timer", format: "Eksamen" },
+    ],
+  },
+];
+
+export interface CertEnrollment {
+  partnerId: string;
+  certId: string;
+  stage: CertStage;
+  modulerFærdige: number;
+  startet: string;        // ISO date
+  forventetFærdig?: string; // ISO date
+  eksamenDato?: string;
+  score?: number;          // 0-100, set when stage = Bestået or Reprøve
+}
+
+/* Synthesized enrollments — gives the admin page realistic state to display. */
+export const CERT_ENROLLMENTS: CertEnrollment[] = [
+  // cert-cr-sikring-2 (8 modules) — partners mid-flow
+  { partnerId: "p-hornbaek-laas",     certId: "cert-cr-sikring-2", stage: "I gang",         modulerFærdige: 3, startet: "2026-03-15", forventetFærdig: "2026-06-20" },
+  { partnerId: "p-bornholm-sikring",  certId: "cert-cr-sikring-2", stage: "Eksamen booket", modulerFærdige: 7, startet: "2026-02-10", eksamenDato: "2026-06-18" },
+  { partnerId: "p-marielyst-laas",    certId: "cert-cr-sikring-2", stage: "I gang",         modulerFærdige: 5, startet: "2026-03-01", forventetFærdig: "2026-07-01" },
+  { partnerId: "p-fanoe-laas",        certId: "cert-cr-sikring-2", stage: "Tilmeldt",        modulerFærdige: 0, startet: "2026-05-20" },
+
+  // cert-cr-sikring-1 (held by 2, plus enrolled others)
+  { partnerId: "p-skagen-el",         certId: "cert-cr-sikring-1", stage: "I gang",          modulerFærdige: 4, startet: "2026-04-08", forventetFærdig: "2026-06-10" },
+  { partnerId: "p-ebeltoft-ejendomsservice", certId: "cert-cr-sikring-1", stage: "Bestået",  modulerFærdige: 6, startet: "2026-01-20", score: 89 },
+  { partnerId: "p-tisvilde-toemrer",  certId: "cert-cr-sikring-1", stage: "Reprøve",         modulerFærdige: 6, startet: "2026-02-05", score: 68, eksamenDato: "2026-06-25" },
+
+  // cert-abus-smart
+  { partnerId: "p-hornbaek-laas",     certId: "cert-abus-smart", stage: "Bestået",          modulerFærdige: 4, startet: "2026-03-25", score: 92 },
+  { partnerId: "p-bornholm-sikring",  certId: "cert-abus-smart", stage: "I gang",            modulerFærdige: 2, startet: "2026-04-12", forventetFærdig: "2026-06-15" },
+
+  // cert-yale (newer cert)
+  { partnerId: "p-vvs-loekken",       certId: "cert-yale", stage: "Tilmeldt",                modulerFærdige: 0, startet: "2026-05-22" },
+  { partnerId: "p-marielyst-laas",    certId: "cert-yale", stage: "I gang",                  modulerFærdige: 1, startet: "2026-05-01", forventetFærdig: "2026-07-15" },
+
+  // cert-vinter-1 — building pipeline ahead of Q4 theme
+  { partnerId: "p-tisvilde-toemrer",  certId: "cert-vinter-1", stage: "Tilmeldt",            modulerFærdige: 0, startet: "2026-05-18" },
+  { partnerId: "p-blokhus-byg",       certId: "cert-vinter-1", stage: "I gang",               modulerFærdige: 2, startet: "2026-04-22", forventetFærdig: "2026-08-01" },
+  { partnerId: "p-vejers-vvs",        certId: "cert-vinter-1", stage: "Tilmeldt",             modulerFærdige: 0, startet: "2026-05-25" },
+];
+
+export function curriculumFor(certId: string): CertCurriculum | undefined {
+  return CERT_CURRICULA.find((c) => c.certId === certId);
+}
+
+export function enrollmentsFor(certId: string): CertEnrollment[] {
+  return CERT_ENROLLMENTS.filter((e) => e.certId === certId);
+}
+
 /* ─────────────────────────── Specialists & chat ─────────────────────────── */
 export interface Specialist {
   id: string;
@@ -1113,6 +1279,8 @@ export function projectsForPartner(partnerId: string): Project[] {
 }
 
 /* ─────────────────────────── Carl Ras products (real PDPs) ─────────────────────────── */
+export type ProductBadge = "NEW" | "OFFER" | "BLÅ PRIS";
+
 export interface Product {
   id: string;
   brand: string;
@@ -1123,18 +1291,20 @@ export interface Product {
   margin?: string;
   emoji: string;
   image?: string;        // optional /public/products/xxx.jpg path
+  badge?: ProductBadge;  // NEW / OFFER / BLÅ PRIS — shown in product cards
+  førpris?: string;      // when badge is OFFER — strikethrough price
 }
 
 export const PRODUCTS: Product[] = [
   // Smart locks — real product photos pulled from carl-ras.dk PDPs
-  { id: "40013215", brand: "STROXX", navn: "Smart Lock ST-2 sort XLOCK · skandinavisk lås", pris: "3.737,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-sort-xlock-t-skandinavisk-las/?product=40013215/40013215", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-st-2-skandinavisk.jpg" },
-  { id: "40013216", brand: "STROXX", navn: "Smart Lock ST-2 RS XLOCK · europæisk lås", pris: "3.612,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-rs-xlock-t-europaeisk-las/?product=40013216/40013216", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-st-2-europaeisk.jpg" },
-  { id: "40013955", brand: "STROXX", navn: "Gateway Smart Lock G2 hvid · XLOCK WIFI",     pris: "973,75 kr",   url: "https://www.carl-ras.dk/gateway-smart-lock-g2-hvid-xlock-wifi/?product=40013955/40013955", kategori: "Adgangskontrol", margin: "≈22% partner", emoji: "📡", image: "/products/stroxx-gateway-g2.jpg" },
+  { id: "40013215", brand: "STROXX", navn: "Smart Lock ST-2 sort XLOCK · skandinavisk lås", pris: "3.737,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-sort-xlock-t-skandinavisk-las/?product=40013215/40013215", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-st-2-skandinavisk.jpg", badge: "BLÅ PRIS" },
+  { id: "40013216", brand: "STROXX", navn: "Smart Lock ST-2 RS XLOCK · europæisk lås", pris: "3.612,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-rs-xlock-t-europaeisk-las/?product=40013216/40013216", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-st-2-europaeisk.jpg", badge: "OFFER", førpris: "4.124,00 kr" },
+  { id: "40013955", brand: "STROXX", navn: "Gateway Smart Lock G2 hvid · XLOCK WIFI",     pris: "973,75 kr",   url: "https://www.carl-ras.dk/gateway-smart-lock-g2-hvid-xlock-wifi/?product=40013955/40013955", kategori: "Adgangskontrol", margin: "≈22% partner", emoji: "📡", image: "/products/stroxx-gateway-g2.jpg", badge: "NEW" },
 
   // Alarm / smoke / motion
-  { id: "55011840", brand: "Housegard", navn: "Røgalarm Pebble 10 års SA701 · optisk",    pris: "213,75 kr",   url: "https://www.carl-ras.dk/roegalarm-pebble-10ars-sa701-optisk/?product=55011840/55011840", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️", image: "/products/housegard-pebble.jpg" },
-  { id: "55011841", brand: "Housegard", navn: "Røgalarm Luma trådløs seriekoblet · 2-pak", pris: "561,25 kr",   url: "https://www.carl-ras.dk/roegalarm-luma-10ars-tradlos-seriekoblet-a-2-stk/?product=55011841/55011841", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️", image: "/products/housegard-luma.jpg" },
-  { id: "41008815", brand: "Dormakaba", navn: "Normalarm Sølv 0-225 mm t/ED100 og ED250", pris: "1.948,75 kr", url: "https://www.carl-ras.dk/normalarm-soelv-0-225-mm-t-ed100-og-ed250-ny/?product=41008815/41008815", kategori: "Alarm", margin: "≈20% partner", emoji: "🚨", image: "/products/dormakaba-normalarm.jpg" },
+  { id: "55011840", brand: "Housegard", navn: "Røgalarm Pebble 10 års SA701 · optisk",    pris: "213,75 kr",   url: "https://www.carl-ras.dk/roegalarm-pebble-10ars-sa701-optisk/?product=55011840/55011840", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️", image: "/products/housegard-pebble.jpg", badge: "BLÅ PRIS" },
+  { id: "55011841", brand: "Housegard", navn: "Røgalarm Luma trådløs seriekoblet · 2-pak", pris: "561,25 kr",   url: "https://www.carl-ras.dk/roegalarm-luma-10ars-tradlos-seriekoblet-a-2-stk/?product=55011841/55011841", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️", image: "/products/housegard-luma.jpg", badge: "NEW" },
+  { id: "41008815", brand: "Dormakaba", navn: "Normalarm Sølv 0-225 mm t/ED100 og ED250", pris: "1.948,75 kr", url: "https://www.carl-ras.dk/normalarm-soelv-0-225-mm-t-ed100-og-ed250-ny/?product=41008815/41008815", kategori: "Alarm", margin: "≈20% partner", emoji: "🚨", image: "/products/dormakaba-normalarm.jpg", badge: "OFFER", førpris: "2.299,00 kr" },
 ];
 
 /** Map: lead.behov substring → suggested product ids in order of relevance */
