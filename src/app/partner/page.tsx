@@ -421,55 +421,74 @@ export default function PartnerDashboard() {
             Få faglig sparring <ArrowRight />
           </Link>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {PRODUCTS.map((p) => (
             <a
               key={p.id}
               href={p.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="card card-hover !p-0 overflow-hidden flex flex-col group"
-              style={{ height: 360 }}
+              className="card card-hover !p-0 overflow-hidden flex flex-col group transition-shadow hover:shadow-[var(--shadow-3)]"
             >
-              {/* Image — fixed 180px height, contain so products stay whole, padded for breathing room */}
+              {/* IMAGE AREA — clean grocery-card style. Overflow-hidden absolutely
+                  caps the box so tall product photos never leak into the body. */}
               <div
-                className="relative bg-white border-b border-[var(--line-2)] shrink-0 grid place-items-center p-4"
-                style={{ height: 180 }}
+                className="relative bg-white overflow-hidden shrink-0"
+                style={{ height: 240 }}
               >
-                {p.image ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={p.image}
-                    alt={p.navn}
-                    className="max-w-full max-h-full object-contain group-hover:scale-[1.04] transition-transform duration-300"
-                  />
-                ) : (
-                  <span className="text-5xl opacity-30">{p.emoji}</span>
+                {p.badge && (
+                  <div className="absolute top-3 left-3 z-10">
+                    <ProductBadgePill badge={p.badge} />
+                  </div>
                 )}
-                {p.badge && <ProductBadgePill badge={p.badge} />}
+                <div className="absolute inset-0 flex items-center justify-center p-6">
+                  {p.image ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={p.image}
+                      alt={p.navn}
+                      className="max-w-full max-h-full object-contain group-hover:scale-[1.04] transition-transform duration-300"
+                    />
+                  ) : (
+                    <span className="text-6xl opacity-30">{p.emoji}</span>
+                  )}
+                </div>
+                <span
+                  className="absolute bottom-3 right-3 size-8 rounded-full bg-[var(--ink)] text-white grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-hidden="true"
+                >
+                  <Icon name="external" size={14} />
+                </span>
               </div>
 
-              {/* Body — fixed 180px, slots locked so every card lines up */}
-              <div className="px-3.5 pt-3 pb-3.5 flex flex-col" style={{ height: 180 }}>
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] leading-none">{p.brand}</div>
-                <div className="text-[15px] font-semibold text-[var(--ink)] line-clamp-2 mt-2 leading-[1.3] tracking-[-0.003em]" style={{ height: 40 }}>
+              {/* BODY — clear hierarchy: brand → name → price + margin pinned bottom */}
+              <div className="p-5 flex flex-col flex-1 border-t border-[var(--line-2)]">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)]">{p.brand}</div>
+                <h3 className="text-[17px] font-semibold text-[var(--ink)] mt-1.5 leading-[1.3] tracking-[-0.005em] line-clamp-2 min-h-[44px]">
                   {p.navn.split("·")[0].trim()}
-                </div>
+                </h3>
 
-                {/* Push price + margin to bottom — guarantees price baseline alignment */}
-                <div className="mt-auto">
-                  <div className="flex items-baseline gap-2" style={{ height: 20 }}>
-                    <span className="text-[14px] font-semibold text-[var(--ink)] tabular-nums leading-none">{p.pris}</span>
-                    {p.førpris && <span className="text-[11px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.førpris}</span>}
-                  </div>
-                  <div className="flex items-center mt-1.5" style={{ height: 14 }}>
-                    {p.margin ? (
-                      <div className="text-[10.5px] text-[var(--ink-3)] inline-flex items-center gap-1.5 leading-none">
+                <div className="mt-auto pt-4 flex items-end justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-[19px] font-bold text-[var(--ink)] tabular-nums leading-none">{p.pris}</span>
+                      {p.førpris && (
+                        <span className="text-[12px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.førpris}</span>
+                      )}
+                    </div>
+                    {p.margin && (
+                      <div className="text-[11px] text-[var(--ink-3)] mt-2 inline-flex items-center gap-1.5">
                         <span className="size-1 rounded-full" style={{ background: "var(--accent)" }} />
                         {p.margin}
                       </div>
-                    ) : null}
+                    )}
                   </div>
+                  <span
+                    className="size-10 rounded-full bg-[var(--canvas-2)] grid place-items-center text-[var(--ink-2)] group-hover:bg-[var(--accent)] group-hover:text-white transition-colors shrink-0"
+                    aria-hidden="true"
+                  >
+                    <Icon name="plus" size={16} />
+                  </span>
                 </div>
               </div>
             </a>
