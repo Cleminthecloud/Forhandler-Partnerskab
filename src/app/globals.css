@@ -136,22 +136,24 @@
   --color-hairline: var(--line);
   --color-divider: var(--line-2);
 
-  --font-display: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  /* Carl Ras brand font: Neo Sans (via Typekit). Inter is the fallback for the
+     few medium weights (500/600) Neo Sans doesn't ship + first-paint while
+     Typekit loads. System fonts catch the worst case. */
+  --font-display: "neo-sans", var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  --font-sans:    "neo-sans", var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Text",    system-ui, sans-serif;
 }
 
 /* === Document baseline === */
 html, body {
   background: var(--canvas);
   color: var(--ink);
-  font-family: var(--font-inter), -apple-system, "SF Pro Text", system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.5;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.006em;     /* Neo Sans needs slightly less negative tracking than Inter */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "ss01", "cv11";
 }
 
 ::selection { background: var(--accent); color: white; }
@@ -163,54 +165,59 @@ html, body {
   border-radius: var(--r-sm);
 }
 
-/* === Typography (5-level hierarchy) === */
+/* === Typography (5-level hierarchy) ===
+   Letter-spacing values are tuned for Neo Sans (Carl Ras brand font). Neo Sans
+   ships at 400 + 700 only; medium weights (500/600) fall through to Inter via
+   the font-family fallback, so we get Neo Sans for hero text and Inter for UI. */
 .t-display {
   font-size: clamp(36px, 5vw, 52px);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.08;
-  letter-spacing: -0.022em;
+  letter-spacing: -0.012em;
   color: var(--ink);
+  font-family: var(--font-display);
 }
 .t-h2 {
   font-size: clamp(24px, 2.6vw, 32px);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.15;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.008em;
   color: var(--ink);
+  font-family: var(--font-display);
 }
 .t-h3 {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.28;
-  letter-spacing: -0.014em;
+  letter-spacing: -0.004em;
   color: var(--ink);
 }
 .t-body {
   font-size: 15px;
   font-weight: 400;
   line-height: 1.5;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.004em;
   color: var(--ink-2);
 }
 .t-body-lg {
   font-size: 17px;
   font-weight: 400;
   line-height: 1.5;
-  letter-spacing: -0.014em;
+  letter-spacing: -0.006em;
   color: var(--ink-2);
 }
 .t-caption {
   font-size: 13px;
   font-weight: 400;
   line-height: 1.4;
-  letter-spacing: -0.006em;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 .t-eyebrow {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-3);    /* CRITICAL: NOT accent. Reduces visual noise. */
 }

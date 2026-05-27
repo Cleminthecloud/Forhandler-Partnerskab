@@ -23,6 +23,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="da" className={`${inter.variable} h-full antialiased`}>
+      <head>
+        {/* Carl Ras brand font — Neo Sans via Adobe Typekit. Inter loads via
+            next/font as a fast-paint fallback and covers the medium weights
+            (500/600) that this Typekit doesn't ship. */}
+        <link rel="stylesheet" href="https://use.typekit.net/gqe3rsn.css" />
+      </head>
       <body className="min-h-full">
         <AppStateProvider>
           <ThemeProvider>

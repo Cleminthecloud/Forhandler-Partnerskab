@@ -243,7 +243,22 @@ Rule of thumb:
 
 ---
 
-## 14. Recent batches (for git blame context)
+## 14. Typography
+
+- **Primary font: Neo Sans** — Carl Ras' brand font, served via Adobe Typekit
+  (kit id `gqe3rsn`). The `<link>` is in `app/layout.tsx` `<head>`.
+- **Fallback: Inter** — loaded via `next/font/google` as `--font-inter`.
+  Sits in the font-stack right after `"neo-sans"` so it fills first-paint
+  while Typekit loads.
+- The Typekit only ships 4 cuts: regular (400), italic 400, bold (700),
+  bold italic (700). Browser quantization rules: text at weight ≤500
+  renders as Neo Sans 400; weight ≥600 renders as Neo Sans 700.
+- Letter-spacing in `t-display`, `t-h2`, etc. has been tuned for Neo Sans
+  metrics (Neo Sans is naturally tighter than Inter, so the negative
+  tracking is lighter).
+- If you ever need true medium weight (500) text, use `font-family: var(--font-sans-medium)` — not currently defined, but easy to add by setting the family to Inter explicitly.
+
+## 15. Recent batches (for git blame context)
 
 - Batch May 2026: canvas-app refactor for Kampagner + live carl-ras.dk
   nav replica + chart sweep to Recharts + context-aware Kampagner actions
