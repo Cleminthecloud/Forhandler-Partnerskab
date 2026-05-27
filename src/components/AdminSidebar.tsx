@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useApp } from "./AppState";
 import { useSidebarCollapsed, CollapseToggle } from "./SidebarToggle";
@@ -146,8 +146,14 @@ export function AdminSidebar() {
    ===================================================================== */
 
 function AdminUserCell({ collapsed, pushToast }: { collapsed: boolean; pushToast: (text: string, kind?: "info" | "success") => void }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  function go(href: string) {
+    setOpen(false);
+    router.push(href);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -229,15 +235,15 @@ function AdminUserCell({ collapsed, pushToast }: { collapsed: boolean; pushToast
 
           <AdminMenuItem
             label="Min profil"
-            hint="Carl Ras stamdata + adgang"
+            hint="Rolle + region-dækning"
             icon="M12 12a4 4 0 100-8 4 4 0 000 8z M4 21a8 8 0 0116 0"
-            onClick={() => { pushToast("Min profil-siden kommer snart"); setOpen(false); }}
+            onClick={() => go("/admin/profile")}
           />
           <AdminMenuItem
             label="Indstillinger"
-            hint="Notifikationer, region"
+            hint="Notifikationer, Slack, automation"
             icon="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06A2 2 0 113.4 16.96l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06A2 2 0 116.04 3.4l.06.06a1.65 1.65 0 001.82.33H8a1.65 1.65 0 001-1.51V2a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06A2 2 0 1120.6 6.04l-.06.06a1.65 1.65 0 00-.33 1.82V8a1.65 1.65 0 001.51 1H22a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            onClick={() => { pushToast("Indstillinger-siden kommer snart"); setOpen(false); }}
+            onClick={() => go("/admin/settings")}
           />
           <AdminMenuItem
             label="Søg overalt"
