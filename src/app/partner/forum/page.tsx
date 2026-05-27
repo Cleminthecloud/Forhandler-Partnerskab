@@ -30,6 +30,37 @@ function initials(name: string): string {
   return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 }
 
+/** Find a partner-owner's portrait by ejer name (case-insensitive). */
+function portraitFor(forfatter: string): string | undefined {
+  const p = PARTNERS.find((x) => x.ejer.toLowerCase() === forfatter.toLowerCase());
+  return p?.ejerPortrait;
+}
+
+/** Reusable circular avatar — portrait if known, otherwise initials chip. */
+function ForumAvatar({ navn, size, bg }: { navn: string; size: number; bg?: string }) {
+  const portrait = portraitFor(navn);
+  const fontSize = Math.max(10, Math.round(size * 0.32));
+  if (portrait) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src={portrait}
+        alt={navn}
+        className="rounded-full object-cover shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  return (
+    <div
+      className="rounded-full grid place-items-center text-white font-semibold shrink-0"
+      style={{ width: size, height: size, background: bg ?? avatarColor(navn), fontSize }}
+    >
+      {initials(navn)}
+    </div>
+  );
+}
+
 export default function ForumPage() {
   const { pushToast } = useApp();
   const [cat, setCat] = useState<ForumThread["kategori"] | "Alle">("Alle");
@@ -114,12 +145,7 @@ export default function ForumPage() {
                     className="w-full text-left card card-hover block group"
                   >
                     <div className="flex items-start gap-3">
-                      <div
-                        className="size-10 rounded-full grid place-items-center text-white font-semibold text-[12px] shrink-0"
-                        style={{ background: ac }}
-                      >
-                        {initials(t.forfatter)}
-                      </div>
+                      <ForumAvatar navn={t.forfatter} size={40} bg={ac} />
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
                           <span className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide" style={{ background: cc.bg, color: cc.ink }}>
@@ -134,12 +160,7 @@ export default function ForumPage() {
 
                         {lastReply && (
                           <div className="mt-3 pt-3 border-t border-[var(--line-2)] flex items-start gap-2">
-                            <div
-                              className="size-6 rounded-full grid place-items-center text-white font-semibold text-[9px] shrink-0"
-                              style={{ background: avatarColor(lastReply.forfatter) }}
-                            >
-                              {initials(lastReply.forfatter)}
-                            </div>
+                            <ForumAvatar navn={lastReply.forfatter} size={24} />
                             <div className="flex-1 min-w-0">
                               <div className="text-[12px]">
                                 <span className="font-semibold text-[var(--ink)]">{lastReply.forfatter}</span>
@@ -272,9 +293,7 @@ function ThreadDrawer({
         <div className="flex-1 overflow-y-auto px-6 py-5 bg-[var(--canvas-2)] space-y-4">
           <article className="bg-white rounded-[var(--r-lg)] p-5 border border-[var(--line-2)]">
             <div className="flex items-center gap-3 mb-3">
-              <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[12px]" style={{ background: ac }}>
-                {initials(thread.forfatter)}
-              </div>
+              <ForumAvatar navn={thread.forfatter} size={40} bg={ac} />
               <div>
                 <div className="text-[14px] font-semibold text-[var(--ink)]">{thread.forfatter}</div>
                 <div className="text-[11px] text-[var(--ink-3)]">{thread.forfatterFirma} · {thread.forfatterRegion}</div>
@@ -299,9 +318,7 @@ function ThreadDrawer({
             return (
               <article key={i} className="bg-white rounded-[var(--r-lg)] p-4 border border-[var(--line-2)] ml-8">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="size-8 rounded-full grid place-items-center text-white font-semibold text-[11px]" style={{ background: rc }}>
-                    {initials(r.forfatter)}
-                  </div>
+                  <ForumAvatar navn={r.forfatter} size={32} bg={rc} />
                   <div>
                     <div className="text-[13px] font-semibold text-[var(--ink)]">{r.forfatter}</div>
                     <div className="text-[11px] text-[var(--ink-3)]">{r.firma} · {r.region}</div>
@@ -328,9 +345,7 @@ function ThreadDrawer({
 
         <div className="px-6 py-4 border-t border-[var(--line-2)] bg-white">
           <div className="flex gap-3">
-            <div className="size-9 rounded-full grid place-items-center text-white font-semibold text-[11px] shrink-0" style={{ background: CURRENT_PARTNER.logoBg }}>
-              {CURRENT_PARTNER.initialer}
-            </div>
+            <ForumAvatar navn={CURRENT_PARTNER.ejer} size={36} bg={CURRENT_PARTNER.logoBg} />
             <div className="flex-1 flex gap-2">
               <input
                 type="text"
