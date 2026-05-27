@@ -453,12 +453,6 @@ export default function PartnerDashboard() {
                     <span className="text-6xl opacity-30">{p.emoji}</span>
                   )}
                 </div>
-                <span
-                  className="absolute bottom-3 right-3 size-8 rounded-full bg-[var(--ink)] text-white grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  aria-hidden="true"
-                >
-                  <Icon name="external" size={14} />
-                </span>
               </div>
 
               {/* BODY — clear hierarchy: brand → name → price + margin pinned bottom */}
@@ -484,7 +478,7 @@ export default function PartnerDashboard() {
                     )}
                   </div>
                   <span
-                    className="size-10 rounded-full bg-[var(--canvas-2)] grid place-items-center text-[var(--ink-2)] group-hover:bg-[var(--accent)] group-hover:text-white transition-colors shrink-0"
+                    className="size-10 rounded-full bg-[var(--canvas-2)] grid place-items-center text-[var(--ink-2)] group-hover:bg-[#1158A3] group-hover:text-white transition-colors shrink-0"
                     aria-hidden="true"
                   >
                     <Icon name="plus" size={16} />
