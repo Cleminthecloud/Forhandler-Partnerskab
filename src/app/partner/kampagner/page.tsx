@@ -129,11 +129,19 @@ export default function KampagnerPage() {
         {/* LEFT — campaign picker + image variants (scrollbar visually hidden) */}
         <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1 scrollbar-hidden">
           <div className="card !p-3">
-            {/* Theme tabs — pick the årshjul, see only its campaigns below */}
+            {/* Theme tabs — pick the årshjul, see only its campaigns below.
+                Short single-word labels (Sommer / Vinter / Indbrud) fit cleanly in
+                the 280px rail; full label is on hover via title=. min-w-0 on the
+                flex children is what makes truncate actually engage — without it
+                the long compound words push past the card edge. */}
             <div className="flex gap-1 mb-3 p-1 bg-[var(--canvas-2)] rounded-[var(--r-md)]" role="tablist" aria-label="Vælg tema">
               {THEMES.map((t) => {
                 const isActive = t.id === theme.id;
                 const count = CAMPAIGNS.filter((c) => c.tema === t.id).length;
+                // Short tab label derived from theme id — first segment, capitalised.
+                // "sommer-sikring" → "Sommer", "vinter-byg" → "Vinter", "indbrud-efterar" → "Indbrud"
+                const shortLabel = t.id.split("-")[0];
+                const tabLabel = shortLabel.charAt(0).toUpperCase() + shortLabel.slice(1);
                 return (
                   <button
                     key={t.id}
@@ -141,7 +149,7 @@ export default function KampagnerPage() {
                     aria-selected={isActive}
                     onClick={() => setThemeId(t.id)}
                     className={
-                      "flex-1 px-2.5 py-2 rounded-[8px] text-[12px] font-semibold transition-colors flex flex-col items-center gap-1 " +
+                      "min-w-0 flex-1 px-2 py-2 rounded-[8px] text-[12px] font-semibold transition-colors flex flex-col items-center gap-1 " +
                       (isActive
                         ? "bg-white text-[var(--ink)] shadow-[var(--shadow-1)]"
                         : "text-[var(--ink-3)] hover:text-[var(--ink-2)]")
@@ -149,7 +157,7 @@ export default function KampagnerPage() {
                     title={t.label}
                   >
                     <span className="size-2 rounded-full" style={{ background: t.accent }} aria-hidden="true" />
-                    <span className="truncate w-full text-center leading-tight">{t.label.split(" ")[0]}</span>
+                    <span className="truncate w-full text-center leading-tight">{tabLabel}</span>
                     <span className="text-[10px] text-[var(--ink-4)] tabular-nums">{count}</span>
                   </button>
                 );
@@ -230,19 +238,23 @@ export default function KampagnerPage() {
             }}
           />
 
-          {/* FLOATING TOP BAR — three groups: title (left), mode+formats (center), actions (right).
-              Tooltips on top-bar buttons render BELOW (data-tt-pos="bottom") so they fall into
-              the canvas space instead of being clipped above. */}
+          {/* FLOATING TOP BAR — two groups now: mode+formats (left), actions (right).
+              The campaign title pill was killed — the picker on the left already
+              shows which campaign is active (left accent strip + ring + bold).
+              Tooltips render BELOW (data-tt-pos="bottom") so they fall into the
+              canvas space instead of being clipped above. */}
           <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-3 pointer-events-none flex-wrap">
 
-            {/* LEFT — campaign title */}
-            <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-white/90 backdrop-blur-md rounded-full pl-3 pr-4 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
-              <span className="theme-dot" style={{ background: theme.accent }} />
-              <span className="text-[12.5px] font-semibold text-[var(--ink)]">{activeCampaign?.titel}</span>
-              {isUnpublished && (
-                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-[var(--ink)] text-white ml-1">Udkast</span>
-              )}
-            </div>
+            {/* Udkast badge — only shown when there are unsaved edits, no longer
+                attached to the now-killed title pill. */}
+            {isUnpublished ? (
+              <div className="pointer-events-auto inline-flex items-center gap-2 bg-[var(--ink)] text-white rounded-full px-3 py-1 text-[11px] font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                <span className="size-1.5 rounded-full bg-white" />
+                Udkast
+              </div>
+            ) : (
+              <span aria-hidden="true" />
+            )}
 
             {/* CENTER — Print/Digital + format pills, visually bonded */}
             <div className="pointer-events-auto flex items-center gap-1.5">
