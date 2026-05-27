@@ -186,23 +186,39 @@ export interface Campaign {
   artDirection?: ArtDirection;
 }
 
+/* Every Carl Ras campaign ships in the full toolbox — print + digital, every
+   channel — so the partner sees the same predictable format strip regardless
+   of which campaign they pick. Mirrors the platform promise: "vælg budskab,
+   få alt materialet". Order matters — Print group first (in the order the
+   selector shows them), then Digital. */
+const ALL_FORMATS: FormatKind[] = [
+  "print-flyer",
+  "print-poster",
+  "print-magasin",
+  "print-bilstreamer",
+  "digital-facebook",
+  "digital-instagram",
+  "digital-email",
+  "digital-google",
+];
+
 export const CAMPAIGNS: Campaign[] = [
   /* ─── Sommer-sikring (4 campaigns, varied art directions) ─── */
-  { id: "c-sommer-smartlock", tema: "sommer-sikring", titel: "Smid nøglerne væk", hovedbudskab: "Nu kan du smide nøglerne væk til dit sommerhus", underbudskab: "Smart Lock fra Carl Ras Partner. Installeret af din lokale låsesmed på under en time.", cta: "Book gratis hjemmebesøg", heroEmoji: "🔑", status: "Aktiv", formater: ["print-flyer", "print-poster", "print-magasin", "digital-facebook", "digital-instagram", "digital-google"], artDirection: "photo" },
-  { id: "c-sommer-alarm", tema: "sommer-sikring", titel: "Sov roligt — også om vinteren", hovedbudskab: "Alarm med direkte besked til din telefon", underbudskab: "Din lokale specialist sikrer sommerhuset hele året. Carl Ras Partner.", cta: "Ring og hør prisen", heroEmoji: "🛎️", status: "Aktiv", formater: ["print-flyer", "print-poster", "digital-facebook", "digital-email", "digital-google"], artDirection: "photo" },
-  { id: "c-sommer-pakke", tema: "sommer-sikring", titel: "Sommerhuspakken 2026", hovedbudskab: "Komplet sikring til sommerhuset — én pris", underbudskab: "Lås, alarm, dørtelefon. Installeret af din lokale Carl Ras Partner.", cta: "Få et samlet tilbud", heroEmoji: "📦", status: "Klar", formater: ["print-flyer", "print-poster", "print-bilstreamer", "digital-facebook", "digital-instagram"], artDirection: "editorial" },
-  { id: "c-sommer-airbnb", tema: "sommer-sikring", titel: "Udlej trygt", hovedbudskab: "Nøglefri udlejning. Nye koder hver gæst.", underbudskab: "Gateway G2 + uge-rotation gennem Carl Ras Partner-portalen. 12 partnere kører det allerede.", cta: "Se oplægget", heroEmoji: "🏖️", status: "Klar", formater: ["digital-facebook", "digital-instagram", "digital-email", "print-flyer"], artDirection: "minimal" },
+  { id: "c-sommer-smartlock", tema: "sommer-sikring", titel: "Smid nøglerne væk", hovedbudskab: "Nu kan du smide nøglerne væk til dit sommerhus", underbudskab: "Smart Lock fra Carl Ras Partner. Installeret af din lokale låsesmed på under en time.", cta: "Book gratis hjemmebesøg", heroEmoji: "🔑", status: "Aktiv", formater: ALL_FORMATS, artDirection: "photo" },
+  { id: "c-sommer-alarm", tema: "sommer-sikring", titel: "Sov roligt — også om vinteren", hovedbudskab: "Alarm med direkte besked til din telefon", underbudskab: "Din lokale specialist sikrer sommerhuset hele året. Carl Ras Partner.", cta: "Ring og hør prisen", heroEmoji: "🛎️", status: "Aktiv", formater: ALL_FORMATS, artDirection: "photo" },
+  { id: "c-sommer-pakke", tema: "sommer-sikring", titel: "Sommerhuspakken 2026", hovedbudskab: "Komplet sikring til sommerhuset — én pris", underbudskab: "Lås, alarm, dørtelefon. Installeret af din lokale Carl Ras Partner.", cta: "Få et samlet tilbud", heroEmoji: "📦", status: "Klar", formater: ALL_FORMATS, artDirection: "editorial" },
+  { id: "c-sommer-airbnb", tema: "sommer-sikring", titel: "Udlej trygt", hovedbudskab: "Nøglefri udlejning. Nye koder hver gæst.", underbudskab: "Gateway G2 + uge-rotation gennem Carl Ras Partner-portalen. 12 partnere kører det allerede.", cta: "Se oplægget", heroEmoji: "🏖️", status: "Klar", formater: ALL_FORMATS, artDirection: "minimal" },
 
   /* ─── Vinter-byg (4 campaigns, varied art directions) ─── */
-  { id: "c-vinter-tagrende", tema: "vinter-byg", titel: "Inden frosten tager fat", hovedbudskab: "Tagrender renset og isolering tjekket inden november", underbudskab: "Din lokale Carl Ras Partner kommer forbi. Helst inden uge 42.", cta: "Book vinter-tjek", heroEmoji: "❄️", status: "Kommende", formater: ["print-flyer", "print-magasin", "digital-facebook", "digital-email"], artDirection: "photo" },
-  { id: "c-vinter-frostsikring", tema: "vinter-byg", titel: "Hold vandet i rørene", hovedbudskab: "Frostsikring og vinterlukning", underbudskab: "Carl Ras Partner. VVS-uddannet. Lokal.", cta: "Bestil vinterlukning", heroEmoji: "🧊", status: "Kommende", formater: ["print-flyer", "digital-facebook", "digital-google"], artDirection: "bold-type" },
-  { id: "c-vinter-snerydning", tema: "vinter-byg", titel: "Klar når sneen kommer", hovedbudskab: "Sne, salt, snerydning — aftalt på forhånd", underbudskab: "Fast pris for hele sæsonen. Carl Ras Partner i dit område.", cta: "Få sæsonpris", heroEmoji: "🌨️", status: "Kommende", formater: ["print-flyer", "digital-facebook", "digital-email"], artDirection: "minimal" },
-  { id: "c-vinter-eftersyn", tema: "vinter-byg", titel: "Hjem efter ferien — alt OK", hovedbudskab: "Sommerhus-eftersyn hver 14. dag", underbudskab: "Vi tjekker varme, vand, og at alt er som det skal være. Foto-rapport via app.", cta: "Tilmeld eftersyn", heroEmoji: "📋", status: "Kommende", formater: ["print-magasin", "digital-facebook", "digital-email"], artDirection: "editorial" },
+  { id: "c-vinter-tagrende", tema: "vinter-byg", titel: "Inden frosten tager fat", hovedbudskab: "Tagrender renset og isolering tjekket inden november", underbudskab: "Din lokale Carl Ras Partner kommer forbi. Helst inden uge 42.", cta: "Book vinter-tjek", heroEmoji: "❄️", status: "Kommende", formater: ALL_FORMATS, artDirection: "photo" },
+  { id: "c-vinter-frostsikring", tema: "vinter-byg", titel: "Hold vandet i rørene", hovedbudskab: "Frostsikring og vinterlukning", underbudskab: "Carl Ras Partner. VVS-uddannet. Lokal.", cta: "Bestil vinterlukning", heroEmoji: "🧊", status: "Kommende", formater: ALL_FORMATS, artDirection: "bold-type" },
+  { id: "c-vinter-snerydning", tema: "vinter-byg", titel: "Klar når sneen kommer", hovedbudskab: "Sne, salt, snerydning — aftalt på forhånd", underbudskab: "Fast pris for hele sæsonen. Carl Ras Partner i dit område.", cta: "Få sæsonpris", heroEmoji: "🌨️", status: "Kommende", formater: ALL_FORMATS, artDirection: "minimal" },
+  { id: "c-vinter-eftersyn", tema: "vinter-byg", titel: "Hjem efter ferien — alt OK", hovedbudskab: "Sommerhus-eftersyn hver 14. dag", underbudskab: "Vi tjekker varme, vand, og at alt er som det skal være. Foto-rapport via app.", cta: "Tilmeld eftersyn", heroEmoji: "📋", status: "Kommende", formater: ALL_FORMATS, artDirection: "editorial" },
 
   /* ─── Indbrud-efterår (3 campaigns, varied art directions) ─── */
-  { id: "c-indbrud-hojsaeson", tema: "indbrud-efterar", titel: "Når mørket falder på", hovedbudskab: "Forebyg indbrud inden højsæsonen", underbudskab: "Lokal specialist. Gratis hjemmebesøg. Carl Ras Partner.", cta: "Book sikkerhedstjek", heroEmoji: "🌒", status: "Kommende", formater: ["print-flyer", "print-poster", "digital-facebook", "digital-instagram", "digital-google"], artDirection: "photo" },
-  { id: "c-indbrud-belysning", tema: "indbrud-efterar", titel: "Bevægelseslys virker", hovedbudskab: "82% færre indbrud med korrekt udelys", underbudskab: "Smart belysning monteret af din lokale Carl Ras Partner. Tjek dit hus inden ferien.", cta: "Få tilbud på udelys", heroEmoji: "💡", status: "Kommende", formater: ["digital-facebook", "digital-google", "print-flyer"], artDirection: "bold-type" },
-  { id: "c-indbrud-naboer", tema: "indbrud-efterar", titel: "Hold øje med hinanden", hovedbudskab: "Nabolag der passer på hinanden — og en Carl Ras Partner i baghånden", underbudskab: "Tip-en-genbo-kampagnen 2026. Gratis sikkerhedstjek til 3 boliger ad gangen.", cta: "Tilmeld dit nabolag", heroEmoji: "🤝", status: "Kommende", formater: ["print-poster", "print-flyer", "digital-facebook"], artDirection: "editorial" },
+  { id: "c-indbrud-hojsaeson", tema: "indbrud-efterar", titel: "Når mørket falder på", hovedbudskab: "Forebyg indbrud inden højsæsonen", underbudskab: "Lokal specialist. Gratis hjemmebesøg. Carl Ras Partner.", cta: "Book sikkerhedstjek", heroEmoji: "🌒", status: "Kommende", formater: ALL_FORMATS, artDirection: "photo" },
+  { id: "c-indbrud-belysning", tema: "indbrud-efterar", titel: "Bevægelseslys virker", hovedbudskab: "82% færre indbrud med korrekt udelys", underbudskab: "Smart belysning monteret af din lokale Carl Ras Partner. Tjek dit hus inden ferien.", cta: "Få tilbud på udelys", heroEmoji: "💡", status: "Kommende", formater: ALL_FORMATS, artDirection: "bold-type" },
+  { id: "c-indbrud-naboer", tema: "indbrud-efterar", titel: "Hold øje med hinanden", hovedbudskab: "Nabolag der passer på hinanden — og en Carl Ras Partner i baghånden", underbudskab: "Tip-en-genbo-kampagnen 2026. Gratis sikkerhedstjek til 3 boliger ad gangen.", cta: "Tilmeld dit nabolag", heroEmoji: "🤝", status: "Kommende", formater: ALL_FORMATS, artDirection: "editorial" },
 ];
 
 /* ─────────────────────────── Certifications ─────────────────────────── */

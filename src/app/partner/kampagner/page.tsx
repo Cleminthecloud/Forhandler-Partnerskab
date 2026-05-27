@@ -189,7 +189,7 @@ export default function KampagnerPage() {
                           {c.titel}
                         </div>
                         <div className="text-[12px] text-[var(--ink-3)] mt-0.5 truncate">
-                          {c.formater.length} formater · {c.status}
+                          Print + digital · {c.status}
                         </div>
                       </div>
                     </button>
