@@ -17,7 +17,7 @@ import { PageHeader } from "@/components/PageHeader";
 
 interface ChatItem {
   id: string;
-  kind: "user" | "bot" | "products" | "tilbud-sent";
+  kind: "user" | "bot" | "products" | "tilbud-sent" | "suggestions";
   text?: string;
   products?: Product[];
   tid: string;
@@ -155,7 +155,9 @@ export default function SpecialisterPage() {
     pushToast(`${p.brand} ${p.navn.slice(0, 32)}${p.navn.length > 32 ? "…" : ""} lagt i kurv`, "success");
   }, [addToBasket, pushToast]);
 
-  /* Free-text send — fallback when no scenario matches */
+  /* Free-text send — fallback when no scenario matches.
+     Always surfaces the available scenario suggestions inline right
+     after the bot's invitation, so the user can act on what's offered. */
   const send = useCallback(() => {
     if (!draft.trim()) return;
     setItems((prev) => [
@@ -163,19 +165,21 @@ export default function SpecialisterPage() {
       { id: `u-${Date.now()}`, kind: "user", text: draft.trim(), tid: nowTime() },
     ]);
     setDraft("");
-    // Generic acknowledgement
     setTimeout(async () => {
       setIsTyping(true);
       await new Promise((r) => setTimeout(r, 900));
       setIsTyping(false);
+      const now = Date.now();
       setItems((prev) => [
         ...prev,
         {
-          id: `b-${Date.now()}`,
+          id: `b-${now}`,
           kind: "bot",
-          text: `Lad mig hjælpe — kan du vælge en af mine forslag herunder, eller skrive lidt mere om hvad du arbejder med? Jeg er hurtigere når jeg ved om det er Smart Lock, alarm eller adgangskontrol.`,
+          text: `Lad mig hjælpe — vælg et af forslagene herunder, eller skriv lidt mere om hvad du arbejder med. Jeg er hurtigere når jeg ved om det er Smart Lock, alarm eller adgangskontrol.`,
           tid: nowTime(),
         },
+        // Show the actual scenarios inline as clickable cards
+        { id: `s-${now}`, kind: "suggestions", tid: nowTime() },
       ]);
     }, 400);
   }, [draft]);
@@ -318,6 +322,9 @@ export default function SpecialisterPage() {
               if (it.kind === "tilbud-sent") return <TilbudSentNote key={it.id} tid={it.tid} />;
               if (it.kind === "products" && it.products) return (
                 <ProductCardRow key={it.id} products={it.products} onAdd={onAddSingle} />
+              );
+              if (it.kind === "suggestions") return (
+                <SuggestionsRow key={it.id} scenarios={availableScenarios} onPick={startScenario} />
               );
               return null;
             })}
@@ -508,6 +515,37 @@ function ProductCardRow({ products, onAdd }: { products: Product[]; onAdd: (p: P
   return (
     <div className="flex flex-col gap-2.5 pl-9" style={{ animation: "slideUpFade 320ms cubic-bezier(0.22,1,0.36,1) both" }}>
       {products.map((p) => <ProductCard key={p.id} product={p} onAdd={onAdd} />)}
+    </div>
+  );
+}
+
+/* Inline scenario suggestions — shown after the bot's fallback "vælg et af forslagene" message.
+   Acts on the same click-handler as the starter chips above the input. */
+function SuggestionsRow({ scenarios, onPick }: { scenarios: Scenario[]; onPick: (s: Scenario) => void }) {
+  if (scenarios.length === 0) return null;
+  return (
+    <div className="pl-9" style={{ animation: "slideUpFade 320ms cubic-bezier(0.22,1,0.36,1) both" }}>
+      <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)] mb-2 pl-0.5">Forslag</div>
+      <div className="grid gap-2 max-w-[78%]">
+        {scenarios.map((sc) => (
+          <button
+            key={sc.id}
+            onClick={() => onPick(sc)}
+            className="group flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-white border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--accent-tint)] text-left transition-all"
+          >
+            <span className="size-8 rounded-full grid place-items-center text-[14px] shrink-0 bg-[var(--canvas-2)] group-hover:bg-white transition-colors">
+              ✨
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-[13px] font-semibold text-[var(--ink)] truncate">{sc.starterLabel}</span>
+              <span className="block text-[11.5px] text-[var(--ink-3)] truncate mt-0.5">{sc.userText.slice(0, 70)}{sc.userText.length > 70 ? "…" : ""}</span>
+            </span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ink-3)] group-hover:text-[var(--accent-press)] shrink-0">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
