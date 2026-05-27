@@ -156,7 +156,7 @@ export default function PartnerDashboard() {
                 <div className="mt-6">
                   <div className="flex items-baseline gap-6 mb-5">
                     <div>
-                      <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.62 }}>
+                      <div className="text-[12px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.62 }}>
                         Formater
                       </div>
                       <div className="text-[22px] font-semibold mt-0.5 tabular-nums" style={{ color: theme.accentInk }}>
@@ -165,7 +165,7 @@ export default function PartnerDashboard() {
                     </div>
                     <div className="w-px h-9" style={{ background: theme.accentInk, opacity: 0.18 }} />
                     <div>
-                      <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.62 }}>
+                      <div className="text-[12px] font-medium uppercase tracking-wider" style={{ color: theme.accentInk, opacity: 0.62 }}>
                         Brugt af partnere
                       </div>
                       <div className="text-[22px] font-semibold mt-0.5 tabular-nums" style={{ color: theme.accentInk }}>
@@ -321,7 +321,7 @@ export default function PartnerDashboard() {
           <ul className="divide-y divide-[var(--line-2)] -mx-1">
             {myRegionPartners.slice(0, 3).map((p) => (
               <li key={p.id} className="py-2.5 px-1 flex items-center gap-3">
-                <div className="size-7 rounded-lg grid place-items-center text-white text-[10px] font-semibold shrink-0" style={{ background: p.logoBg }} aria-hidden="true">
+                <div className="size-7 rounded-lg grid place-items-center text-white text-[12px] font-semibold shrink-0" style={{ background: p.logoBg }} aria-hidden="true">
                   {p.initialer}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -359,7 +359,7 @@ export default function PartnerDashboard() {
               className="size-16 rounded-full object-cover shrink-0 shadow-[var(--shadow-1)]"
             />
             <div className="min-w-0">
-              <div className="t-eyebrow !text-[10px]" style={{ color: "#0C447C" }}>Din Carl Ras-konsulent</div>
+              <div className="t-eyebrow !text-[12px]" style={{ color: "#0C447C" }}>Din Carl Ras-konsulent</div>
               <div className="text-[18px] font-semibold text-[var(--ink)] mt-0.5 leading-tight">{CARL_RAS_KONSULENT.navn}</div>
               <div className="text-[12.5px] text-[var(--ink-3)] mt-0.5">{CARL_RAS_KONSULENT.rolle} · {CURRENT_PARTNER.region} · {CURRENT_PARTNER.faggruppe}</div>
               <div className="flex items-center gap-3 mt-2">
@@ -502,23 +502,33 @@ export default function PartnerDashboard() {
             <h3 className="t-h3">Aktivitet</h3>
             <span className="t-caption">Seneste 7 dage</span>
           </div>
-          <ul className="space-y-4">
-            {PARTNER_PERFORMANCE.activity.map((a, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span
-                  className="size-8 rounded-full grid place-items-center shrink-0 text-white"
-                  style={{ background: a.color }}
-                  aria-hidden="true"
-                >
-                  <ActivityIcon kind={a.icon} />
-                </span>
-                <div className="flex-1 min-w-0 pt-1">
-                  <div className="text-[14px] text-[var(--ink)] leading-snug">{a.text}</div>
-                  <div className="text-[12px] text-[var(--ink-3)] mt-0.5">{a.tid}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {PARTNER_PERFORMANCE.activity.length === 0 ? (
+            <div className="py-10 text-center">
+              <div className="size-12 rounded-full bg-[var(--canvas-2)] grid place-items-center mx-auto mb-3 text-[var(--ink-3)]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              </div>
+              <div className="text-[14px] font-semibold text-[var(--ink-2)]">Ingen aktivitet endnu</div>
+              <div className="text-[13px] text-[var(--ink-3)] mt-1">Når du modtager leads eller henter kampagner, dukker de op her.</div>
+            </div>
+          ) : (
+            <ul className="space-y-4">
+              {PARTNER_PERFORMANCE.activity.map((a, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span
+                    className="size-8 rounded-full grid place-items-center shrink-0 text-white"
+                    style={{ background: a.color }}
+                    aria-hidden="true"
+                  >
+                    <ActivityIcon kind={a.icon} />
+                  </span>
+                  <div className="flex-1 min-w-0 pt-1">
+                    <div className="text-[14px] text-[var(--ink)] leading-snug">{a.text}</div>
+                    <div className="text-[12px] text-[var(--ink-3)] mt-0.5">{a.tid}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Specialist chat */}
@@ -612,7 +622,7 @@ function ProductBadgePill({ badge }: { badge: ProductBadge }) {
   const s = styles[badge];
   return (
     <span
-      className="absolute top-2 left-2 inline-flex items-center text-[10px] font-bold tracking-wider px-2 py-1 rounded shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
+      className="absolute top-2 left-2 inline-flex items-center text-[12px] font-bold tracking-wider px-2 py-1 rounded shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
       style={{ background: s.bg, color: s.ink }}
     >
       {s.label}
@@ -675,7 +685,11 @@ function KpiTile({
         {value}
       </div>
       {chartData && (
-        <div className="mt-3 -mx-1">
+        <div
+          className="mt-3 -mx-1"
+          role="img"
+          aria-label={`${label} udvikling: fra ${chartData[0]?.value ?? 0} til ${chartData[chartData.length - 1]?.value ?? 0} hen over ${chartData.length} perioder${delta ? ", " + delta : ""}`}
+        >
           <MiniArea data={chartData} color={sparkColor} height={44} />
         </div>
       )}
@@ -705,7 +719,7 @@ function DateChip({ iso }: { iso: string }) {
   const month = d.toLocaleDateString("da-DK", { month: "short" }).replace(".", "").toUpperCase();
   return (
     <div className="rounded-xl bg-[var(--canvas-2)] px-3 py-2 text-center shrink-0 min-w-[52px]">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{month}</div>
+      <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{month}</div>
       <div className="text-[22px] font-bold leading-none mt-0.5 text-[var(--ink)] tabular-nums">{d.getDate()}</div>
     </div>
   );

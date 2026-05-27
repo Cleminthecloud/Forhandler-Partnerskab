@@ -172,7 +172,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 <div className="text-[14px] font-semibold text-[var(--ink)]">{CARL_RAS_KONSULENT.navn}</div>
                 <div className="text-[12px] text-[var(--ink-3)]">{CARL_RAS_KONSULENT.rolle} · {partner.region}</div>
               </div>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#EAF1DC", color: "#324A14" }}>
+              <span className="inline-flex items-center gap-1 text-[12px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#EAF1DC", color: "#324A14" }}>
                 <span className="size-1.5 rounded-full" style={{ background: "#5B7F2C" }} /> Aktiv
               </span>
             </div>
@@ -202,8 +202,8 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <div className="text-[12px] text-[var(--ink-3)] mt-1 capitalize">{nextVisit.ugedag}dag · Hos partneren</div>
             </div>
             <div className="space-y-2 text-[12px] text-[var(--ink-2)] flex-1 leading-[1.5]">
-              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · Stroxx Q3-pipeline · genforhandling af bonusaftale</div>
-              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, Jens Pedersen (Sikring)</div>
+              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · Stroxx Q3-pipeline · genforhandling af bonusaftale</div>
+              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, Jens Pedersen (Sikring)</div>
               <div className="inline-flex items-center gap-1.5 text-[12px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
                 <Icon name="check" size={11} /> {partner.ejer} har bekræftet
               </div>
@@ -361,7 +361,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                    <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
                     <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{p.navn}</div>
                     <div className="text-[12px] text-[var(--ink-3)] tabular-nums mt-0.5">{p.pris}</div>
                   </div>

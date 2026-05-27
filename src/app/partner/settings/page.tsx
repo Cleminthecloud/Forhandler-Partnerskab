@@ -65,7 +65,7 @@ export default function PartnerSettingsPage() {
               <div className="text-[15px] font-semibold text-[var(--ink)]">Notifikationer</div>
               <div className="text-[11.5px] text-[var(--ink-3)] mt-1">Vælg hvordan du vil have besked for hver type begivenhed.</div>
             </div>
-            <div className="grid grid-cols-[1fr_80px_80px] gap-3 px-6 py-2 border-b border-[var(--line-2)] bg-[var(--canvas-2)] text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+            <div className="grid grid-cols-[1fr_80px_80px] gap-3 px-6 py-2 border-b border-[var(--line-2)] bg-[var(--canvas-2)] text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
               <span>Begivenhed</span>
               <span className="text-center">Email</span>
               <span className="text-center">Push</span>
@@ -183,7 +183,7 @@ export default function PartnerSettingsPage() {
           </section>
 
           <section className="card !p-4 bg-[var(--canvas-2)] !border-0">
-            <div className="t-eyebrow !text-[10px]">Brug for hjælp?</div>
+            <div className="t-eyebrow !text-[12px]">Brug for hjælp?</div>
             <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
               Spørgsmål om indstillinger? Skriv til <strong className="text-[var(--ink)] font-semibold">support@carl-ras.dk</strong> — vi svarer indenfor en arbejdsdag.
             </p>

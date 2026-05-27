@@ -75,7 +75,7 @@ export default function AdminKalender() {
               <div>
                 <div className="flex items-baseline justify-between text-[12.5px] mb-1">
                   <span className="font-semibold text-[var(--ink)] tabular-nums">{e.tilmeldte}/{e.pladser}</span>
-                  <span className="text-[10.5px] text-[var(--ink-3)] tabular-nums">{Math.round(fill * 100)}%</span>
+                  <span className="text-[12px] text-[var(--ink-3)] tabular-nums">{Math.round(fill * 100)}%</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-[var(--canvas-2)] overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${fill * 100}%`, background: fillColor }} />
@@ -229,12 +229,12 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {attendees.map((p) => (
                   <li key={p.id} className="flex items-center gap-2.5 p-2.5 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
-                    <div className="size-8 rounded-md grid place-items-center text-white font-semibold text-[10px] shrink-0" style={{ background: p.logoBg }}>
+                    <div className="size-8 rounded-md grid place-items-center text-white font-semibold text-[12px] shrink-0" style={{ background: p.logoBg }}>
                       {p.initialer}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate">{p.firma}</div>
-                      <div className="text-[10.5px] text-[var(--ink-3)] truncate">{p.ejer} · {p.tier}</div>
+                      <div className="text-[12px] text-[var(--ink-3)] truncate">{p.ejer} · {p.tier}</div>
                     </div>
                   </li>
                 ))}

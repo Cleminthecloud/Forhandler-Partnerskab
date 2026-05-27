@@ -321,7 +321,7 @@ function ModuleRow({ index, module: m, done, current }: { index: number; module:
         </div>
       </div>
       {m.format === "Eksamen" && (
-        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0" style={{ background: "#FDE3D3", color: "#7A2E00" }}>
+        <span className="text-[12px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0" style={{ background: "#FDE3D3", color: "#7A2E00" }}>
           Afgørende
         </span>
       )}

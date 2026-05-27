@@ -145,7 +145,7 @@ function CertCard({ cert, onOpen }: { cert: Certification; onOpen: () => void })
         {/* Chip legend */}
         <div className="mt-3 flex flex-wrap gap-1.5">
           {stageCounts.filter((s) => s.count > 0).map((s) => (
-            <span key={s.id} className="inline-flex items-center gap-1.5 text-[10.5px] font-medium px-2 py-0.5 rounded-full" style={{ background: s.bg, color: s.ink }}>
+            <span key={s.id} className="inline-flex items-center gap-1.5 text-[12px] font-medium px-2 py-0.5 rounded-full" style={{ background: s.bg, color: s.ink }}>
               <span className="size-1.5 rounded-full" style={{ background: s.dot }} />
               {s.label} · {s.count}
             </span>
@@ -247,7 +247,7 @@ function CertDetailDrawer({
                       </div>
                     </div>
                     {m.format === "Eksamen" && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "#FDE3D3", color: "#7A2E00" }}>Afgørende</span>
+                      <span className="text-[12px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "#FDE3D3", color: "#7A2E00" }}>Afgørende</span>
                     )}
                   </li>
                 ))}
@@ -276,7 +276,7 @@ function CertDetailDrawer({
                       <EnrollmentCard key={e.partnerId + e.certId} enrollment={e} totalModules={cert.moduler} />
                     ))}
                     {col.enrollments.length === 0 && (
-                      <li className="text-[10.5px] text-[var(--ink-3)] italic px-1.5 py-2">—</li>
+                      <li className="text-[12px] text-[var(--ink-3)] italic px-1.5 py-2">—</li>
                     )}
                   </ul>
                 </div>
@@ -312,7 +312,7 @@ function KpiTile({ label, value, sub, tone }: { label: string; value: string; su
 function Fact({ label, value, tone }: { label: string; value: string; tone?: "ok" }) {
   return (
     <div className="rounded-[var(--r-md)] bg-[var(--canvas-2)] p-3">
-      <div className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</div>
+      <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</div>
       <div className="text-[12.5px] mt-1 leading-snug" style={{ color: tone === "ok" ? "#2D4A0F" : "var(--ink-2)", fontWeight: tone === "ok" ? 600 : 500 }}>{value}</div>
     </div>
   );
@@ -333,7 +333,7 @@ function EnrollmentCard({ enrollment, totalModules }: { enrollment: CertEnrollme
       </div>
       {enrollment.stage === "I gang" && (
         <>
-          <div className="flex items-baseline justify-between text-[10px] text-[var(--ink-3)] mb-1 tabular-nums">
+          <div className="flex items-baseline justify-between text-[12px] text-[var(--ink-3)] mb-1 tabular-nums">
             <span>Modul {enrollment.modulerFærdige}/{totalModules}</span>
             <span>{pct}%</span>
           </div>
@@ -343,23 +343,23 @@ function EnrollmentCard({ enrollment, totalModules }: { enrollment: CertEnrollme
         </>
       )}
       {enrollment.stage === "Eksamen booket" && enrollment.eksamenDato && (
-        <div className="text-[10.5px] text-[var(--ink-3)] inline-flex items-center gap-1">
+        <div className="text-[12px] text-[var(--ink-3)] inline-flex items-center gap-1">
           <Icon name="calendar" size={10} />
           {new Date(enrollment.eksamenDato).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}
         </div>
       )}
       {enrollment.stage === "Bestået" && enrollment.score !== undefined && (
-        <div className="text-[10.5px] inline-flex items-center gap-1 font-medium" style={{ color: "#2D4A0F" }}>
+        <div className="text-[12px] inline-flex items-center gap-1 font-medium" style={{ color: "#2D4A0F" }}>
           <Icon name="check-circle" size={10} /> Score {enrollment.score}%
         </div>
       )}
       {enrollment.stage === "Reprøve" && enrollment.score !== undefined && (
-        <div className="text-[10.5px] inline-flex items-center gap-1 font-medium" style={{ color: "#7A2E00" }}>
+        <div className="text-[12px] inline-flex items-center gap-1 font-medium" style={{ color: "#7A2E00" }}>
           <Icon name="alert-triangle" size={10} /> {enrollment.score}% · reprøve
         </div>
       )}
       {enrollment.stage === "Tilmeldt" && (
-        <div className="text-[10.5px] text-[var(--ink-3)]">
+        <div className="text-[12px] text-[var(--ink-3)]">
           Startet {new Date(enrollment.startet).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}
         </div>
       )}

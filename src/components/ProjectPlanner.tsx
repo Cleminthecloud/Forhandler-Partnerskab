@@ -176,7 +176,7 @@ export function ProjectPlanner({ projectType, kunde, specialistId, phases, onCha
                   {Array.from({ length: totalWeeks }, (_, i) => (
                     <div
                       key={i}
-                      className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] text-center py-2 border-r border-[var(--line-2)] last:border-r-0"
+                      className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] text-center py-2 border-r border-[var(--line-2)] last:border-r-0"
                       style={{ width: WEEK_PX }}
                     >
                       Uge&nbsp;{i + 1}
@@ -307,7 +307,7 @@ function PhaseEditPanel({
       <div className="grid gap-3">
         {/* Name */}
         <div>
-          <label className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Navn</label>
+          <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Navn</label>
           <input
             ref={navnRef}
             type="text"
@@ -319,7 +319,7 @@ function PhaseEditPanel({
 
         {/* Description */}
         <div>
-          <label className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Note (valgfri)</label>
+          <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Note (valgfri)</label>
           <input
             type="text"
             value={phase.beskrivelse ?? ""}
@@ -332,7 +332,7 @@ function PhaseEditPanel({
         {/* Schedule + ownership row */}
         <div className="grid grid-cols-4 gap-3">
           <div>
-            <label className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Start uge</label>
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Start uge</label>
             <input
               type="number"
               min={0}
@@ -342,7 +342,7 @@ function PhaseEditPanel({
             />
           </div>
           <div>
-            <label className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Varighed (uger)</label>
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Varighed (uger)</label>
             <input
               type="number"
               min={1}
@@ -352,7 +352,7 @@ function PhaseEditPanel({
             />
           </div>
           <div>
-            <label className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Ansvarlig</label>
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Ansvarlig</label>
             <select
               value={phase.ansvarlig}
               onChange={(e) => onChange({ ansvarlig: e.target.value as PhaseOwner })}
@@ -364,7 +364,7 @@ function PhaseEditPanel({
             </select>
           </div>
           <div>
-            <label className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Status</label>
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1">Status</label>
             <select
               value={phase.status}
               onChange={(e) => onChange({ status: e.target.value as PhaseStatus })}

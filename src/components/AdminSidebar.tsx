@@ -72,11 +72,11 @@ export function AdminSidebar() {
         {!collapsed && (
           <div className="mt-3.5 grid grid-cols-2 gap-2">
             <div className="rounded-md bg-[var(--canvas-2)] px-2.5 py-1.5">
-              <div className="text-[10px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Partnere</div>
+              <div className="text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Partnere</div>
               <div className="text-[15px] font-semibold text-[var(--ink)] tabular-nums leading-none mt-1">47</div>
             </div>
             <div className="rounded-md bg-[var(--canvas-2)] px-2.5 py-1.5">
-              <div className="text-[10px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Aktive</div>
+              <div className="text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Aktive</div>
               <div className="text-[15px] font-semibold text-[var(--ink)] tabular-nums leading-none mt-1">38</div>
             </div>
           </div>
@@ -86,7 +86,7 @@ export function AdminSidebar() {
       {/* ─── NAV ─── */}
       <nav className={"flex-1 py-4 " + (collapsed ? "px-2" : "px-3")}>
         {!collapsed && (
-          <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--ink-3)]">
+          <div className="px-3 pb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--ink-3)]">
             Carl Ras HQ
           </div>
         )}
@@ -131,7 +131,7 @@ export function AdminSidebar() {
       {/* ─── Footer ─── */}
       <div className={"border-t border-[var(--line-2)] " + (collapsed ? "p-2 flex justify-center" : "px-3 py-2.5 flex items-center justify-between gap-2")}>
         {!collapsed && (
-          <span className="text-[10.5px] text-[var(--ink-3)] truncate">
+          <span className="text-[12px] text-[var(--ink-3)] truncate">
             Demo · lokale ændringer
           </span>
         )}
@@ -297,10 +297,10 @@ function AdminMenuItem({
       </svg>
       <span className="flex-1 min-w-0">
         <div className="text-[13px] font-medium leading-tight">{label}</div>
-        {hint && <div className="text-[10.5px] text-[var(--ink-3)] truncate mt-0.5">{hint}</div>}
+        {hint && <div className="text-[12px] text-[var(--ink-3)] truncate mt-0.5">{hint}</div>}
       </span>
       {kbd && (
-        <kbd className="text-[10px] font-semibold text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-1.5 py-0.5 font-mono">
+        <kbd className="text-[12px] font-semibold text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-1.5 py-0.5 font-mono">
           {kbd}
         </kbd>
       )}

@@ -62,9 +62,9 @@ export default function EventsPage() {
           return (
             <article key={e.id} className="card card-hover flex gap-4 cursor-pointer" onClick={() => setOpenEvent(e)}>
               <div className="rounded-xl px-3 py-2.5 text-center shrink-0 self-start" style={{ background: tc.bg, color: tc.ink }}>
-                <div className="text-[10px] uppercase tracking-wider">{new Date(e.dato).toLocaleDateString("da-DK", { month: "short" }).replace(".", "")}</div>
+                <div className="text-[12px] uppercase tracking-wider">{new Date(e.dato).toLocaleDateString("da-DK", { month: "short" }).replace(".", "")}</div>
                 <div className="text-[24px] font-bold leading-none mt-1">{new Date(e.dato).getDate()}</div>
-                <div className="text-[10px] mt-1 opacity-80">{e.tid}</div>
+                <div className="text-[12px] mt-1 opacity-80">{e.tid}</div>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">

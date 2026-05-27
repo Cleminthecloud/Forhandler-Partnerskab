@@ -148,7 +148,7 @@ export default function ForumPage() {
                       <ForumAvatar navn={t.forfatter} size={40} bg={ac} />
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide" style={{ background: cc.bg, color: cc.ink }}>
+                          <span className="text-[12px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide" style={{ background: cc.bg, color: cc.ink }}>
                             {t.kategori}
                           </span>
                           <span className="text-[12px] text-[var(--ink-3)]">{t.dato}</span>
@@ -274,7 +274,7 @@ function ThreadDrawer({
         <div className="px-7 py-6 border-b border-[var(--line-2)] flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide" style={{ background: cc.bg, color: cc.ink }}>
+              <span className="text-[12px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide" style={{ background: cc.bg, color: cc.ink }}>
                 {thread.kategori}
               </span>
               <span className="text-[12px] text-[var(--ink-3)]">{thread.dato}</span>

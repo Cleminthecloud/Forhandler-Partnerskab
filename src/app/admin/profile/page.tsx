@@ -115,7 +115,7 @@ export default function AdminProfilePage() {
           </section>
 
           <section className="card !p-4 bg-[var(--canvas-2)] !border-0">
-            <div className="t-eyebrow !text-[10px]">Bio bruges</div>
+            <div className="t-eyebrow !text-[12px]">Bio bruges</div>
             <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
               Din bio vises i specialist-listen som partnere ser i &quot;Tal med Carl Ras&quot;. Hold den menneskelig.
             </p>

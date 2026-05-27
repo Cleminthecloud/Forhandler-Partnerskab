@@ -104,7 +104,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
           <KategoriPill kategori={post.kategori} />
           {tema && (
             <span
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide"
+              className="text-[12px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide"
               style={{ background: tema.accentSoft, color: tema.accentInk }}
             >
               {tema.label}
@@ -184,7 +184,7 @@ function KategoriPill({ kategori, small }: { kategori: BlogPost["kategori"]; sma
     <span
       className={
         "inline-flex font-semibold uppercase tracking-wide rounded-full " +
-        (small ? "text-[9.5px] px-1.5 py-0.5" : "text-[10px] px-2 py-0.5")
+        (small ? "text-[9.5px] px-1.5 py-0.5" : "text-[12px] px-2 py-0.5")
       }
       style={{ background: c.bg, color: c.ink }}
     >
@@ -196,7 +196,7 @@ function KategoriPill({ kategori, small }: { kategori: BlogPost["kategori"]; sma
 function AuthorChip({ post, size }: { post: BlogPost; size: "sm" | "md" }) {
   const av = size === "md" ? "size-9" : "size-7";
   const txt = size === "md" ? "text-[13.5px]" : "text-[12px]";
-  const role = size === "md" ? "text-[12px]" : "text-[10.5px]";
+  const role = size === "md" ? "text-[12px]" : "text-[12px]";
   return (
     <div className="flex items-center gap-2.5 min-w-0">
       <div

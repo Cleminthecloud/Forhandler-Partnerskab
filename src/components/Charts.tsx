@@ -83,7 +83,7 @@ export function AreaChart({ values, labels, color = "var(--accent)", height = 20
       {labels && (
         <div className="grid mt-1 px-4" style={{ gridTemplateColumns: `repeat(${labels.length}, 1fr)` }}>
           {labels.map((l, i) => (
-            <span key={i} className="text-center text-[10px] text-[var(--ink-3)] tabular-nums">{l}</span>
+            <span key={i} className="text-center text-[12px] text-[var(--ink-3)] tabular-nums">{l}</span>
           ))}
         </div>
       )}

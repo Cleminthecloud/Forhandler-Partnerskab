@@ -343,7 +343,7 @@ export function CommandPalette() {
                 }
                 className="flex-1 text-[15px] outline-none bg-transparent text-[var(--ink)] placeholder:text-[var(--ink-4)]"
               />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-2 py-0.5">
+              <span className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-2 py-0.5">
                 {PLATFORM_LABEL[platform]}
               </span>
               <kbd className="text-[12px] font-semibold text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-1.5 py-0.5">esc</kbd>
@@ -359,8 +359,8 @@ export function CommandPalette() {
               ) : groups.map((group) => (
                 <section key={group.category} className="pt-1.5 pb-1">
                   <div className="px-4 pb-1 flex items-center gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)]">{group.category}</span>
-                    <span className="text-[10px] text-[var(--ink-4)] tabular-nums">·  {group.items.length}</span>
+                    <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)]">{group.category}</span>
+                    <span className="text-[12px] text-[var(--ink-4)] tabular-nums">·  {group.items.length}</span>
                   </div>
                   {group.items.map((item) => {
                     const itemIdx = runningIdx++;
@@ -389,7 +389,7 @@ export function CommandPalette() {
                           {item.subtitle && <div className="text-[12px] text-[var(--ink-3)] truncate">{item.subtitle}</div>}
                         </div>
                         {isActive && (
-                          <kbd className="text-[10px] font-semibold text-[var(--ink-3)] bg-white border border-[var(--line-2)] rounded px-1.5 py-0.5 shrink-0">↵</kbd>
+                          <kbd className="text-[12px] font-semibold text-[var(--ink-3)] bg-white border border-[var(--line-2)] rounded px-1.5 py-0.5 shrink-0">↵</kbd>
                         )}
                       </button>
                     );
@@ -436,7 +436,7 @@ export function CommandPaletteTrigger() {
     >
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <span>Søg</span>
-      <kbd className="text-[10px] bg-white/15 rounded px-1 py-0.5 font-mono">⌘K</kbd>
+      <kbd className="text-[12px] bg-white/15 rounded px-1 py-0.5 font-mono">⌘K</kbd>
     </button>
   );
 }

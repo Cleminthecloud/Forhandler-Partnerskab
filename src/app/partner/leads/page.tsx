@@ -423,7 +423,7 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                  <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
                   <div className="text-[14px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] mt-0.5">{p.navn}</div>
                   <div className="text-[11.5px] text-[var(--ink-3)] mt-1">Varenr {p.id} {p.margin ? `· ${p.margin}` : ""}</div>
                 </div>
@@ -451,7 +451,7 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
               {træning.ikon}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{træning.udsteder}</div>
+              <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{træning.udsteder}</div>
               <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{træning.titel}</div>
               <div className="text-[12px] text-[var(--ink-3)] mt-0.5">{træning.moduler} moduler · {træning.varighed}</div>
             </div>

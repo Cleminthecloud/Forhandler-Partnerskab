@@ -289,7 +289,7 @@ function PartnerCard({ partner, cover, isFav, onToggleFav }: { partner: PartnerP
           <div className="size-9 rounded-lg grid place-items-center text-white font-semibold text-[12px] shadow-md" style={{ background: partner.logoBg }}>
             {partner.initialer}
           </div>
-          <div className="text-white text-[10px] uppercase tracking-wider font-semibold drop-shadow">
+          <div className="text-white text-[12px] uppercase tracking-wider font-semibold drop-shadow">
             ✓ Carl Ras certificeret
           </div>
         </div>

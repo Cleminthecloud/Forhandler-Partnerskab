@@ -43,13 +43,13 @@ export default function AdminKampagner() {
                       <div className="t-body-strong text-[var(--cr-navy-deep)]">{c.titel}</div>
                       <p className="text-[12px] text-[var(--ink-muted-48)] line-clamp-2 mt-1">{c.hovedbudskab}</p>
                     </div>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide" style={{ background: theme.accentSoft, color: theme.accentInk }}>
+                    <span className="text-[12px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide" style={{ background: theme.accentSoft, color: theme.accentInk }}>
                       {c.status}
                     </span>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-1">
                     {c.formater.map((f) => (
-                      <span key={f} className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-pearl)] border border-[var(--hairline)]">
+                      <span key={f} className="text-[12px] px-1.5 py-0.5 rounded bg-[var(--surface-pearl)] border border-[var(--hairline)]">
                         {f.replace("print-", "").replace("digital-", "")}
                       </span>
                     ))}

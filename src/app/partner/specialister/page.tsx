@@ -235,7 +235,7 @@ export default function SpecialisterPage() {
         {/* LEFT — Specialist list */}
         <aside className="card !p-0 overflow-y-auto self-stretch">
           <div className="px-4 py-3 border-b border-[var(--line-2)]">
-            <div className="t-eyebrow !text-[10px]">Mine specialister</div>
+            <div className="t-eyebrow !text-[12px]">Mine specialister</div>
             <div className="text-[12px] text-[var(--ink-3)] mt-1">6 tilknyttet din region</div>
           </div>
           {SPECIALISTS.map((s) => {
@@ -267,7 +267,7 @@ export default function SpecialisterPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-semibold text-[var(--ink)]">{active.navn}</span>
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[var(--accent-tint)] text-[var(--accent-press)]">AI-assisteret</span>
+                <span className="text-[12px] font-semibold px-1.5 py-0.5 rounded-full bg-[var(--accent-tint)] text-[var(--accent-press)]">AI-assisteret</span>
               </div>
               <div className="text-[12px] text-[var(--ink-3)]">
                 {active.online ? <><span className="text-[#5DBA47]">●</span> Online · {active.responstid}</> : <><span className="text-[var(--ink-4)]">●</span> Offline · {active.responstid}</>}
@@ -283,13 +283,13 @@ export default function SpecialisterPage() {
             {items.length === 0 && seedThread && seedThread.messages.length > 0 && (
               <div className="space-y-3">
                 <div className="text-center">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] bg-[var(--canvas-2)] px-2">Tidligere</span>
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] bg-[var(--canvas-2)] px-2">Tidligere</span>
                 </div>
                 {seedThread.messages.map((m, i) => (
                   <MessageBubble key={i} from={m.from === "partner" ? "user" : "bot"} text={m.text} tid={m.tid} specialist={active} />
                 ))}
                 <div className="text-center pt-3">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] bg-[var(--canvas-2)] px-2">I dag</span>
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] bg-[var(--canvas-2)] px-2">I dag</span>
                 </div>
               </div>
             )}
@@ -345,7 +345,7 @@ export default function SpecialisterPage() {
             {/* Starter chips — when no conversation yet */}
             {showStarterChips && availableScenarios.length > 0 && (
               <div className="px-4 pt-3 pb-1 flex flex-wrap gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] w-full mb-1">Foreslag</span>
+                <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] w-full mb-1">Foreslag</span>
                 {availableScenarios.map((sc) => (
                   <button
                     key={sc.id}
@@ -384,7 +384,7 @@ export default function SpecialisterPage() {
 
           <div className="card !p-4">
             <div className="flex items-baseline justify-between mb-3">
-              <div className="t-eyebrow !text-[10px]">Kurv</div>
+              <div className="t-eyebrow !text-[12px]">Kurv</div>
               {basket.length > 0 && (
                 <span className="text-[12px] text-[var(--ink-3)] tabular-nums">
                   {basket.reduce((n, b) => n + b.qty, 0)} stk
@@ -438,7 +438,7 @@ export default function SpecialisterPage() {
           </div>
 
           <div className="card !p-4 bg-[var(--canvas-2)] !border-0">
-            <div className="t-eyebrow !text-[10px]">Tip</div>
+            <div className="t-eyebrow !text-[12px]">Tip</div>
             <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
               Specialisten kan også sende et færdigt tilbud til en kunde — med dit logo og pakkepris. Spørg fx <em className="text-[var(--ink)] not-italic font-medium">&quot;Send tilbud til kunde&quot;</em>.
             </p>
@@ -501,7 +501,7 @@ function MessageBubble({ from, text, tid, specialist }: { from: "user" | "bot"; 
         : "bg-white border border-[var(--line-2)] rounded-bl-md text-[var(--ink)]"
       )}>
         <div>{text}</div>
-        <div className={"text-[10.5px] mt-1 " + (isUser ? "text-white/70" : "text-[var(--ink-3)]")}>
+        <div className={"text-[12px] mt-1 " + (isUser ? "text-white/70" : "text-[var(--ink-3)]")}>
           {tid}
         </div>
       </div>
@@ -549,7 +549,7 @@ function SuggestionsRow({ scenarios, onPick }: { scenarios: Scenario[]; onPick: 
   if (scenarios.length === 0) return null;
   return (
     <div className="pl-9" style={{ animation: "slideUpFade 320ms cubic-bezier(0.22,1,0.36,1) both" }}>
-      <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)] mb-2 pl-0.5">Forslag</div>
+      <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)] mb-2 pl-0.5">Forslag</div>
       <div className="grid gap-2 max-w-[78%]">
         {scenarios.map((sc) => (
           <button
@@ -586,14 +586,14 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product)
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{product.brand}</span>
+          <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{product.brand}</span>
           <span className="text-[9.5px] text-[var(--ink-4)] tabular-nums">#{product.id}</span>
         </div>
         <div className="text-[13.5px] font-semibold text-[var(--ink)] mt-1 leading-[1.3] line-clamp-2">{product.navn}</div>
         <div className="text-[12.5px] mt-1.5 flex items-baseline gap-2">
           <span className="font-semibold text-[var(--ink)] tabular-nums">{product.pris}</span>
           {product.margin && (
-            <span className="text-[10.5px] text-[var(--ink-3)]">· {product.margin}</span>
+            <span className="text-[12px] text-[var(--ink-3)]">· {product.margin}</span>
           )}
         </div>
       </div>
@@ -644,7 +644,7 @@ function SessionSummary({ items }: { items: ChatItem[] }) {
       </div>
       {productsMentioned.size > 0 && (
         <div className="pt-3 border-t border-[var(--line-2)]">
-          <div className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">Anbefalede</div>
+          <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">Anbefalede</div>
           <ul className="space-y-1.5">
             {[...productsMentioned.values()].map((p) => (
               <li key={p.id} className="flex items-center gap-2 text-[11.5px]">

@@ -163,12 +163,21 @@ function ProjekterPageInner() {
     };
   }, [searchParams]);
 
-  // Close drawer on ESC
+  // Close drawer on ESC + browser back. Pushes a marker history state so the
+  // user's browser back gesture closes the drawer instead of navigating away.
   useEffect(() => {
     if (!openProject) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenProject(null); };
+    const onPop = () => setOpenProject(null);
+    window.history.pushState({ drawer: "project" }, "");
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("popstate", onPop);
+      // If drawer was closed via close button (state still present), pop our marker
+      if (window.history.state?.drawer === "project") window.history.back();
+    };
   }, [openProject]);
 
   const counts = useMemo(() => {
@@ -391,7 +400,7 @@ function ProjekterPageInner() {
                           className="size-6 rounded-full object-cover shrink-0"
                         />
                       ) : (
-                        <div className="size-6 rounded-full grid place-items-center text-white font-semibold text-[10px] shrink-0" style={{ background: specialist.bg }}>
+                        <div className="size-6 rounded-full grid place-items-center text-white font-semibold text-[12px] shrink-0" style={{ background: specialist.bg }}>
                           {specialist.initialer}
                         </div>
                       )}
@@ -519,8 +528,16 @@ function ProjectDrawer({
           </button>
         </div>
 
-        {/* Slim status progress strip — visual only. Advance/skip via footer CTA + overflow. */}
-        <div className="px-8 py-4 border-b border-[var(--line-2)] flex items-center gap-3 shrink-0">
+        {/* Slim status progress strip — visual + a11y progressbar. Advance via footer CTA + overflow. */}
+        <div
+          className="px-8 py-4 border-b border-[var(--line-2)] flex items-center gap-3 shrink-0"
+          role="progressbar"
+          aria-label="Projektets status"
+          aria-valuemin={1}
+          aria-valuemax={STATUS_ORDER.length}
+          aria-valuenow={STATUS_ORDER.indexOf(project.status) + 1}
+          aria-valuetext={`${project.status} — trin ${STATUS_ORDER.indexOf(project.status) + 1} af ${STATUS_ORDER.length}`}
+        >
           <div className="flex items-center gap-1 flex-1">
             {STATUS_ORDER.map((s, i) => {
               const currentIdx = STATUS_ORDER.indexOf(project.status);
@@ -528,12 +545,12 @@ function ProjectDrawer({
               return (
                 <div key={s} className="flex-1 flex items-center gap-1">
                   <span
-                    className={"text-[11px] font-semibold uppercase tracking-wider " + (i === currentIdx ? "text-[var(--ink)]" : "text-[var(--ink-3)]")}
+                    className={"text-[12px] font-semibold uppercase tracking-wider " + (i === currentIdx ? "text-[var(--ink)]" : "text-[var(--ink-3)]")}
                   >
                     {s}
                   </span>
                   {i < STATUS_ORDER.length - 1 && (
-                    <span className="flex-1 h-[2px] rounded-full" style={{ background: reached ? style.dot : "var(--line-2)" }} />
+                    <span className="flex-1 h-[2px] rounded-full" style={{ background: reached ? style.dot : "var(--line-2)" }} aria-hidden="true" />
                   )}
                 </div>
               );
@@ -580,7 +597,7 @@ function ProjectDrawer({
                     {p.image ? <Image src={p.image} alt={p.navn} width={64} height={64} className="object-contain max-h-full max-w-full" /> : <span>{p.emoji}</span>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                    <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
                     <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate mt-0.5">{p.navn}</div>
                     <div className="text-[12px] text-[var(--ink-3)] tabular-nums mt-0.5">#{p.id} · {p.pris}</div>
                   </div>
@@ -601,7 +618,7 @@ function ProjectDrawer({
                       {p.image ? <Image src={p.image} alt={p.navn} width={64} height={64} className="object-contain max-h-full max-w-full" /> : <span>{p.emoji}</span>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                      <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
                       <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate mt-0.5">{p.navn}</div>
                       <div className="text-[12px] text-[var(--ink-3)] tabular-nums mt-0.5">{p.pris} · {p.margin}</div>
                     </div>
@@ -687,13 +704,13 @@ function ProjectDrawer({
             <ul className="space-y-3">
               {project.noter.map((n, i) => (
                 <li key={i} className="flex gap-3">
-                  <div className="size-7 rounded-full bg-[var(--accent-tint)] grid place-items-center text-[10px] font-semibold text-[var(--accent-press)] shrink-0">
+                  <div className="size-7 rounded-full bg-[var(--accent-tint)] grid place-items-center text-[12px] font-semibold text-[var(--accent-press)] shrink-0">
                     {n.forfatter.split(" ").map((w) => w[0]).join("").slice(0, 2)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
                       <span className="text-[12.5px] font-semibold text-[var(--ink)]">{n.forfatter}</span>
-                      <span className="text-[10.5px] text-[var(--ink-3)]">{n.tid}</span>
+                      <span className="text-[12px] text-[var(--ink-3)]">{n.tid}</span>
                     </div>
                     <p className="text-[12.5px] text-[var(--ink-2)] leading-[1.5] mt-0.5">{n.body}</p>
                   </div>
@@ -702,7 +719,7 @@ function ProjectDrawer({
             </ul>
           </section>
 
-          <section className="text-[10px] text-[var(--ink-3)] pt-3 border-t border-[var(--line-2)]">
+          <section className="text-[12px] text-[var(--ink-3)] pt-3 border-t border-[var(--line-2)]">
             Oprettet {new Date(project.oprettet).toLocaleDateString("da-DK", { day: "numeric", month: "long", year: "numeric" })}
             {project.deadline && <> · frist {new Date(project.deadline).toLocaleDateString("da-DK", { day: "numeric", month: "long", year: "numeric" })}</>}
           </section>
@@ -847,9 +864,9 @@ function Tile({ label, value, delta, subtle = false }: { label: string; value: s
 function DrawerStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
-      <div className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</div>
+      <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</div>
       <div className="text-[18px] font-semibold mt-1 leading-none text-[var(--ink)] tabular-nums">{value}</div>
-      {hint && <div className="text-[10.5px] text-[var(--ink-3)] mt-1">{hint}</div>}
+      {hint && <div className="text-[12px] text-[var(--ink-3)] mt-1">{hint}</div>}
     </div>
   );
 }
@@ -926,7 +943,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
         {/* Sticky header */}
         <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
           <div>
-            <div className="t-eyebrow !text-[10px]">Nyt projekt</div>
+            <div className="t-eyebrow !text-[12px]">Nyt projekt</div>
             <h3 className="text-[22px] font-bold text-[var(--ink)] leading-tight mt-1.5">Opret et kundeprojekt</h3>
             <p className="text-[12.5px] text-[var(--ink-3)] mt-1">Bliver placeret i &quot;Konsultation&quot;. Du kan altid tilføje produkter og booke specialist bagefter.</p>
           </div>
@@ -960,7 +977,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
                 </button>
               ))}
             </div>
-            <div className="text-[10.5px] text-[var(--ink-3)] mt-2 flex items-center gap-1.5">
+            <div className="text-[12px] text-[var(--ink-3)] mt-2 flex items-center gap-1.5">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16v.5" /></svg>
               Eksempler pre-fyldter formularen — du kan redigere alt bagefter.
             </div>
@@ -1128,7 +1145,7 @@ function NumberField({ label, value, onChange, min, placeholder, hint }: { label
         placeholder={placeholder}
         className="field !text-[13.5px] tabular-nums"
       />
-      {hint && <div className="text-[10.5px] text-[var(--ink-3)] mt-1">{hint}</div>}
+      {hint && <div className="text-[12px] text-[var(--ink-3)] mt-1">{hint}</div>}
     </div>
   );
 }

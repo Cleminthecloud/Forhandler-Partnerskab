@@ -106,7 +106,7 @@ export default function KampagnerPage() {
           <div className="card !p-3">
             <div className="px-2 py-1 mb-1 flex items-center gap-2">
               <span className="theme-dot" style={{ background: theme.accent }} />
-              <span className="t-eyebrow !text-[10px]">{theme.label}</span>
+              <span className="t-eyebrow !text-[12px]">{theme.label}</span>
             </div>
             <ul>
               {themed.map((c) => {
@@ -136,8 +136,8 @@ export default function KampagnerPage() {
             {other.length > 0 && (
               <>
                 <div className="px-2 pt-3 mt-2 border-t border-[var(--line-2)] mb-1 flex items-center justify-between">
-                  <span className="t-eyebrow !text-[10px] !text-[var(--ink-3)]">Andre temaer</span>
-                  <span className="text-[10px] text-[var(--ink-3)]">Klik for preview</span>
+                  <span className="t-eyebrow !text-[12px] !text-[var(--ink-3)]">Andre temaer</span>
+                  <span className="text-[12px] text-[var(--ink-3)]">Klik for preview</span>
                 </div>
                 <ul>
                   {other.slice(0, 4).map((c) => {
@@ -400,7 +400,7 @@ export default function KampagnerPage() {
             {/* Drawer header */}
             <div className="px-5 py-4 border-b border-[var(--line-2)] flex items-center justify-between">
               <div>
-                <div className="t-eyebrow !text-[10px]">Rediger kampagne</div>
+                <div className="t-eyebrow !text-[12px]">Rediger kampagne</div>
                 <div className="text-[15px] font-semibold text-[var(--ink)] mt-0.5">{activeCampaign?.titel}</div>
               </div>
               <button
@@ -477,9 +477,9 @@ export default function KampagnerPage() {
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
                   <div className="text-[12.5px] font-semibold text-[var(--ink-2)] mt-2">Træk en fil hertil, eller klik</div>
-                  <div className="text-[10.5px] text-[var(--ink-3)] mt-1">PNG eller SVG · maks 2 MB · transparent baggrund anbefales</div>
+                  <div className="text-[12px] text-[var(--ink-3)] mt-1">PNG eller SVG · maks 2 MB · transparent baggrund anbefales</div>
                 </label>
-                <div className="text-[10.5px] text-[var(--ink-3)] mt-2 flex items-center gap-1.5">
+                <div className="text-[12px] text-[var(--ink-3)] mt-2 flex items-center gap-1.5">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16v.5" /></svg>
                   Vi tilpasser automatisk logoets størrelse pr. format.
                 </div>
@@ -681,7 +681,7 @@ function EditField({ label, value, onChange, max, multiline, rows }: { label: st
       <div className="flex items-baseline justify-between mb-1.5">
         <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</label>
         {max && (
-          <span className={"text-[10px] tabular-nums " + (near ? "text-[#A32D2D]" : "text-[var(--ink-3)]")}>
+          <span className={"text-[12px] tabular-nums " + (near ? "text-[#A32D2D]" : "text-[var(--ink-3)]")}>
             {len}/{max}
           </span>
         )}

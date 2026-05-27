@@ -125,7 +125,7 @@ export default function AdminOverview() {
               <div className="absolute inset-0 grid place-items-center text-center pointer-events-none">
                 <div>
                   <div className="text-[26px] font-semibold leading-none tabular-nums">{ADMIN_STATS.aktivePartnere}</div>
-                  <div className="text-[10px] text-[var(--ink-3)] mt-1 uppercase tracking-wider">aktive</div>
+                  <div className="text-[12px] text-[var(--ink-3)] mt-1 uppercase tracking-wider">aktive</div>
                 </div>
               </div>
             </div>

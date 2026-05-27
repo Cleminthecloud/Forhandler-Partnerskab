@@ -37,7 +37,7 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
         )}
 
         {floating && (
-          <span className="px-1.5 text-[10px] uppercase tracking-[0.16em] text-white/55 select-none">
+          <span className="px-1.5 text-[12px] uppercase tracking-[0.16em] text-white/55 select-none">
             Demo
           </span>
         )}
@@ -102,7 +102,7 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
                             <div className="flex items-center gap-2">
                               <span className="text-[14px] font-medium text-[var(--ink)]">{t.label}</span>
                               <span
-                                className="text-[10px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide"
+                                className="text-[12px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide"
                                 style={{ background: t.accentSoft, color: t.accentInk }}
                               >
                                 {t.status}
@@ -138,8 +138,14 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-[var(--r-md)] focus:bg-[var(--ink)] focus:text-white focus:shadow-[var(--shadow-3)] focus:no-underline"
+      >
+        Spring til indhold
+      </a>
       <DemoTopBar />
-      <main className="flex-1">{children}</main>
+      <main id="main" className="flex-1">{children}</main>
     </div>
   );
 }

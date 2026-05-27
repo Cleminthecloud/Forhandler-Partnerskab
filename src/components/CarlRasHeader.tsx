@@ -152,7 +152,7 @@ export function CarlRasHeader() {
             <CarlRasLogo color="#1158A3" height={26} ariaLabel="Carl Ras" />
             <span className="hidden sm:flex flex-col leading-[1.05] pl-1 border-l border-[#E0E0E0] ml-0.5">
               <span className="text-[9px] font-bold tracking-[0.22em] text-[#1158A3]">GRUPPEN</span>
-              <span className="text-[10px] text-[#86868B] mt-0.5">B2B</span>
+              <span className="text-[12px] text-[#86868B] mt-0.5">B2B</span>
             </span>
           </Link>
 
@@ -200,20 +200,20 @@ export function CarlRasHeader() {
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20a8 8 0 0116 0" />
               </svg>
-              <span className="text-[10px] font-medium">Log ind</span>
+              <span className="text-[12px] font-medium">Log ind</span>
             </Link>
             <Link href="#" className="hidden md:flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 21l-7-7c-3-3-1-8 3-8 2 0 3 1 4 2 1-1 2-2 4-2 4 0 6 5 3 8z" />
               </svg>
-              <span className="text-[10px] font-medium">Favoritter</span>
+              <span className="text-[12px] font-medium">Favoritter</span>
             </Link>
             <Link href="#" className="flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3] relative">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 7h18l-2 12H5z" />
                 <path d="M9 7V4h6v3" />
               </svg>
-              <span className="text-[10px] font-medium">Kurv</span>
+              <span className="text-[12px] font-medium">Kurv</span>
               <span className="absolute -top-1 right-1 size-[14px] rounded-full bg-[#E30613] text-white text-[9px] font-bold grid place-items-center">1</span>
             </Link>
           </div>
@@ -227,7 +227,7 @@ export function CarlRasHeader() {
             <Link
               key={i}
               href="#"
-              className="inline-flex items-center gap-2 px-3.5 h-[30px] rounded-[5px] text-[10.5px] font-bold uppercase tracking-[0.08em] whitespace-nowrap shrink-0 transition-transform hover:translate-y-[-1px]"
+              className="inline-flex items-center gap-2 px-3.5 h-[30px] rounded-[5px] text-[12px] font-bold uppercase tracking-[0.08em] whitespace-nowrap shrink-0 transition-transform hover:translate-y-[-1px]"
               style={{ background: b.bg, color: b.fg }}
             >
               {/* Carl Ras mark (CR ram glyph) */}
