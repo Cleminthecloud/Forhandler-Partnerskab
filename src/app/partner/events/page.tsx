@@ -121,20 +121,24 @@ function EventDetailModal({
   const dateStr = new Date(event.dato).toLocaleDateString("da-DK", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/55 grid place-items-center p-4 sm:p-6 animate-in" onClick={onClose}>
-      <div
-        className="bg-white rounded-[20px] max-w-[760px] w-full max-h-[90vh] overflow-y-auto shadow-[var(--shadow-4)]"
+    <div className="fixed inset-0 z-50 animate-in" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+      <aside
+        className="absolute top-[48px] right-0 bottom-0 w-[760px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
-        {/* Hero */}
-        <div className="relative h-[200px] overflow-hidden rounded-t-[20px]" style={{ background: detail.hero }}>
+        {/* Hero header (sticky top) */}
+        <div className="relative h-[200px] overflow-hidden shrink-0" style={{ background: detail.hero }}>
           <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 70%, rgba(0,0,0,0.25) 0%, transparent 70%)" }} />
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 size-9 rounded-full bg-white/95 hover:bg-white text-[var(--ink)] grid place-items-center transition-colors"
+            className="absolute top-4 right-4 size-9 rounded-full bg-white/95 hover:bg-white text-[var(--ink)] grid place-items-center transition-colors z-10"
             aria-label="Luk"
           >
-            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
           </button>
           <div className="absolute bottom-5 left-6 right-6 text-white">
             <span className="inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md uppercase tracking-wider">
@@ -146,9 +150,8 @@ function EventDetailModal({
           </div>
         </div>
 
-        {/* Body */}
-        <div className="p-6 lg:p-7">
-          {/* Quick facts */}
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto p-6 lg:p-7 min-h-0">
           <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3 mb-6 pb-6 border-b border-[var(--line-2)]">
             <Fact label="Dato">{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</Fact>
             <Fact label="Tid">{event.tid} · {event.varighed}</Fact>
@@ -160,7 +163,6 @@ function EventDetailModal({
 
           <p className="t-body-lg !text-[var(--ink-2)] leading-[1.55] mb-6">{event.beskrivelse}</p>
 
-          {/* Host */}
           {host && (
             <div className="mb-6 p-4 rounded-[var(--r-lg)] bg-[var(--canvas-2)] flex items-center gap-3">
               <div className="size-12 rounded-full text-white font-semibold grid place-items-center shrink-0 text-[14px]" style={{ background: host.bg }}>
@@ -174,7 +176,6 @@ function EventDetailModal({
             </div>
           )}
 
-          {/* Agenda */}
           <h3 className="t-h3 mb-3">Program</h3>
           <ol className="space-y-2 mb-6">
             {detail.agenda.map((line, i) => (
@@ -185,7 +186,6 @@ function EventDetailModal({
             ))}
           </ol>
 
-          {/* Medbring */}
           <h3 className="t-h3 mb-3">Medbring</h3>
           <ul className="space-y-2 mb-6">
             {detail.medbringer.map((line, i) => (
@@ -196,18 +196,24 @@ function EventDetailModal({
             ))}
           </ul>
 
-          <p className="t-caption mb-6 p-3 rounded-[var(--r-md)] bg-[var(--accent-tint)] text-[var(--cr-navy)]">
+          <p className="t-caption p-3 rounded-[var(--r-md)] bg-[var(--accent-tint)] text-[var(--cr-navy)]">
             💰 {detail.faktura}
           </p>
+        </div>
 
-          <div className="flex gap-2 justify-end">
-            <button onClick={onClose} className="btn btn-secondary">Luk</button>
-            <button onClick={onToggleRegister} className={registered ? "btn btn-secondary" : "btn btn-primary"}>
+        {/* Sticky footer */}
+        <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
+          <span className="text-[11.5px] text-[var(--ink-3)]">
+            {event.tilmeldte + (registered ? 1 : 0)} / {event.pladser} pladser brugt
+          </span>
+          <div className="flex gap-2">
+            <button onClick={onClose} className="btn btn-secondary !py-1.5">Luk</button>
+            <button onClick={onToggleRegister} className={registered ? "btn btn-secondary !py-1.5" : "btn btn-primary !py-1.5"}>
               {registered ? "✓ Afmeld" : "Tilmeld mig"}
             </button>
           </div>
         </div>
-      </div>
+      </aside>
     </div>
   );
 }

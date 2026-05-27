@@ -727,16 +727,17 @@ function NewProjectSheet({ onClose, onCreate }: { onClose: () => void; onCreate:
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[2px] grid place-items-center p-6 animate-in" onClick={onClose}>
-      <div
-        className="bg-white rounded-[var(--r-xl)] max-w-[680px] w-full shadow-[var(--shadow-4)] flex flex-col max-h-[90vh] overflow-hidden"
+    <div className="fixed inset-0 z-50 animate-in" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+      <aside
+        className="absolute top-[48px] right-0 bottom-0 w-[720px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Opret nyt kundeprojekt"
-        style={{ animation: "slideUpFade 280ms cubic-bezier(0.22,1,0.36,1)" }}
+        style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
-        {/* Header */}
+        {/* Sticky header */}
         <div className="px-7 py-5 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
           <div>
             <div className="t-eyebrow !text-[10px]">Nyt projekt</div>
@@ -902,7 +903,7 @@ function NewProjectSheet({ onClose, onCreate }: { onClose: () => void; onCreate:
             </button>
           </div>
         </div>
-      </div>
+      </aside>
     </div>
   );
 }
