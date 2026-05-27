@@ -474,12 +474,12 @@ function ProjectDrawer({
     <div className="fixed inset-0 z-40 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[860px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[960px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
         {/* Drawer header */}
-        <div className="px-7 py-5 border-b border-[var(--line-2)] flex items-start gap-4">
+        <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start gap-4">
           <div className="size-14 rounded-2xl grid place-items-center text-[26px] shrink-0" style={{ background: "var(--canvas-2)" }}>
             {project.emoji}
           </div>
@@ -506,7 +506,7 @@ function ProjectDrawer({
         </div>
 
         {/* Status pipeline picker */}
-        <div className="px-7 py-3 border-b border-[var(--line-2)] flex items-center gap-1">
+        <div className="px-8 py-3 border-b border-[var(--line-2)] flex items-center gap-1">
           {STATUS_ORDER.map((s, i) => {
             const sel = project.status === s;
             const passed = STATUS_ORDER.indexOf(project.status) > i;
@@ -529,7 +529,7 @@ function ProjectDrawer({
           })}
         </div>
 
-        <div className="flex-1 overflow-y-auto px-7 py-5 space-y-6">
+        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
           {/* KPI row */}
           <section className="grid grid-cols-3 gap-3">
             <DrawerStat label="Enheder" value={project.enheder.toString()} />
@@ -688,7 +688,7 @@ function ProjectDrawer({
         </div>
 
         {/* Footer actions */}
-        <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
+        <div className="px-8 py-5 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
           <span className="text-[12px] text-[var(--ink-3)]">Projekt #{project.id.replace("pr-", "")}</span>
           <div className="flex gap-2">
             <button onClick={onAddAllToBasket} className="btn btn-secondary !py-1.5" data-tt={`Læg alle ${project.produktIds.length} produkter ×${project.enheder} i kurv`}>
@@ -794,7 +794,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
     <div className="fixed inset-0 z-50 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[720px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[860px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -802,7 +802,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
         style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
         {/* Sticky header */}
-        <div className="px-7 py-5 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
+        <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
           <div>
             <div className="t-eyebrow !text-[10px]">Nyt projekt</div>
             <h3 className="text-[22px] font-bold text-[var(--ink)] leading-tight mt-1.5">Opret et kundeprojekt</h3>
@@ -818,7 +818,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
         {/* Scrollable body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto min-h-0">
           {/* Quick-pick templates */}
-          <section className="px-7 pt-5">
+          <section className="px-8 pt-6">
             <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2.5">Start fra et eksempel</div>
             <div className="grid grid-cols-2 gap-2">
               {TEMPLATES.map((t) => (
@@ -847,7 +847,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
           <div className="h-px bg-[var(--line-2)] my-5 mx-7" />
 
           {/* Form fields */}
-          <section className="px-7 pb-5 space-y-4">
+          <section className="px-8 pb-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Field
                 label="Kunde"
@@ -951,7 +951,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
         </form>
 
         {/* Sticky footer */}
-        <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas-2)] flex items-center justify-between gap-3 shrink-0">
+        <div className="px-8 py-5 border-t border-[var(--line-2)] bg-[var(--canvas-2)] flex items-center justify-between gap-3 shrink-0">
           <span className="text-[12px] text-[var(--ink-3)]">
             {isValid ? <>Klar til at oprette — du kan ændre alt bagefter.</> : <>Udfyld kunde, kontakt, by og enheder for at fortsætte.</>}
           </span>

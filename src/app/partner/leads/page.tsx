@@ -104,12 +104,12 @@ export default function LeadsPage() {
         <div className="fixed inset-0 z-50 animate-in" onClick={() => setOpenLead(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <aside
-            className="absolute top-[48px] right-0 bottom-0 w-[720px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+            className="absolute top-[48px] right-0 bottom-0 w-[860px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
           >
             {/* Sticky header */}
-            <div className="px-7 py-5 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
+            <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
               <div className="min-w-0">
                 <div className="t-eyebrow !text-[10px]" style={{ color: STATUS_COLOR[openLead.status].ink }}>LEAD #{openLead.id.replace("l-", "")}</div>
                 <div className="text-[24px] font-bold text-[var(--ink)] mt-1.5 leading-tight">{openLead.kunde}</div>
@@ -123,7 +123,7 @@ export default function LeadsPage() {
             </div>
 
             {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto px-7 py-5 space-y-5 min-h-0">
+            <div className="flex-1 overflow-y-auto px-8 py-6 space-y-5 min-h-0">
               <Section label="Behov">{openLead.behov}</Section>
               <Section label="Beskrivelse">{openLead.beskrivelse}</Section>
 
@@ -221,7 +221,7 @@ function LeadFooter({
   }, [menuOpen]);
 
   return (
-    <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] shrink-0 flex items-center gap-2.5">
+    <div className="px-8 py-5 border-t border-[var(--line-2)] bg-[var(--canvas)] shrink-0 flex items-center gap-2.5">
       {/* Primary CTA — context-aware next step */}
       {next.href ? (
         <Link href={next.href} className="btn btn-primary flex-1 justify-center">

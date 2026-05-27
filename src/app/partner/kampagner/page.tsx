@@ -393,7 +393,7 @@ export default function KampagnerPage() {
 
           {/* panel */}
           <aside
-            className="absolute top-[48px] right-0 bottom-0 w-[420px] max-w-[95vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+            className="absolute top-[48px] right-0 bottom-0 w-[480px] max-w-[95vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
           >

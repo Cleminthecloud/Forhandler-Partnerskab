@@ -121,7 +121,7 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
     <div className="fixed inset-0 z-50 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[820px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[920px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
@@ -242,7 +242,7 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
         </div>
 
         {/* Footer actions — admin */}
-        <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
+        <div className="px-8 py-5 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
           <span className="text-[12px] text-[var(--ink-3)]">Event #{event.id}</span>
           <div className="flex gap-2">
             <button onClick={() => pushToast("Påmindelse sendt til alle tilmeldte")} className="btn btn-secondary !py-1.5">Send påmindelse</button>

@@ -267,11 +267,11 @@ function ThreadDrawer({
     <div className="fixed inset-0 z-50 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[820px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[920px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
-        <div className="px-6 py-5 border-b border-[var(--line-2)] flex items-start gap-3">
+        <div className="px-7 py-6 border-b border-[var(--line-2)] flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide" style={{ background: cc.bg, color: cc.ink }}>
@@ -290,7 +290,7 @@ function ThreadDrawer({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 bg-[var(--canvas-2)] space-y-4">
+        <div className="flex-1 overflow-y-auto px-7 py-6 bg-[var(--canvas-2)] space-y-5">
           <article className="bg-white rounded-[var(--r-lg)] p-5 border border-[var(--line-2)]">
             <div className="flex items-center gap-3 mb-3">
               <ForumAvatar navn={thread.forfatter} size={40} bg={ac} />
@@ -343,7 +343,7 @@ function ThreadDrawer({
           })}
         </div>
 
-        <div className="px-6 py-4 border-t border-[var(--line-2)] bg-white">
+        <div className="px-7 py-5 border-t border-[var(--line-2)] bg-white">
           <div className="flex gap-3">
             <ForumAvatar navn={CURRENT_PARTNER.ejer} size={36} bg={CURRENT_PARTNER.logoBg} />
             <div className="flex-1 flex gap-2">

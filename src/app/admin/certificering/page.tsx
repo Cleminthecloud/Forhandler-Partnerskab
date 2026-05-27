@@ -181,11 +181,11 @@ function CertDetailDrawer({
     <div className="fixed inset-0 z-40 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[920px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[1000px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-7 py-5 border-b border-[var(--line-2)] flex items-start gap-4">
+        <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start gap-4">
           <div className="size-14 rounded-2xl grid place-items-center shrink-0 text-[var(--cr-navy-deep)]" style={{ background: tema?.accentSoft ?? "var(--surface-pearl)" }}>
             <Icon name={cert.niveau === "Specialist" ? "shield" : "graduation-cap"} size={26} />
           </div>
@@ -204,7 +204,7 @@ function CertDetailDrawer({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-7 py-6 space-y-7">
+        <div className="flex-1 overflow-y-auto px-8 py-7 space-y-7">
           {/* Description */}
           <p className="t-body text-[var(--ink-2)] leading-[1.55]">{cert.beskrivelse}</p>
 
