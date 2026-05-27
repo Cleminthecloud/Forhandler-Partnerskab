@@ -3,7 +3,7 @@
 // Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
 // heavy Recharts components that can hang Next.js static page generation.
 export const dynamic = "force-dynamic";
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -126,7 +126,17 @@ const TEMPLATES: ProjectTemplate[] = [
   },
 ];
 
+/* Next 16 requires components using useSearchParams() to live inside a
+   Suspense boundary, otherwise static generation fails the build. */
 export default function ProjekterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-48px)]" />}>
+      <ProjekterPageInner />
+    </Suspense>
+  );
+}
+
+function ProjekterPageInner() {
   const { pushToast, addToBasket } = useApp();
   const searchParams = useSearchParams();
   const [projects, setProjects] = useState<Project[]>(() =>
