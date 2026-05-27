@@ -15,16 +15,16 @@
 
   /* ---------- 60% — Canvas (dominant) ---------- */
   --canvas:        #FFFFFF;
-  --canvas-2:      #F5F5F7;   /* parchment, section breaks */
-  --canvas-3:      #FAFAFC;   /* pearl, subtler still */
+  --canvas-2:      #F7F8FA;   /* parchment — airier, less gray */
+  --canvas-3:      #FBFBFD;   /* pearl, near-white */
 
   /* ---------- 30% — Structure & ink ---------- */
   --ink:           #1D1D1F;   /* primary text — 16.7:1 on canvas */
   --ink-2:         #515154;   /* secondary text — 7.4:1 on canvas */
   --ink-3:         #6E6E73;   /* tertiary / eyebrow — 5.4:1 on canvas (AA) */
   --ink-4:         #86868B;   /* labels, large text only */
-  --line:          #D2D2D7;   /* default hairline */
-  --line-2:        #E8E8ED;   /* lighter divider */
+  --line:          #E6E8EC;   /* default hairline — near-invisible, minimals-style */
+  --line-2:        #F0F1F4;   /* lighter divider */
 
   /* ---------- 10% — Accent (interactive ONLY) ----------
      Carl Ras Blå · Pantone 300 C · #1158A3 — verified Brand Guide v1.1 */
@@ -58,19 +58,19 @@
   --s-10: 128px;
 
   /* ---------- Radii ---------- */
-  --r-sm:  8px;
-  --r-md:  12px;
-  --r-lg:  16px;
-  --r-xl:  20px;
-  --r-2xl: 24px;
+  --r-sm:  10px;
+  --r-md:  14px;
+  --r-lg:  18px;
+  --r-xl:  22px;
+  --r-2xl: 28px;
   --r-pill: 9999px;
 
   /* ---------- Elevation (whisper-soft, Apple-style) ---------- */
   --shadow-0: none;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-2: 0 6px 20px rgba(0, 26, 51, 0.06);
-  --shadow-3: 0 14px 36px rgba(0, 26, 51, 0.10);
-  --shadow-4: 0 28px 64px rgba(0, 26, 51, 0.14);
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.03);
+  --shadow-2: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-3: 0 12px 32px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.04);
+  --shadow-4: 0 24px 56px rgba(15, 23, 42, 0.12), 0 8px 24px rgba(15, 23, 42, 0.06);
 
   /* ---------- Motion ---------- */
   --ease:      cubic-bezier(0.4, 0, 0.2, 1);
@@ -149,6 +149,7 @@ html, body {
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 15px;
+  font-weight: 400;             /* default body weight — softens the whole app */
   line-height: 1.5;
   letter-spacing: -0.006em;     /* Neo Sans needs slightly less negative tracking than Inter */
   -webkit-font-smoothing: antialiased;
@@ -305,12 +306,16 @@ html, body {
 }
 .link:hover { color: var(--accent-press); text-decoration: underline; text-underline-offset: 3px; }
 
-/* === Cards === */
+/* === Cards ===
+   Minimals-style: shadow-only elevation, no visible border by default. The
+   1px ring of --line-2 is so light it reads as "edge of a paper card" rather
+   than "compartment border", which removes most of the visual clutter. */
 .card {
   background: var(--canvas);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-2);
   border-radius: var(--r-lg);
   padding: var(--s-5);
+  box-shadow: var(--shadow-1);
   transition:
     transform var(--t-base) var(--ease),
     box-shadow var(--t-base) var(--ease),
@@ -319,19 +324,21 @@ html, body {
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-2);
-  border-color: var(--line-2);
+  border-color: var(--line);
 }
 .card-flat {
   background: var(--canvas-2);
   border-radius: var(--r-lg);
   padding: var(--s-5);
   border: none;
+  box-shadow: none;
 }
 .card-pearl {
   background: var(--canvas-3);
   border: 1px solid var(--line-2);
   border-radius: var(--r-lg);
   padding: var(--s-5);
+  box-shadow: var(--shadow-1);
 }
 .card-lg {
   padding: var(--s-6);
