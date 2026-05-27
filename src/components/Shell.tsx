@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { CommandPaletteTrigger } from "./CommandPalette";
+import { CarlRasPartnerLogoWide } from "./BrandLogos";
 
 const PERSONAS = [
   { href: "/partner", label: "Partner" },
@@ -27,13 +27,14 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
     >
       <div className={floating ? "px-2.5 h-10 flex items-center gap-2.5" : "mx-auto max-w-[1440px] px-6 h-[48px] flex items-center gap-6"}>
         {!floating && (
-          <Link href="/partner" className="flex items-center gap-2.5 shrink-0">
-            <span className="size-6 rounded-md overflow-hidden grid place-items-center bg-[var(--cr-blue)]">
-              <Image src="/carl-ras-logo.png" alt="" width={24} height={24} className="size-6 object-contain" />
-            </span>
-            <span className="flex flex-col leading-tight">
-              <span className="text-[12px] font-semibold tracking-tight">Carl Ras</span>
-              <span className="text-[9px] uppercase tracking-[0.16em] text-white/70 hidden sm:block">Forhandler&nbsp;Partnerskab</span>
+          <Link
+            href="/partner"
+            className="flex items-center gap-3 shrink-0 hover:opacity-90 transition-opacity"
+            aria-label="Carl Ras Partner — Forhandler Partnerskab"
+          >
+            <CarlRasPartnerLogoWide color="white" height={22} />
+            <span className="hidden md:inline-flex items-center gap-2 pl-3 border-l border-white/15 text-[10px] uppercase tracking-[0.16em] text-white/70">
+              Forhandler<br />Partnerskab
             </span>
           </Link>
         )}

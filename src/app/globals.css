@@ -467,10 +467,17 @@ textarea.field {
 [data-tt-pos="bottom"]::after  { top: calc(100% + 1px); bottom: auto; transform: translateX(-50%); border-color: transparent transparent #1D1D1F transparent; }
 [data-tt-pos="bottom"]:hover::before { transform: translateX(-50%) translateY(0); }
 
-/* === Animations === */
+/* === Animations ===
+   IMPORTANT: .animate-in must use opacity only — NOT transform.
+   A transform on a parent element creates a new containing block, which breaks
+   `position: fixed` for descendants (drawers, modals, popovers all anchor to
+   the transformed ancestor instead of the viewport). We learned this the hard
+   way: drawers were rendering as tall as their page wrapper instead of full
+   viewport because every page wrapper had `.animate-in` which kept a residual
+   `transform: translateY(0)` after the animation. Opacity-only avoids this. */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .animate-in { animation: fadeIn var(--t-slow) var(--ease-out) both; }
 
