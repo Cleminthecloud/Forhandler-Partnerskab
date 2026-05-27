@@ -3,12 +3,13 @@
 // Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
 // heavy Recharts components that can hang Next.js static page generation.
 export const dynamic = "force-dynamic";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useApp } from "@/components/AppState";
 import { CURRENT_PARTNER, Lead, LeadStatus, productsForBehov, CERTS_AVAILABLE, SPECIALISTS } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { PageHeader } from "@/components/PageHeader";
+import { Icon } from "@/components/Icon";
 
 const STATUSES: LeadStatus[] = ["Ny", "Kontaktet", "Vundet", "Tabt"];
 
@@ -154,32 +155,144 @@ export default function LeadsPage() {
               )}
             </div>
 
-            {/* Sticky footer */}
-            <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas-2)] shrink-0">
-              <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2.5">Opdatér status</div>
-              <div className="grid grid-cols-4 gap-2">
-                {STATUSES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => changeStatus(openLead.id, s)}
-                    className={"py-2 rounded-full text-[12.5px] font-semibold transition-colors border " +
-                      (openLead.status === s
-                        ? "text-white border-transparent"
-                        : "bg-white border-[var(--line)] text-[var(--ink-2)] hover:border-[var(--ink-3)]")}
-                    style={openLead.status === s ? { background: STATUS_COLOR[s].dot } : undefined}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-3 flex gap-2">
-                <a href={`tel:${openLead.telefon}`} className="btn btn-primary flex-1 justify-center !py-2">📞 Ring til kunden</a>
-                <a href={`mailto:${openLead.email}`} className="btn btn-secondary flex-1 justify-center !py-2">✉ Send email</a>
-              </div>
-            </div>
+            {/* Sticky footer — single primary CTA + quick contact + overflow */}
+            <LeadFooter lead={openLead} onChangeStatus={changeStatus} pushToast={pushToast} />
           </aside>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ─────────────────────────── Lead drawer footer ───────────────────────────
+   Minimal Apple-style: one primary CTA (context-aware "Næste skridt") + two
+   small icon buttons for quick contact + an overflow menu for everything else
+   (status change to any value, mark as lost, send tilbud, etc.).
+   ────────────────────────────────────────────────────────────────────────── */
+
+interface NextStep {
+  label: string;
+  /** When set, advances to this status. Otherwise nextHref takes over. */
+  status?: LeadStatus;
+  /** When set, navigates to this URL (e.g. project planner). */
+  href?: string;
+}
+
+function nextStepFor(lead: Lead): NextStep {
+  switch (lead.status) {
+    case "Ny":        return { label: "Marker som kontaktet", status: "Kontaktet" };
+    case "Kontaktet": return { label: "Marker som vundet",    status: "Vundet" };
+    case "Vundet":    return {
+      label: "Opret projekt",
+      href: `/partner/projekter?new=1&kunde=${encodeURIComponent(lead.kunde)}&kontakt=${encodeURIComponent(lead.email)}&by=${encodeURIComponent(lead.by)}`,
+    };
+    case "Tabt":      return { label: "Genåbn lead",          status: "Kontaktet" };
+  }
+}
+
+function LeadFooter({
+  lead,
+  onChangeStatus,
+  pushToast,
+}: {
+  lead: Lead;
+  onChangeStatus: (id: string, status: LeadStatus) => void;
+  pushToast: (text: string) => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const next = nextStepFor(lead);
+  const telHref = `tel:${lead.telefon.replace(/\s/g, "")}`;
+  const mailHref = `mailto:${lead.email}`;
+
+  // Close menu on outside click + ESC
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onDown(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setMenuOpen(false); }
+    document.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
+  return (
+    <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] shrink-0 flex items-center gap-2.5">
+      {/* Primary CTA — context-aware next step */}
+      {next.href ? (
+        <Link href={next.href} className="btn btn-primary flex-1 justify-center">
+          {next.label}
+        </Link>
+      ) : (
+        <button
+          onClick={() => onChangeStatus(lead.id, next.status!)}
+          className="btn btn-primary flex-1 justify-center"
+        >
+          {next.label}
+        </button>
+      )}
+
+      {/* Quick contact — icon only */}
+      <a href={telHref} className="btn btn-secondary !px-3" aria-label="Ring til kunden">
+        <Icon name="phone" size={16} />
+      </a>
+      <a href={mailHref} className="btn btn-secondary !px-3" aria-label="Send email">
+        <Icon name="mail" size={16} />
+      </a>
+
+      {/* Overflow — everything else */}
+      <div ref={menuRef} className="relative">
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          className="btn btn-secondary !px-3"
+          aria-label="Flere handlinger"
+          aria-expanded={menuOpen}
+        >
+          <Icon name="ellipsis" size={16} />
+        </button>
+        {menuOpen && (
+          <div
+            className="absolute bottom-full right-0 mb-2 w-[240px] bg-white rounded-[var(--r-md)] border border-[var(--line-2)] shadow-[var(--shadow-3)] py-1.5 z-10 animate-in"
+            role="menu"
+          >
+            <div className="px-3 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+              Skift status
+            </div>
+            {STATUSES.filter((s) => s !== lead.status).map((s) => (
+              <button
+                key={s}
+                role="menuitem"
+                onClick={() => { onChangeStatus(lead.id, s); setMenuOpen(false); }}
+                className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
+              >
+                <span className="size-2 rounded-full" style={{ background: STATUS_COLOR[s].dot }} />
+                Marker som {s.toLowerCase()}
+              </button>
+            ))}
+            <div className="h-px bg-[var(--line-2)] my-1.5" />
+            <button
+              role="menuitem"
+              onClick={() => { pushToast("Tilbuds-editor åbner …"); setMenuOpen(false); }}
+              className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
+            >
+              <Icon name="file-text" size={14} className="text-[var(--ink-3)]" />
+              Send tilbud
+            </button>
+            <button
+              role="menuitem"
+              onClick={() => { pushToast("Note tilføjet til lead"); setMenuOpen(false); }}
+              className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
+            >
+              <Icon name="plus" size={14} className="text-[var(--ink-3)]" />
+              Tilføj note
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

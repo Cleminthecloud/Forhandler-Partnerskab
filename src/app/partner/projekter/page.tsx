@@ -312,67 +312,91 @@ function ProjekterPageInner() {
             <button
               key={p.id}
               onClick={() => setOpenProject(p)}
-              className="card card-hover text-left flex flex-col gap-3"
+              className="card card-hover text-left flex flex-col"
             >
-              <div className="flex items-start gap-3">
-                <div className="size-11 rounded-xl grid place-items-center text-[22px] shrink-0" style={{ background: "var(--canvas-2)" }}>
-                  {p.emoji ?? TYPE_EMOJI[p.type]}
-                </div>
+              {/* TITLE — clear hierarchy. Emoji small + quiet. Status pill sits with title. */}
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="text-[15px] font-semibold text-[var(--ink)] leading-tight truncate">{p.kunde}</div>
-                  <div className="text-[12px] text-[var(--ink-3)] mt-0.5 truncate">{p.type} · {p.by} · {p.enheder} {p.enheder === 1 ? "enhed" : "enheder"}</div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-[15px] leading-none shrink-0 opacity-70">{p.emoji ?? TYPE_EMOJI[p.type]}</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+                      {p.type} · {p.by}
+                    </span>
+                  </div>
+                  <h3 className="text-[17px] font-semibold text-[var(--ink)] leading-tight truncate">{p.kunde}</h3>
+                  <div className="text-[12px] text-[var(--ink-3)] mt-1">
+                    {p.enheder} {p.enheder === 1 ? "enhed" : "enheder"} · {products.length} {products.length === 1 ? "produkt" : "produkter"}
+                  </div>
                 </div>
                 <span
-                  className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0"
+                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0"
                   style={{ background: style.bg, color: style.ink }}
                 >
                   {p.status}
                 </span>
               </div>
 
-              {/* Product micro-strip */}
-              <div className="flex items-center gap-1.5">
-                {products.slice(0, 4).map((prod) => (
-                  <div
-                    key={prod.id}
-                    className="size-8 rounded-md bg-[var(--canvas-2)] grid place-items-center overflow-hidden text-[14px] shrink-0"
-                    title={prod.brand + " " + prod.navn}
-                  >
-                    {prod.image ? (
-                      <Image src={prod.image} alt={prod.navn} width={32} height={32} className="object-cover size-8" />
-                    ) : (
-                      <span>{prod.emoji}</span>
-                    )}
-                  </div>
-                ))}
-                {products.length > 4 && (
-                  <span className="text-[12px] text-[var(--ink-3)] ml-1">+{products.length - 4}</span>
-                )}
-                <div className="ml-auto text-right">
-                  <div className="text-[13.5px] font-semibold text-[var(--ink)] tabular-nums">
+              {/* VALUE — large, single emphasis */}
+              <div className="mt-4 flex items-baseline justify-between gap-3">
+                <div>
+                  <div className="text-[22px] font-bold text-[var(--ink)] tabular-nums leading-none">
                     {(p.forventetKr / 1000).toLocaleString("da-DK", { maximumFractionDigits: 1 })}k kr
                   </div>
-                  <div className="text-[10.5px] text-[var(--ink-3)]">
+                  <div className="text-[11.5px] text-[var(--ink-3)] mt-1.5">
                     ~{Math.round(p.forventetKr * p.marginPct / 100).toLocaleString("da-DK")} kr i provision
                   </div>
                 </div>
+                {/* product mini-strip — quiet thumbnails right-aligned */}
+                {products.length > 0 && (
+                  <div className="flex items-center -space-x-1.5 shrink-0">
+                    {products.slice(0, 3).map((prod) => (
+                      <div
+                        key={prod.id}
+                        className="size-7 rounded-full bg-white ring-2 ring-[var(--canvas)] overflow-hidden grid place-items-center"
+                        title={prod.brand + " " + prod.navn}
+                      >
+                        {prod.image ? (
+                          <Image src={prod.image} alt={prod.navn} width={28} height={28} className="object-cover size-7" />
+                        ) : (
+                          <span className="text-[14px]">{prod.emoji}</span>
+                        )}
+                      </div>
+                    ))}
+                    {products.length > 3 && (
+                      <div className="size-7 rounded-full bg-[var(--canvas-2)] ring-2 ring-[var(--canvas)] grid place-items-center text-[10px] font-semibold text-[var(--ink-3)] tabular-nums">
+                        +{products.length - 3}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* Footer row: specialist + deadline */}
-              <div className="flex items-center gap-2.5 pt-2 border-t border-[var(--line-2)]">
-                {specialist ? (
-                  <div className="flex items-center gap-1.5">
-                    <div className="size-5 rounded-full grid place-items-center text-white font-semibold text-[9px] shrink-0" style={{ background: specialist.bg }}>
-                      {specialist.initialer}
+              {/* FOOTER — specialist chip OR muted hint, deadline pinned right. Always same height. */}
+              <div className="mt-4 pt-3 border-t border-[var(--line-2)] flex items-center justify-between gap-2 min-h-[28px]">
+                <div className="min-w-0 flex-1">
+                  {specialist ? (
+                    <div className="inline-flex items-center gap-2 min-w-0">
+                      {specialist.portrait ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={specialist.portrait}
+                          alt={specialist.navn}
+                          className="size-6 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="size-6 rounded-full grid place-items-center text-white font-semibold text-[10px] shrink-0" style={{ background: specialist.bg }}>
+                          {specialist.initialer}
+                        </div>
+                      )}
+                      <span className="text-[12.5px] text-[var(--ink-2)] truncate">{specialist.navn.split(" ")[0]} {specialist.navn.split(" ")[1]?.[0] ? specialist.navn.split(" ")[1][0] + "." : ""}</span>
                     </div>
-                    <span className="text-[12px] text-[var(--ink-2)] truncate">{specialist.navn.split(" ")[0]}</span>
-                  </div>
-                ) : (
-                  <span className="text-[12px] text-[var(--ink-3)] italic">Ingen specialist booket</span>
-                )}
+                  ) : (
+                    <span className="text-[12px] text-[var(--ink-4)]">Ingen specialist booket</span>
+                  )}
+                </div>
                 {p.deadline && (
-                  <span className="ml-auto text-[12px] text-[var(--ink-3)] tabular-nums">
-                    Frist {new Date(p.deadline).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}
+                  <span className="text-[12px] text-[var(--ink-3)] tabular-nums shrink-0">
+                    {new Date(p.deadline).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}
                   </span>
                 )}
               </div>
