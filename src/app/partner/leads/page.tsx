@@ -43,7 +43,7 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
+    <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in min-h-[calc(100vh-48px)]">
       <PageHeader
         eyebrow="Leads · Carl-ras.dk Partnerfinder"
         title="Leads"
@@ -91,22 +91,33 @@ export default function LeadsPage() {
         ))}
       </div>
 
-      {/* Side panel */}
+      {/* Side drawer — full-viewport height with sticky header + sticky footer.
+          Header carries the close button, body scrolls if content overflows,
+          footer (status pills + contact CTAs) is always visible at the bottom. */}
       {openLead && (
-        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setOpenLead(null)}>
+        <div className="fixed inset-0 z-50 animate-in" onClick={() => setOpenLead(null)}>
           <div className="absolute inset-0 bg-black/40" />
-          <div className="relative w-full max-w-[720px] bg-white h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b border-[var(--hairline)] flex items-center justify-between">
-              <div>
-                <div className="t-tagline" style={{ color: STATUS_COLOR[openLead.status].ink }}>LEAD #{openLead.id.replace("l-", "")}</div>
-                <div className="t-display mt-1 text-[var(--cr-navy-deep)]">{openLead.kunde}</div>
+          <aside
+            className="absolute top-[48px] right-0 bottom-0 w-[720px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
+          >
+            {/* Sticky header */}
+            <div className="px-7 py-5 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
+              <div className="min-w-0">
+                <div className="t-eyebrow !text-[10px]" style={{ color: STATUS_COLOR[openLead.status].ink }}>LEAD #{openLead.id.replace("l-", "")}</div>
+                <div className="text-[24px] font-bold text-[var(--ink)] mt-1.5 leading-tight">{openLead.kunde}</div>
+                <div className="mt-2"><StatusBadge status={openLead.status} /></div>
               </div>
-              <button onClick={() => setOpenLead(null)} className="size-9 rounded-full hover:bg-[var(--surface-pearl)] grid place-items-center text-[var(--ink-muted-80)]" aria-label="Luk">
-                <svg width="14" height="14" viewBox="0 0 14 14"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+              <button onClick={() => setOpenLead(null)} className="size-9 rounded-full hover:bg-[var(--canvas-2)] grid place-items-center text-[var(--ink-3)] hover:text-[var(--ink)] shrink-0" aria-label="Luk">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto px-7 py-5 space-y-5 min-h-0">
               <Section label="Behov">{openLead.behov}</Section>
               <Section label="Beskrivelse">{openLead.beskrivelse}</Section>
 
@@ -131,34 +142,37 @@ export default function LeadsPage() {
               </Section>
 
               <Section label="Modtaget">{new Date(openLead.dato).toLocaleDateString("da-DK", { day: "numeric", month: "long", year: "numeric" })}</Section>
+
+              {/* Won-project upsell */}
+              {openLead.status === "Vundet" && (
+                <WonProjectUpsell behov={openLead.behov} />
+              )}
             </div>
 
-            {/* Won-project upsell */}
-            {openLead.status === "Vundet" && (
-              <WonProjectUpsell behov={openLead.behov} />
-            )}
-
-            <div className="p-6 border-t border-[var(--hairline)] bg-[var(--surface-pearl)]">
-              <div className="text-[12px] font-semibold mb-3 text-[var(--ink-muted-80)]">Opdatér status</div>
-              <div className="grid grid-cols-2 gap-2">
+            {/* Sticky footer */}
+            <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas-2)] shrink-0">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2.5">Opdatér status</div>
+              <div className="grid grid-cols-4 gap-2">
                 {STATUSES.map((s) => (
                   <button
                     key={s}
                     onClick={() => changeStatus(openLead.id, s)}
-                    className={"pill text-[13px] " + (openLead.status === s ? "" : "pill-light")}
-                    style={openLead.status === s ? { background: STATUS_COLOR[s].dot, color: "white" } : undefined}
+                    className={"py-2 rounded-full text-[12.5px] font-semibold transition-colors border " +
+                      (openLead.status === s
+                        ? "text-white border-transparent"
+                        : "bg-white border-[var(--line)] text-[var(--ink-2)] hover:border-[var(--ink-3)]")}
+                    style={openLead.status === s ? { background: STATUS_COLOR[s].dot } : undefined}
                   >
                     {s}
                   </button>
                 ))}
               </div>
-
-              <div className="mt-4 flex gap-2">
-                <a href={`tel:${openLead.telefon}`} className="pill pill-primary flex-1 justify-center">📞 Ring til kunden</a>
-                <a href={`mailto:${openLead.email}`} className="pill pill-light flex-1 justify-center">✉ Send email</a>
+              <div className="mt-3 flex gap-2">
+                <a href={`tel:${openLead.telefon}`} className="btn btn-primary flex-1 justify-center !py-2">📞 Ring til kunden</a>
+                <a href={`mailto:${openLead.email}`} className="btn btn-secondary flex-1 justify-center !py-2">✉ Send email</a>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       )}
     </div>

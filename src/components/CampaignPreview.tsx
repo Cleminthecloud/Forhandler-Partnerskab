@@ -1,7 +1,7 @@
 "use client";
 import { Campaign, FormatKind, PartnerProfile } from "@/lib/data";
 import { Theme } from "@/lib/themes";
-import { CarlRasSikringLogo } from "./BrandLogos";
+import { CarlRasSikringLogo, CarlRasPartnerLogo } from "./BrandLogos";
 
 /* =====================================================================
    Real ad-layout renderer. HTML/CSS — not SVG. Each format is a piece
@@ -310,10 +310,8 @@ function Bilstreamer({ partner, image }: { campaign: Campaign; partner: PartnerP
             <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "1.1cqw", marginTop: "0.4cqw" }}>{partner.faggruppe} · {partner.by}</div>
             <div style={{ color: "white", fontSize: "1.5cqw", fontWeight: 600, marginTop: "0.8cqw" }}>{partner.telefon} · {partner.webadresse}</div>
           </div>
-          <div className="rounded text-center shrink-0" style={{ background: "#1158A3", padding: "1cqw 1.4cqw" }}>
-            <div style={{ fontSize: "0.7cqw", fontWeight: 700, letterSpacing: "0.08em", lineHeight: 1, color: "white" }}>CARL RAS</div>
-            <div style={{ fontSize: "1.1cqw", fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1.1, color: "white", marginTop: "0.2cqw" }}>PARTNER</div>
-            <div style={{ fontSize: "0.6cqw", opacity: 0.85, lineHeight: 1, marginTop: "0.2cqw", color: "white" }}>CERTIFICERET</div>
+          <div className="rounded shrink-0 grid place-items-center" style={{ background: "#1158A3", padding: "0.8cqw 1.4cqw", height: "6cqw" }}>
+            <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
           </div>
         </div>
       </div>
