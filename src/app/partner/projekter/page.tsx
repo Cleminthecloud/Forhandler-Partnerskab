@@ -14,6 +14,7 @@ import {
 import { useApp } from "@/components/AppState";
 import { PageHeader } from "@/components/PageHeader";
 import { ProjectPlanner } from "@/components/ProjectPlanner";
+import { BookVisitDialog } from "@/components/BookVisitDialog";
 
 const STATUS_ORDER: ProjectStatus[] = ["Konsultation", "Tilbud", "Aftalt", "I gang", "Færdig"];
 
@@ -432,11 +433,6 @@ function ProjectDrawer({
 }) {
   const { addToBasket, pushToast } = useApp();
   const [showBookForm, setShowBookForm] = useState(false);
-  const [bookSpecialistId, setBookSpecialistId] = useState(SPECIALISTS[0].id);
-  const [bookDato, setBookDato] = useState(() => {
-    const d = new Date(); d.setDate(d.getDate() + 7);
-    return d.toISOString().slice(0, 10);
-  });
 
   const products = project.produktIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean) as Product[];
   const specialist = project.specialistId ? SPECIALISTS.find((s) => s.id === project.specialistId) : null;
@@ -614,41 +610,31 @@ function ProjectDrawer({
               </button>
             )}
 
-            {showBookForm && (
-              <div className="mt-3 p-4 rounded-[var(--r-md)] bg-[var(--canvas-2)] space-y-3">
-                <div>
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Specialist</label>
-                  <select
-                    value={bookSpecialistId}
-                    onChange={(e) => setBookSpecialistId(e.target.value)}
-                    className="field !bg-white !text-[13px]"
-                  >
-                    {SPECIALISTS.map((s) => (
-                      <option key={s.id} value={s.id}>{s.navn} · {s.rolle} ({s.bu})</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Dato</label>
-                  <input
-                    type="date"
-                    value={bookDato}
-                    onChange={(e) => setBookDato(e.target.value)}
-                    className="field !bg-white !text-[13px]"
-                  />
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <button onClick={() => setShowBookForm(false)} className="btn btn-secondary !py-1.5">Annullér</button>
-                  <button
-                    onClick={() => { onBookSpecialist(bookSpecialistId, bookDato); setShowBookForm(false); }}
-                    className="btn btn-primary !py-1.5"
-                  >
-                    Book
-                  </button>
-                </div>
-              </div>
-            )}
           </section>
+
+          <BookVisitDialog
+            open={showBookForm}
+            onClose={() => setShowBookForm(false)}
+            context={{
+              lane: "specialist",
+              defaultReason: "projekt",
+              customerName: `${project.kunde} · ${project.type}, ${project.by}`,
+              defaultLocation: `Hos kunden i ${project.by}`,
+              preferredBu:
+                project.type === "Sommerhus" || project.type === "Bolig"
+                  ? "Sikring"
+                  : project.type === "Erhverv"
+                    ? "Sikring"
+                    : "Byg",
+              defaultDescription: `Projekt: ${project.kunde} (${project.enheder} enheder). Vi har brug for en specialist på lokationen til ${project.status === "Konsultation" ? "opmåling og rådgivning" : project.status === "Tilbud" ? "at validere pakketilbuddet" : "installation og spørgsmål undervejs"}.`,
+              subtitle: `Vi sender den rette ${project.type === "Sommerhus" ? "Sikring" : ""}-tekniker ud — typisk inden for 3 hverdage.`,
+            }}
+            onConfirm={(d) => {
+              const dateOnly = d.when ? d.when.slice(0, 10) : new Date(Date.now() + 7 * 86400_000).toISOString().slice(0, 10);
+              onBookSpecialist(d.specialistId ?? SPECIALISTS[0].id, dateOnly);
+              setShowBookForm(false);
+            }}
+          />
 
           {/* Activity log */}
           <section>

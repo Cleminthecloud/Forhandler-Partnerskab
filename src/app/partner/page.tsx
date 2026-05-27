@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
+import { BookVisitDialog } from "@/components/BookVisitDialog";
 import {
   CURRENT_PARTNER,
   CAMPAIGNS,
@@ -25,8 +26,9 @@ type DateRange = "uge" | "maaned" | "kvartal";
 
 export default function PartnerDashboard() {
   const { theme } = useTheme();
-  const { leads } = useApp();
+  const { leads, pushToast } = useApp();
   const [range, setRange] = useState<DateRange>("uge");
+  const [showKonsulentBook, setShowKonsulentBook] = useState(false);
 
   const myLeads = leads.filter((l) => l.partnerId === CURRENT_PARTNER.id);
   const newLeads = myLeads.filter((l) => l.status === "Ny");
@@ -338,6 +340,73 @@ export default function PartnerDashboard() {
         </div>
       </section>
 
+      {/* ─── DIN CARL RAS KONSULENT (CRM hero card) ─── */}
+      <section className="mb-4">
+        <div
+          className="rounded-[var(--r-xl)] overflow-hidden border flex flex-wrap items-center gap-6 p-6 lg:p-7"
+          style={{ borderColor: "#0C447C20", background: "linear-gradient(135deg, #F0F6FC 0%, #FFFFFF 55%)" }}
+        >
+          {/* Avatar + identity */}
+          <div className="flex items-center gap-4 flex-1 min-w-[280px]">
+            <div className="size-16 rounded-full grid place-items-center text-white font-bold text-[20px] shrink-0 shadow-[var(--shadow-1)]" style={{ background: "#0C447C" }}>
+              DH
+            </div>
+            <div className="min-w-0">
+              <div className="t-eyebrow !text-[10px]" style={{ color: "#0C447C" }}>Din Carl Ras-konsulent</div>
+              <div className="text-[18px] font-semibold text-[var(--ink)] mt-0.5 leading-tight">Dennis Holmberg</div>
+              <div className="text-[12.5px] text-[var(--ink-3)] mt-0.5">Salgskonsulent · {CURRENT_PARTNER.region} · {CURRENT_PARTNER.faggruppe}</div>
+              <div className="flex items-center gap-3 mt-2">
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#324A14]">
+                  <span className="size-1.5 rounded-full" style={{ background: "#5B7F2C" }} /> Online · svar inden 2 t
+                </span>
+                <span className="text-[11px] text-[var(--ink-3)]">Sidste besøg 19. apr</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex gap-4 text-center shrink-0 px-2">
+            <div>
+              <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Besøg i år</div>
+              <div className="text-[20px] font-semibold text-[var(--ink)] mt-1 tabular-nums">4</div>
+            </div>
+            <div className="w-px bg-[var(--line-2)]" />
+            <div>
+              <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Næste besøg</div>
+              <div className="text-[14px] font-semibold text-[var(--ink)] mt-1 tabular-nums">3. jun</div>
+            </div>
+            <div className="w-px bg-[var(--line-2)]" />
+            <div>
+              <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Relation</div>
+              <div className="text-[14px] font-semibold mt-1" style={{ color: "#2D4A0F" }}>Stærk · 8.4</div>
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <button
+              onClick={() => setShowKonsulentBook(true)}
+              className="btn btn-primary"
+            >
+              📅 Book besøg
+            </button>
+            <button
+              onClick={() => pushToast("Beskedseditor åbnes…")}
+              className="btn btn-secondary"
+            >
+              Skriv til Dennis
+            </button>
+            <a
+              href="tel:+4570260111"
+              className="btn btn-secondary"
+              aria-label="Ring til Dennis"
+            >
+              📞
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ─── ACTIVITY + CONTENT ROW ─── */}
       <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr]">
         {/* Activity feed */}
@@ -412,6 +481,26 @@ export default function PartnerDashboard() {
           </Link>
         </div>
       </section>
+
+      {/* Booking dialog — konsulent lane */}
+      <BookVisitDialog
+        open={showKonsulentBook}
+        onClose={() => setShowKonsulentBook(false)}
+        context={{
+          lane: "konsulent",
+          subtitle: "Dennis Holmberg ringer dig op og bekræfter inden for 2 timer i åbningstid.",
+          defaultLocation: `${CURRENT_PARTNER.firma} · ${CURRENT_PARTNER.postnr} ${CURRENT_PARTNER.by}`,
+        }}
+        onConfirm={(d) => {
+          setShowKonsulentBook(false);
+          pushToast(
+            d.akut
+              ? `📞 Akut-anmodning sendt — Dennis ringer inden for 30 min.`
+              : `📅 Besøg booket med Dennis ${d.when ? "· " + new Date(d.when).toLocaleDateString("da-DK", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}`,
+            "success"
+          );
+        }}
+      />
     </div>
   );
 }
