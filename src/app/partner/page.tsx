@@ -421,34 +421,48 @@ export default function PartnerDashboard() {
             Få faglig sparring <ArrowRight />
           </Link>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 auto-rows-fr">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {PRODUCTS.map((p) => (
             <a
               key={p.id}
               href={p.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="card card-hover !p-0 overflow-hidden flex flex-col group h-full"
+              className="card card-hover !p-0 overflow-hidden flex flex-col group"
+              style={{ height: 348 }}
             >
-              <div className="relative aspect-square bg-white border-b border-[var(--line-2)] grid place-items-center p-3 shrink-0">
+              {/* Image — fixed 180px height, cover-fill so all products look uniform */}
+              <div
+                className="relative bg-white border-b border-[var(--line-2)] shrink-0 overflow-hidden"
+                style={{ height: 180 }}
+              >
                 {p.image ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={p.image} alt={p.navn} className="size-full object-contain group-hover:scale-[1.03] transition-transform duration-300" />
+                  <img
+                    src={p.image}
+                    alt={p.navn}
+                    className="size-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-300"
+                  />
                 ) : (
-                  <span className="text-5xl opacity-30">{p.emoji}</span>
+                  <span className="absolute inset-0 grid place-items-center text-5xl opacity-30">{p.emoji}</span>
                 )}
                 {p.badge && <ProductBadgePill badge={p.badge} />}
               </div>
-              <div className="p-3.5 flex flex-col flex-1 min-h-0">
+
+              {/* Body — fixed 168px, slots locked so every card lines up */}
+              <div className="px-3.5 pt-3 pb-3.5 flex flex-col" style={{ height: 168 }}>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] leading-none">{p.brand}</div>
-                <div className="text-[13px] font-semibold text-[var(--ink)] line-clamp-2 mt-1.5 leading-[1.35] h-[36px]">{p.navn.split("·")[0].trim()}</div>
-                {/* Pris block pinned to bottom of card body so all cards align */}
-                <div className="mt-auto pt-3">
-                  <div className="flex items-baseline gap-2 h-[20px]">
+                <div className="text-[13px] font-semibold text-[var(--ink)] line-clamp-2 mt-1.5 leading-[1.35]" style={{ height: 36 }}>
+                  {p.navn.split("·")[0].trim()}
+                </div>
+
+                {/* Push price + margin to bottom — guarantees price baseline alignment */}
+                <div className="mt-auto">
+                  <div className="flex items-baseline gap-2" style={{ height: 20 }}>
                     <span className="text-[14px] font-semibold text-[var(--ink)] tabular-nums leading-none">{p.pris}</span>
                     {p.førpris && <span className="text-[11px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.førpris}</span>}
                   </div>
-                  <div className="h-[15px] mt-1.5 flex items-center">
+                  <div className="flex items-center mt-1.5" style={{ height: 14 }}>
                     {p.margin ? (
                       <div className="text-[10.5px] text-[var(--ink-3)] inline-flex items-center gap-1.5 leading-none">
                         <span className="size-1 rounded-full" style={{ background: "var(--accent)" }} />
