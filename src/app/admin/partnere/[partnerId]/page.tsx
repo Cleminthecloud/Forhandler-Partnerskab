@@ -5,7 +5,7 @@
 export const dynamic = "force-dynamic";
 import { use, useState } from "react";
 import Link from "next/link";
-import { PARTNERS, PRODUCTS, salesFor, CURRENT_PARTNER } from "@/lib/data";
+import { PARTNERS, PRODUCTS, salesFor, CURRENT_PARTNER, CARL_RAS_KONSULENT } from "@/lib/data";
 import { useApp } from "@/components/AppState";
 import { InteractiveArea, InteractivePie, MiniArea } from "@/components/ChartsInteractive";
 import { Icon } from "@/components/Icon";
@@ -162,15 +162,15 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <button onClick={() => pushToast("Skift konsulent kræver godkendelse fra teamleder")} className="link text-[12px]">Skift →</button>
             </div>
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="size-12 rounded-full grid place-items-center text-white font-bold text-[15px] shrink-0"
-                style={{ background: "#0C447C" }}
-              >
-                DH
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={CARL_RAS_KONSULENT.portrait}
+                alt={CARL_RAS_KONSULENT.navn}
+                className="size-12 rounded-full object-cover shrink-0"
+              />
               <div className="min-w-0 flex-1">
-                <div className="text-[14px] font-semibold text-[var(--ink)]">Dennis Holmberg</div>
-                <div className="text-[12px] text-[var(--ink-3)]">Salgskonsulent · {partner.region}</div>
+                <div className="text-[14px] font-semibold text-[var(--ink)]">{CARL_RAS_KONSULENT.navn}</div>
+                <div className="text-[12px] text-[var(--ink-3)]">{CARL_RAS_KONSULENT.rolle} · {partner.region}</div>
               </div>
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#EAF1DC", color: "#324A14" }}>
                 <span className="size-1.5 rounded-full" style={{ background: "#5B7F2C" }} /> Aktiv

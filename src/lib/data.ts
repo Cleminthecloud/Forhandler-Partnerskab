@@ -408,6 +408,50 @@ export const SPECIALISTS: Specialist[] = [
   { id: "s-henrik",    navn: "Henrik Birk",     rolle: "Specialist",         bu: "Engros Beslag",      initialer: "HB", bg: "#A88A6E", online: true,  responstid: "≈ 20 min",  portrait: UNSPLASH("1599566150163-29194dcaad36", 400) },
 ];
 
+/* =====================================================================
+   Carl Ras Salgskonsulent — the relationship person each partner has
+   assigned. Distinct from product specialists. Single canonical record
+   used by /partner (konsulent hero card) and /admin/partnere/[id]
+   (tilknyttet konsulent rail).
+   ===================================================================== */
+export interface Konsulent {
+  navn: string;
+  rolle: string;
+  region: Region;
+  bu: string;
+  initialer: string;
+  bg: string;
+  portrait: string;
+  telefon: string;
+  email: string;
+  besogIaar: number;
+  besogMaal: number;
+  sidsteBesog: string;
+  naesteBesog: string;
+  relation: string;
+  online: boolean;
+  responstid: string;
+}
+
+export const CARL_RAS_KONSULENT: Konsulent = {
+  navn: "Dennis Holmberg",
+  rolle: "Salgskonsulent",
+  region: "Nordsjælland",
+  bu: "Sikring · Byg",
+  initialer: "DH",
+  bg: "#0C447C",
+  portrait: UNSPLASH("1531427186611-ecfd6d936c79", 400),
+  telefon: "+45 70 26 01 11",
+  email: "dennis@carl-ras.dk",
+  besogIaar: 4,
+  besogMaal: 6,
+  sidsteBesog: "19. apr 2026",
+  naesteBesog: "3. jun 2026",
+  relation: "Stærk · 8.4",
+  online: true,
+  responstid: "svar inden 2 t",
+};
+
 export interface ChatMessage { from: "partner" | "specialist"; text: string; tid: string; }
 export interface ChatThread { specialistId: string; messages: ChatMessage[]; }
 

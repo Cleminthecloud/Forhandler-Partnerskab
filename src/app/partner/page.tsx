@@ -20,6 +20,7 @@ import {
   FORUM_THREADS,
   PARTNER_PERFORMANCE,
   PRODUCTS,
+  CARL_RAS_KONSULENT,
   type ProductBadge,
 } from "@/lib/data";
 import { Radial, BarMini } from "@/components/Charts";
@@ -351,18 +352,21 @@ export default function PartnerDashboard() {
         >
           {/* Avatar + identity */}
           <div className="flex items-center gap-4 flex-1 min-w-[280px]">
-            <div className="size-16 rounded-full grid place-items-center text-white font-bold text-[20px] shrink-0 shadow-[var(--shadow-1)]" style={{ background: "#0C447C" }}>
-              DH
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={CARL_RAS_KONSULENT.portrait}
+              alt={CARL_RAS_KONSULENT.navn}
+              className="size-16 rounded-full object-cover shrink-0 shadow-[var(--shadow-1)]"
+            />
             <div className="min-w-0">
               <div className="t-eyebrow !text-[10px]" style={{ color: "#0C447C" }}>Din Carl Ras-konsulent</div>
-              <div className="text-[18px] font-semibold text-[var(--ink)] mt-0.5 leading-tight">Dennis Holmberg</div>
-              <div className="text-[12.5px] text-[var(--ink-3)] mt-0.5">Salgskonsulent · {CURRENT_PARTNER.region} · {CURRENT_PARTNER.faggruppe}</div>
+              <div className="text-[18px] font-semibold text-[var(--ink)] mt-0.5 leading-tight">{CARL_RAS_KONSULENT.navn}</div>
+              <div className="text-[12.5px] text-[var(--ink-3)] mt-0.5">{CARL_RAS_KONSULENT.rolle} · {CURRENT_PARTNER.region} · {CURRENT_PARTNER.faggruppe}</div>
               <div className="flex items-center gap-3 mt-2">
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#324A14]">
-                  <span className="size-1.5 rounded-full" style={{ background: "#5B7F2C" }} /> Online · svar inden 2 t
+                  <span className="size-1.5 rounded-full" style={{ background: "#5B7F2C" }} /> Online · {CARL_RAS_KONSULENT.responstid}
                 </span>
-                <span className="text-[11px] text-[var(--ink-3)]">Sidste besøg 19. apr</span>
+                <span className="text-[11px] text-[var(--ink-3)]">Sidste besøg {CARL_RAS_KONSULENT.sidsteBesog.replace(/ 2026$/, "")}</span>
               </div>
             </div>
           </div>
@@ -400,9 +404,9 @@ export default function PartnerDashboard() {
               <Icon name="mail" size={14} /> Skriv til Dennis
             </button>
             <a
-              href="tel:+4570260111"
+              href={`tel:${CARL_RAS_KONSULENT.telefon.replace(/\s/g, "")}`}
               className="btn btn-secondary inline-flex items-center justify-center !px-3"
-              aria-label="Ring til Dennis"
+              aria-label={`Ring til ${CARL_RAS_KONSULENT.navn.split(" ")[0]}`}
             >
               <Icon name="phone" size={14} />
             </a>
