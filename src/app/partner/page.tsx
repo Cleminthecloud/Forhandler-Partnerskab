@@ -429,11 +429,11 @@ export default function PartnerDashboard() {
               target="_blank"
               rel="noopener noreferrer"
               className="card card-hover !p-0 overflow-hidden flex flex-col group"
-              style={{ height: 348 }}
+              style={{ height: 360 }}
             >
-              {/* Image — fixed 180px height, cover-fill so all products look uniform */}
+              {/* Image — fixed 180px height, contain so products stay whole, padded for breathing room */}
               <div
-                className="relative bg-white border-b border-[var(--line-2)] shrink-0 overflow-hidden"
+                className="relative bg-white border-b border-[var(--line-2)] shrink-0 grid place-items-center p-4"
                 style={{ height: 180 }}
               >
                 {p.image ? (
@@ -441,18 +441,18 @@ export default function PartnerDashboard() {
                   <img
                     src={p.image}
                     alt={p.navn}
-                    className="size-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-300"
+                    className="max-w-full max-h-full object-contain group-hover:scale-[1.04] transition-transform duration-300"
                   />
                 ) : (
-                  <span className="absolute inset-0 grid place-items-center text-5xl opacity-30">{p.emoji}</span>
+                  <span className="text-5xl opacity-30">{p.emoji}</span>
                 )}
                 {p.badge && <ProductBadgePill badge={p.badge} />}
               </div>
 
-              {/* Body — fixed 168px, slots locked so every card lines up */}
-              <div className="px-3.5 pt-3 pb-3.5 flex flex-col" style={{ height: 168 }}>
+              {/* Body — fixed 180px, slots locked so every card lines up */}
+              <div className="px-3.5 pt-3 pb-3.5 flex flex-col" style={{ height: 180 }}>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)] leading-none">{p.brand}</div>
-                <div className="text-[13px] font-semibold text-[var(--ink)] line-clamp-2 mt-1.5 leading-[1.35]" style={{ height: 36 }}>
+                <div className="text-[15px] font-semibold text-[var(--ink)] line-clamp-2 mt-2 leading-[1.3] tracking-[-0.003em]" style={{ height: 40 }}>
                   {p.navn.split("·")[0].trim()}
                 </div>
 
