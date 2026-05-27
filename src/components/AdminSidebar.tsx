@@ -3,14 +3,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebarCollapsed, CollapseToggle } from "./SidebarToggle";
 
+// Icons match labels: kampagner = megaphone, certificering = medal+ribbon,
+// indhold = layered docs, beskeder = chat bubble, data = bar chart.
 const NAV = [
   { href: "/admin",                  label: "Oversigt",       icon: "M3 12l9-9 9 9M5 10v10h14V10" },
   { href: "/admin/partnere",         label: "Partnere",       icon: "M3 7a4 4 0 118 0M3 21h14M5 21v-4a4 4 0 014-4h0a4 4 0 014 4v4" },
   { href: "/admin/kalender",         label: "Kalender",       icon: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" },
-  { href: "/admin/certificering",    label: "Certificering",  icon: "M12 2l3 6 6 1-4 4 1 7-6-3-6 3 1-7-4-4 6-1z" },
-  { href: "/admin/kampagner",        label: "Kampagner",      icon: "M4 5h16v4H4zM4 13h10v6H4zM16 13h4v6h-4z" },
-  { href: "/admin/indhold",          label: "Indhold",        icon: "M4 5h16v14H4zM4 9h16M8 5v14" },
-  { href: "/admin/beskeder",         label: "Beskeder",       icon: "M3 5h18v12H7l-4 4z" },
+  { href: "/admin/certificering",    label: "Certificering",  icon: "M12 3a6 6 0 110 12 6 6 0 010-12z M8 14l-2 7 6-3 6 3-2-7" },
+  { href: "/admin/kampagner",        label: "Kampagner",      icon: "M3 10v4l13 5V5L3 10z M18 9a4 4 0 010 6" },
+  { href: "/admin/indhold",          label: "Indhold",        icon: "M7 4h11v14H7z M4 7v13h11" },
+  { href: "/admin/beskeder",         label: "Beskeder",       icon: "M21 11.5c0 4.7-4 8.5-9 8.5-1.5 0-2.9-.3-4.1-.9L3 20l1.5-4.4C3.5 14 3 12.8 3 11.5 3 6.8 7 3 12 3s9 3.8 9 8.5z" },
   { href: "/admin/data",             label: "Data & rapport", icon: "M3 21v-7m6 7V10m6 11V6m6 15v-9" },
 ];
 

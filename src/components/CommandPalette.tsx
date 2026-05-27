@@ -24,26 +24,26 @@ interface CmdItem {
 
 const PAGES: CmdItem[] = [
   { id: "p-partner",         title: "Oversigt",            subtitle: "Partner dashboard",          category: "Side",        href: "/partner",               icon: "M3 12l9-9 9 9M5 10v10h14V10" },
-  { id: "p-kampagner",       title: "Kampagner",           subtitle: "Marketing-værktøjskasse",    category: "Side",        href: "/partner/kampagner",     icon: "M4 5h16v4H4zM4 13h10v6H4zM16 13h4v6h-4z" },
+  { id: "p-kampagner",       title: "Kampagner",           subtitle: "Marketing-værktøjskasse",    category: "Side",        href: "/partner/kampagner",     icon: "M3 10v4l13 5V5L3 10z M18 9a4 4 0 010 6" },
   { id: "p-leads",           title: "Leads",               subtitle: "Carl Ras Partnerfinder",     category: "Side",        href: "/partner/leads",         icon: "M3 8l9 6 9-6M3 8v10h18V8M3 8l9-5 9 5" },
   { id: "p-events",          title: "Events",              subtitle: "Faglige Fredage & møder",    category: "Side",        href: "/partner/events",        icon: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" },
-  { id: "p-cert",            title: "Certificering",       subtitle: "Mine certificeringer",       category: "Side",        href: "/partner/certificering", icon: "M12 2l3 6 6 1-4 4 1 7-6-3-6 3 1-7-4-4 6-1z" },
-  { id: "p-spec",            title: "Tal med Carl Ras",    subtitle: "Specialist-chat",            category: "Side",        href: "/partner/specialister",  icon: "M21 12a9 9 0 11-3-6.7L21 4v5h-5" },
-  { id: "p-forum",           title: "Forum",               subtitle: "Peer-netværk",               category: "Side",        href: "/partner/forum",         icon: "M21 11a8 8 0 11-3-6.2L21 3v6h-6M3 21l3-3" },
-  { id: "p-nyheder",         title: "Nyheder",             subtitle: "Carl Ras blog",              category: "Side",        href: "/partner/nyheder",       icon: "M4 5h16v14H4zM4 9h16M8 5v14" },
+  { id: "p-cert",            title: "Certificering",       subtitle: "Mine certificeringer",       category: "Side",        href: "/partner/certificering", icon: "M12 3a6 6 0 110 12 6 6 0 010-12z M8 14l-2 7 6-3 6 3-2-7" },
+  { id: "p-spec",            title: "Tal med Carl Ras",    subtitle: "Specialist-chat",            category: "Side",        href: "/partner/specialister",  icon: "M21 11.5c0 4.7-4 8.5-9 8.5-1.5 0-2.9-.3-4.1-.9L3 20l1.5-4.4C3.5 14 3 12.8 3 11.5 3 6.8 7 3 12 3s9 3.8 9 8.5z" },
+  { id: "p-forum",           title: "Forum",               subtitle: "Peer-netværk",               category: "Side",        href: "/partner/forum",         icon: "M16 11a3 3 0 100-6 3 3 0 000 6z M8 11a3 3 0 100-6 3 3 0 000 6z M3 19c0-3 2-5 5-5s5 2 5 5 M11 19c0-3 2-5 5-5s5 2 5 5" },
+  { id: "p-nyheder",         title: "Nyheder",             subtitle: "Carl Ras blog",              category: "Side",        href: "/partner/nyheder",       icon: "M4 5h13v14H4z M17 9h3v10H4 M7 9h7 M7 13h7 M7 17h4" },
 
   { id: "a-overview",        title: "Oversigt",            subtitle: "Drift & vækst",              category: "Carl Ras HQ", href: "/admin",                 icon: "M3 12l9-9 9 9M5 10v10h14V10" },
   { id: "a-partnere",        title: "Partnere",            subtitle: "Alle 47 partnere",           category: "Carl Ras HQ", href: "/admin/partnere",        icon: "M3 7a4 4 0 118 0M3 21h14M5 21v-4a4 4 0 014-4h0a4 4 0 014 4v4" },
   { id: "a-data",            title: "Data & rapport",      subtitle: "Charts og rapporter",        category: "Carl Ras HQ", href: "/admin/data",            icon: "M3 21v-7m6 7V10m6 11V6m6 15v-9" },
-  { id: "a-kampagner",       title: "Kampagner",           subtitle: "Publicér til partnere",      category: "Carl Ras HQ", href: "/admin/kampagner",       icon: "M4 5h16v4H4zM4 13h10v6H4zM16 13h4v6h-4z" },
-  { id: "a-beskeder",        title: "Beskeder",            subtitle: "Targeted messaging",         category: "Carl Ras HQ", href: "/admin/beskeder",        icon: "M3 5h18v12H7l-4 4z" },
+  { id: "a-kampagner",       title: "Kampagner",           subtitle: "Publicér til partnere",      category: "Carl Ras HQ", href: "/admin/kampagner",       icon: "M3 10v4l13 5V5L3 10z M18 9a4 4 0 010 6" },
+  { id: "a-beskeder",        title: "Beskeder",            subtitle: "Targeted messaging",         category: "Carl Ras HQ", href: "/admin/beskeder",        icon: "M21 11.5c0 4.7-4 8.5-9 8.5-1.5 0-2.9-.3-4.1-.9L3 20l1.5-4.4C3.5 14 3 12.8 3 11.5 3 6.8 7 3 12 3s9 3.8 9 8.5z" },
 
   { id: "f-find",            title: "Find en partner",     subtitle: "Customer-facing finder",     category: "Side",        href: "/find",                  icon: "M21 21l-4.3-4.3M11 18a7 7 0 110-14 7 7 0 010 14z" },
 ];
 
 const ICONS = {
   partner:  "M3 7a4 4 0 118 0M3 21h14M5 21v-4a4 4 0 014-4h0a4 4 0 014 4v4",
-  campaign: "M4 5h16v4H4zM4 13h10v6H4zM16 13h4v6h-4z",
+  campaign: "M3 10v4l13 5V5L3 10z M18 9a4 4 0 010 6",   // megaphone
   event:    "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
 } as const;
 

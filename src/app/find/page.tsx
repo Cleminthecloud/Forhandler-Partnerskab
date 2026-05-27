@@ -54,7 +54,7 @@ export default function FindPartnerPage() {
     if (sort === "rating") r.sort((a, b) => b.rating - a.rating);
     if (sort === "sager")  r.sort((a, b) => b.antalSager - a.antalSager);
     return r;
-  }, [fag, region, postnr, tema, sort]);
+  }, [fag, region, postnr, sort]);
 
   function toggleFav(id: string) {
     setFavorites((prev) => {

@@ -144,14 +144,18 @@ export function Donut({ segments, size = 140, thickness = 18 }: { segments: Donu
   const cx = size / 2;
   const cy = size / 2;
   const c = 2 * Math.PI * r;
-  let acc = 0;
+  // Pre-compute the cumulative offset for each segment (no in-render mutation)
+  const cumValues = segments.reduce<number[]>((arr, seg, i) => {
+    arr.push((i === 0 ? 0 : arr[i - 1]) + seg.value);
+    return arr;
+  }, []);
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block -rotate-90">
       <circle cx={cx} cy={cy} r={r} stroke="var(--line-2)" strokeWidth={thickness} fill="none" />
       {segments.map((seg, i) => {
         const len = (seg.value / total) * c;
-        const off = -((acc / total) * c);
-        acc += seg.value;
+        const priorTotal = i === 0 ? 0 : cumValues[i - 1];
+        const off = -((priorTotal / total) * c);
         return (
           <circle
             key={i}

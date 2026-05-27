@@ -5,6 +5,7 @@
    Gradient area fills, hover crosshair, custom tooltips.
    ============================================================ */
 
+import { useId } from "react";
 import {
   AreaChart as RAreaChart,
   Area,
@@ -34,7 +35,7 @@ interface InteractiveAreaProps {
 
 /** Apple/shadcn-style area chart with gradient + crosshair tooltip. */
 export function InteractiveArea({ data, color = "var(--accent)", height = 240, formatValue, unit }: InteractiveAreaProps) {
-  const gradId = "grad-" + Math.random().toString(36).slice(2);
+  const gradId = "grad-" + useId().replace(/:/g, "");
   return (
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>
@@ -95,8 +96,8 @@ export function InteractiveArea({ data, color = "var(--accent)", height = 240, f
 
 /** Tiny interactive area chart for KPI tiles. No axes, just gradient + hover tooltip. */
 export function MiniArea({ data, color = "var(--accent)", height = 44, unit, formatValue }: { data: AreaPoint[]; color?: string; height?: number; unit?: string; formatValue?: (v: number) => string }) {
+  const gradId = "mg-" + useId().replace(/:/g, "");
   if (!data || data.length < 2) return null;
-  const gradId = "mg-" + Math.random().toString(36).slice(2);
   return (
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>

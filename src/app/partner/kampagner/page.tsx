@@ -104,8 +104,8 @@ export default function KampagnerPage() {
         </div>
       </header>
 
-      {/* ─── EDITOR: left rail + canvas ─── */}
-      <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-6 grid-cols-[280px_1fr] min-h-0">
+      {/* ─── EDITOR: left rail + canvas. Generous pb so the floating dock never crowds the browser-window edge. */}
+      <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-8 lg:pb-10 grid-cols-[280px_1fr] min-h-0">
         {/* LEFT — campaign picker + image variants */}
         <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1">
           <div className="card !p-3">
@@ -261,7 +261,7 @@ export default function KampagnerPage() {
           )}
 
           {/* FLOATING BOTTOM — format dock + action bar (single unit) */}
-          <div className="absolute left-4 right-4 bottom-4 z-20 pointer-events-none">
+          <div className="absolute left-4 right-4 bottom-5 z-20 pointer-events-none">
             <div className="pointer-events-auto bg-white/90 backdrop-blur-md rounded-[var(--r-xl)] border border-[var(--line-2)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] overflow-hidden">
               {/* Format dock */}
               <div className="px-3 py-2 border-b border-[var(--line-2)] flex items-center gap-2 overflow-x-auto">

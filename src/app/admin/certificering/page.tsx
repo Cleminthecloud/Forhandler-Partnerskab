@@ -36,23 +36,36 @@ export default function AdminCertificering() {
                   <p className="text-[13px] text-[var(--ink-muted-80)] mt-2 line-clamp-2">{c.beskrivelse}</p>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-                <div className="bg-[var(--surface-pearl)] rounded-lg p-2">
-                  <div className="text-[11px] text-[var(--ink-muted-48)]">Tilmeldte</div>
-                  <div className="text-[16px] font-semibold text-[var(--cr-navy-deep)]">{8 + Math.floor(Math.random() * 18)}</div>
-                </div>
-                <div className="bg-[var(--surface-pearl)] rounded-lg p-2">
-                  <div className="text-[11px] text-[var(--ink-muted-48)]">Færdige</div>
-                  <div className="text-[16px] font-semibold text-[var(--cr-navy-deep)]">{4 + Math.floor(Math.random() * 8)}</div>
-                </div>
-                <div className="bg-[var(--surface-pearl)] rounded-lg p-2">
-                  <div className="text-[11px] text-[var(--ink-muted-48)]">Gns. score</div>
-                  <div className="text-[16px] font-semibold text-[var(--cr-navy-deep)]">{(85 + Math.random() * 10).toFixed(0)}%</div>
-                </div>
-              </div>
+              <CertStats id={c.id} />
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/** Deterministic per-cert numbers — derived from cert id, stable across renders. */
+function CertStats({ id }: { id: string }) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = ((h * 31) + id.charCodeAt(i)) | 0;
+  const hash = Math.abs(h);
+  const tilmeldte = 8 + (hash % 18);
+  const færdige   = 4 + ((hash >> 4) % 8);
+  const score     = 85 + ((hash >> 8) % 10);
+  return (
+    <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+      <div className="bg-[var(--surface-pearl)] rounded-lg p-2">
+        <div className="text-[11px] text-[var(--ink-muted-48)]">Tilmeldte</div>
+        <div className="text-[16px] font-semibold text-[var(--cr-navy-deep)]">{tilmeldte}</div>
+      </div>
+      <div className="bg-[var(--surface-pearl)] rounded-lg p-2">
+        <div className="text-[11px] text-[var(--ink-muted-48)]">Færdige</div>
+        <div className="text-[16px] font-semibold text-[var(--cr-navy-deep)]">{færdige}</div>
+      </div>
+      <div className="bg-[var(--surface-pearl)] rounded-lg p-2">
+        <div className="text-[11px] text-[var(--ink-muted-48)]">Gns. score</div>
+        <div className="text-[16px] font-semibold text-[var(--cr-navy-deep)]">{score}%</div>
       </div>
     </div>
   );

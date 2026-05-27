@@ -1,31 +1,47 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const LS_KEY = "sidebar-collapsed-v1";
+const EVENT = "sidebar-collapse-change";
 
-/** Hook used by both sidebars + (eventually) layouts to share collapse state via localStorage. */
+/* useSyncExternalStore is React 19's recommended way to subscribe to
+   an external mutable source (here: localStorage). It avoids the
+   setState-in-effect anti-pattern and gives us proper SSR safety. */
+function subscribe(callback: () => void) {
+  window.addEventListener(EVENT, callback);
+  // Cross-tab sync
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function getClientSnapshot(): boolean {
+  try {
+    return window.localStorage.getItem(LS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function getServerSnapshot(): boolean {
+  return false; // default uncollapsed on SSR — matches initial paint
+}
+
+/** Hook used by both sidebars + layouts to share collapse state via localStorage. */
 export function useSidebarCollapsed() {
-  // Start uncollapsed on SSR to match initial server render, then read localStorage.
-  const [collapsed, setCollapsedState] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    try {
-      const v = localStorage.getItem(LS_KEY);
-      if (v === "1") setCollapsedState(true);
-    } catch {}
-    setHydrated(true);
-  }, []);
+  const collapsed = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
   function toggle() {
-    setCollapsedState((prev) => {
-      const next = !prev;
-      try { localStorage.setItem(LS_KEY, next ? "1" : "0"); } catch {}
-      return next;
-    });
+    try {
+      const next = !collapsed;
+      window.localStorage.setItem(LS_KEY, next ? "1" : "0");
+      window.dispatchEvent(new Event(EVENT));
+    } catch {}
   }
 
-  return { collapsed, toggle, hydrated };
+  return { collapsed, toggle, hydrated: true };
 }
 
 export function CollapseToggle({ collapsed, onClick }: { collapsed: boolean; onClick: () => void }) {
