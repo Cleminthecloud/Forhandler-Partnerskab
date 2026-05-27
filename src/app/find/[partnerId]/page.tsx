@@ -61,9 +61,18 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
       <Link href="/find" className="text-[13px] font-semibold text-[var(--cr-blue)] hover:underline">← Tilbage til søgning</Link>
 
       <header className="mt-6 flex flex-wrap items-start gap-6">
-        <div className="size-24 rounded-2xl grid place-items-center text-white font-semibold text-[28px] shrink-0" style={{ background: partner.logoBg }}>
-          {partner.initialer}
-        </div>
+        {partner.ejerPortrait ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={partner.ejerPortrait}
+            alt={partner.ejer}
+            className="size-24 rounded-2xl object-cover shrink-0 shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+          />
+        ) : (
+          <div className="size-24 rounded-2xl grid place-items-center text-white font-semibold text-[28px] shrink-0" style={{ background: partner.logoBg }}>
+            {partner.initialer}
+          </div>
+        )}
         <div className="flex-1 min-w-[280px]">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[34px] font-semibold tracking-tight text-[var(--cr-navy-deep)]">{partner.firma}</h1>

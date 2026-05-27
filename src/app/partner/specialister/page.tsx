@@ -248,12 +248,7 @@ export default function SpecialisterPage() {
                 onClick={() => switchSpecialist(s.id)}
                 className={"w-full text-left px-4 py-3 border-b border-[var(--line-2)] flex items-center gap-3 hover:bg-[var(--canvas-2)] transition-colors " + (sel ? "bg-[var(--accent-tint)]" : "")}
               >
-                <div className="relative shrink-0">
-                  <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[13px]" style={{ background: s.bg }}>
-                    {s.initialer}
-                  </div>
-                  {s.online && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-[#5DBA47] ring-2 ring-white" />}
-                </div>
+                <SpecialistAvatar specialist={s} size={40} showOnline />
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{s.navn}</div>
                   <div className="text-[11px] text-[var(--ink-3)] truncate">{s.rolle} · {s.bu}</div>
@@ -268,12 +263,7 @@ export default function SpecialisterPage() {
         <section className="flex flex-col rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--canvas)] overflow-hidden min-h-0">
           {/* Chat header */}
           <div className="px-5 py-3.5 border-b border-[var(--line-2)] flex items-center gap-3 shrink-0">
-            <div className="relative shrink-0">
-              <div className="size-10 rounded-full grid place-items-center text-white font-semibold text-[13px]" style={{ background: active.bg }}>
-                {active.initialer}
-              </div>
-              {active.online && <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-[#5DBA47] ring-2 ring-white" />}
-            </div>
+            <SpecialistAvatar specialist={active} size={40} showOnline />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-semibold text-[var(--ink)]">{active.navn}</span>
@@ -308,9 +298,7 @@ export default function SpecialisterPage() {
             {items.length === 0 && (!seedThread || seedThread.messages.length === 0) && (
               <div className="h-full grid place-items-center text-center">
                 <div className="max-w-[400px]">
-                  <div className="size-16 rounded-full mx-auto grid place-items-center text-white text-[20px] font-semibold" style={{ background: active.bg }}>
-                    {active.initialer}
-                  </div>
+                  <div className="mx-auto w-fit"><SpecialistAvatar specialist={active} size={64} /></div>
                   <div className="mt-4 text-[16px] font-semibold text-[var(--ink)]">Hej — jeg er {active.navn.split(" ")[0]}.</div>
                   <div className="mt-1.5 text-[13px] text-[var(--ink-3)] leading-[1.5]">
                     {active.rolle} hos Carl Ras{active.bu ? " · " + active.bu : ""}. Jeg svarer på spec, finder produkter, og bygger pakker — alt sammen direkte i din kurv hvis du vil.
@@ -465,14 +453,48 @@ export default function SpecialisterPage() {
    Sub-components
    ===================================================================== */
 
-function MessageBubble({ from, text, tid, specialist }: { from: "user" | "bot"; text: string; tid: string; specialist: { navn: string; bg: string; initialer: string } }) {
+/* Shared avatar — renders the specialist's portrait photo if present,
+   falls back to the colored initials chip. The green "online" dot is optional. */
+function SpecialistAvatar({
+  specialist,
+  size,
+  showOnline,
+}: {
+  specialist: { bg: string; initialer: string; portrait?: string; navn?: string; online?: boolean };
+  size: number;
+  showOnline?: boolean;
+}) {
+  const fontSize = Math.max(10, Math.round(size * 0.32));
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      {specialist.portrait ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={specialist.portrait}
+          alt={specialist.navn ?? specialist.initialer}
+          className="size-full rounded-full object-cover"
+        />
+      ) : (
+        <div
+          className="size-full rounded-full grid place-items-center text-white font-semibold"
+          style={{ background: specialist.bg, fontSize }}
+        >
+          {specialist.initialer}
+        </div>
+      )}
+      {showOnline && specialist.online && (
+        <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-[#5DBA47] ring-2 ring-white" />
+      )}
+    </div>
+  );
+}
+
+function MessageBubble({ from, text, tid, specialist }: { from: "user" | "bot"; text: string; tid: string; specialist: { navn: string; bg: string; initialer: string; portrait?: string } }) {
   const isUser = from === "user";
   return (
     <div className={"flex gap-2.5 " + (isUser ? "justify-end" : "justify-start")} style={{ animation: "slideUpFade 280ms cubic-bezier(0.22,1,0.36,1) both" }}>
       {!isUser && (
-        <div className="size-7 rounded-full grid place-items-center text-white font-semibold text-[10px] shrink-0 mt-1" style={{ background: specialist.bg }}>
-          {specialist.initialer}
-        </div>
+        <div className="shrink-0 mt-1"><SpecialistAvatar specialist={specialist} size={28} /></div>
       )}
       <div className={"max-w-[78%] rounded-2xl px-4 py-2.5 text-[13.5px] leading-[1.5] " + (isUser
         ? "bg-[var(--accent)] text-white rounded-br-md"
@@ -487,12 +509,10 @@ function MessageBubble({ from, text, tid, specialist }: { from: "user" | "bot"; 
   );
 }
 
-function TypingIndicator({ specialist }: { specialist: { bg: string; initialer: string } }) {
+function TypingIndicator({ specialist }: { specialist: { bg: string; initialer: string; portrait?: string; navn?: string } }) {
   return (
     <div className="flex gap-2.5" style={{ animation: "fadeIn 200ms ease-out both" }}>
-      <div className="size-7 rounded-full grid place-items-center text-white font-semibold text-[10px] shrink-0 mt-1" style={{ background: specialist.bg }}>
-        {specialist.initialer}
-      </div>
+      <div className="shrink-0 mt-1"><SpecialistAvatar specialist={specialist} size={28} /></div>
       <div className="bg-white border border-[var(--line-2)] rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-1.5">
         <span className="size-1.5 rounded-full bg-[var(--ink-3)]" style={{ animation: "typing 1200ms ease-in-out infinite" }} />
         <span className="size-1.5 rounded-full bg-[var(--ink-3)]" style={{ animation: "typing 1200ms ease-in-out 200ms infinite" }} />
