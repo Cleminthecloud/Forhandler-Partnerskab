@@ -57,7 +57,7 @@ export default function AdminProfilePage() {
             </div>
             <div className="mt-4">
               <Field label="Bio" value={bio} onChange={setBio} multiline />
-              <div className="text-[11px] text-[var(--ink-3)] mt-1.5">Vises på partnerens specialist-chat side.</div>
+              <div className="text-[12px] text-[var(--ink-3)] mt-1.5">Vises på partnerens specialist-chat side.</div>
             </div>
           </section>
 
@@ -68,7 +68,7 @@ export default function AdminProfilePage() {
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Primær region</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Primær region</label>
               <select
                 value={primaryRegion}
                 onChange={(e) => setPrimaryRegion(e.target.value)}
@@ -79,7 +79,7 @@ export default function AdminProfilePage() {
             </div>
 
             <div className="mt-5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Sekundære regioner</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Sekundære regioner</label>
               <div className="flex flex-wrap gap-2">
                 {REGIONS.filter((r) => r !== primaryRegion).map((r) => {
                   const sel = coverage.includes(r);
@@ -129,7 +129,7 @@ export default function AdminProfilePage() {
 function Field({ label, value, onChange, multiline = false, type = "text" }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean; type?: string }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
+      <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
       {multiline ? (
         <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={3} className="field !text-[13.5px] resize-y leading-[1.5]" />
       ) : (

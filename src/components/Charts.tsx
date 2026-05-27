@@ -129,7 +129,7 @@ export function Radial({ value, size = 160, thickness = 14, color = "var(--accen
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center chart-fade">
         {label && <div className="text-[28px] font-semibold leading-none text-[var(--ink)] tabular-nums">{label}</div>}
-        {sub && <div className="text-[11px] text-[var(--ink-3)] mt-1.5 max-w-[100px]">{sub}</div>}
+        {sub && <div className="text-[12px] text-[var(--ink-3)] mt-1.5 max-w-[100px]">{sub}</div>}
       </div>
     </div>
   );

@@ -114,7 +114,7 @@ function CertCard({ cert, onOpen }: { cert: Certification; onOpen: () => void })
           <Icon name={cert.niveau === "Specialist" ? "shield" : "graduation-cap"} size={22} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[11px] text-[var(--ink-muted-48)]">{cert.niveau} · {cert.moduler} moduler · {cert.varighed}</div>
+          <div className="text-[12px] text-[var(--ink-muted-48)]">{cert.niveau} · {cert.moduler} moduler · {cert.varighed}</div>
           <div className="t-body-strong mt-1 text-[var(--cr-navy-deep)] line-clamp-1">{cert.titel}</div>
           <div className="t-caption truncate">{cert.udsteder}</div>
           <p className="text-[12.5px] text-[var(--ink-muted-80)] mt-1.5 line-clamp-2 leading-snug">{cert.beskrivelse}</p>
@@ -124,8 +124,8 @@ function CertCard({ cert, onOpen }: { cert: Certification; onOpen: () => void })
       {/* Stage distribution */}
       <div className="mt-4">
         <div className="flex items-baseline justify-between mb-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted-48)]">{total} tilmeldte</span>
-          <span className="text-[11px] text-[var(--ink-muted-48)]">{passRate}% bestået</span>
+          <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-muted-48)]">{total} tilmeldte</span>
+          <span className="text-[12px] text-[var(--ink-muted-48)]">{passRate}% bestået</span>
         </div>
         {/* Compact stage bar */}
         {total > 0 ? (
@@ -259,11 +259,11 @@ function CertDetailDrawer({
               {stageColumns.map((col) => (
                 <div key={col.id} className="rounded-[var(--r-md)] bg-[var(--canvas-2)] p-2.5 min-h-[120px]">
                   <div className="flex items-center justify-between mb-2 px-1">
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: col.ink }}>
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: col.ink }}>
                       <span className="size-1.5 rounded-full" style={{ background: col.dot }} />
                       {col.label}
                     </span>
-                    <span className="text-[11px] font-semibold text-[var(--ink-3)] tabular-nums">{col.enrollments.length}</span>
+                    <span className="text-[12px] font-semibold text-[var(--ink-3)] tabular-nums">{col.enrollments.length}</span>
                   </div>
                   <ul className="space-y-1.5">
                     {col.enrollments.map((e) => (
@@ -298,7 +298,7 @@ function KpiTile({ label, value, sub, tone }: { label: string; value: string; su
     <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-5">
       <div className="text-[12px] text-[var(--ink-3)] font-medium">{label}</div>
       <div className="text-[24px] font-semibold mt-2 leading-none tabular-nums" style={{ color: sign }}>{value}</div>
-      {sub && <div className="text-[11px] text-[var(--ink-3)] mt-1.5">{sub}</div>}
+      {sub && <div className="text-[12px] text-[var(--ink-3)] mt-1.5">{sub}</div>}
     </div>
   );
 }

@@ -242,7 +242,7 @@ export function ProjectPlanner({ projectType, kunde, specialistId, phases, onCha
 
           {/* Owner legend + add */}
           <div className="flex items-center justify-between mt-3 gap-3 flex-wrap">
-            <div className="flex items-center gap-3 text-[11px] text-[var(--ink-3)]">
+            <div className="flex items-center gap-3 text-[12px] text-[var(--ink-3)]">
               {(Object.keys(OWNER_STYLE) as PhaseOwner[]).map((o) => (
                 <span key={o} className="inline-flex items-center gap-1.5">
                   <span className="w-2 h-3.5 rounded-sm" style={{ background: OWNER_STYLE[o].ink }} />
@@ -299,7 +299,7 @@ function PhaseEditPanel({
     >
       <div className="flex items-baseline justify-between mb-3">
         <div className="t-eyebrow">Rediger fase</div>
-        <button onClick={onClose} className="text-[11px] text-[var(--ink-3)] hover:text-[var(--ink)] font-medium">
+        <button onClick={onClose} className="text-[12px] text-[var(--ink-3)] hover:text-[var(--ink)] font-medium">
           Færdig
         </button>
       </div>

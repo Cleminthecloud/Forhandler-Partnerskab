@@ -93,7 +93,7 @@ export function DenmarkMap({ partners, selectedRegion = "Alle", onPick }: Props)
         )}
       </svg>
 
-      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur rounded-lg border border-[var(--hairline)] px-3 py-1.5 text-[11px] text-[var(--ink-muted-48)]">
+      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur rounded-lg border border-[var(--hairline)] px-3 py-1.5 text-[12px] text-[var(--ink-muted-48)]">
         {partners.length} partnere
       </div>
     </div>

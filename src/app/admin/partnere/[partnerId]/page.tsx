@@ -109,7 +109,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <span className={tierClass(partner.tier)}>{partner.tier}-partner</span>
-                <span className="text-[11px] text-[var(--ink-3)]">Medlem siden {partner.medlemSiden}</span>
+                <span className="text-[12px] text-[var(--ink-3)]">Medlem siden {partner.medlemSiden}</span>
               </div>
               <h1 className="t-display-lg leading-tight">{partner.firma}</h1>
               <p className="t-body !text-[var(--ink-3)] mt-1">
@@ -204,7 +204,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
             <div className="space-y-2 text-[12px] text-[var(--ink-2)] flex-1 leading-[1.5]">
               <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · Stroxx Q3-pipeline · genforhandling af bonusaftale</div>
               <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, Jens Pedersen (Sikring)</div>
-              <div className="inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
+              <div className="inline-flex items-center gap-1.5 text-[12px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
                 <Icon name="check" size={11} /> {partner.ejer} har bekræftet
               </div>
             </div>
@@ -320,7 +320,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
         >
           <div className="p-7 lg:p-8 flex flex-wrap items-start gap-6">
             <div className="flex-1 min-w-[280px]">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider" style={{ background: "#EAF1DC", color: "#324A14" }}>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[12px] font-semibold uppercase tracking-wider" style={{ background: "#EAF1DC", color: "#324A14" }}>
                 <Icon name="lightbulb" size={12} />
                 Forudsigt-tilbud · {sales.predictedOffer.confidence}% sikkerhed
               </div>
@@ -328,7 +328,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <p className="t-body mt-2 max-w-[640px]">{sales.predictedOffer.reason}</p>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider">Forventet ordreværdi</div>
+              <div className="text-[12px] text-[var(--ink-3)] uppercase tracking-wider">Forventet ordreværdi</div>
               <div className="text-[28px] font-semibold text-[var(--ink)] tabular-nums">{sales.predictedOffer.estimatedValue}</div>
               <button
                 onClick={() => setShowOfferDialog(true)}
@@ -342,7 +342,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
 
           {/* Suggested products */}
           <div className="px-7 lg:px-8 pb-7 lg:pb-8">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-3">Anbefalede produkter</div>
+            <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-3">Anbefalede produkter</div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {offerProducts.map((p) => (
                 <a
@@ -403,7 +403,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
 
             <div className="mt-5 space-y-4">
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Dato &amp; tid</label>
+                <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Dato &amp; tid</label>
                 <input
                   type="datetime-local"
                   value={visitDate}
@@ -413,7 +413,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Agenda</label>
+                <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Agenda</label>
                 <textarea
                   value={visitAgenda}
                   onChange={(e) => setVisitAgenda(e.target.value)}
@@ -423,7 +423,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Deltagere</label>
+                <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Deltagere</label>
                 <div className="flex flex-wrap gap-1.5">
                   <span className="tag inline-flex items-center gap-1" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}><Icon name="user" size={11} /> {partner.ejer}</span>
                   <span className="tag inline-flex items-center gap-1" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}><Icon name="user" size={11} /> Dennis Holmberg</span>
@@ -467,7 +467,7 @@ function Kpi({ label, value, delta, positive, sparkline, color, labels, unit }: 
     <div className="bg-[var(--canvas)] rounded-[var(--r-lg)] border border-[var(--line)] p-5 flex flex-col">
       <div className="flex items-baseline justify-between">
         <span className="text-[12px] text-[var(--ink-3)] font-medium">{label}</span>
-        {delta && <span className={"text-[11px] font-semibold " + (positive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>{delta}</span>}
+        {delta && <span className={"text-[12px] font-semibold " + (positive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>{delta}</span>}
       </div>
       <div className="mt-2 text-[24px] font-semibold leading-none tracking-tight text-[var(--ink)] tabular-nums">{value}</div>
       {chartData && (
@@ -482,7 +482,7 @@ function Kpi({ label, value, delta, positive, sparkline, color, labels, unit }: 
 function ContactRow({ label, value, href, external }: { label: string; value: string; href?: string; external?: boolean }) {
   return (
     <li className="flex items-baseline justify-between gap-3 text-[13px]">
-      <span className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold shrink-0 min-w-[60px]">{label}</span>
+      <span className="text-[12px] text-[var(--ink-3)] uppercase tracking-wider font-semibold shrink-0 min-w-[60px]">{label}</span>
       {href ? (
         <a
           href={href}
@@ -505,7 +505,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
         <span className="text-[12px] text-[var(--ink-3)] font-medium">{label}</span>
         <span className="text-[18px] font-semibold text-[var(--ink)] tabular-nums">{value}</span>
       </div>
-      {sub && <div className="text-[11px] text-[var(--ink-3)] mt-0.5">{sub}</div>}
+      {sub && <div className="text-[12px] text-[var(--ink-3)] mt-0.5">{sub}</div>}
     </div>
   );
 }

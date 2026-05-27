@@ -346,7 +346,7 @@ export function CommandPalette() {
               <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-2 py-0.5">
                 {PLATFORM_LABEL[platform]}
               </span>
-              <kbd className="text-[11px] font-semibold text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-1.5 py-0.5">esc</kbd>
+              <kbd className="text-[12px] font-semibold text-[var(--ink-3)] bg-[var(--canvas-2)] border border-[var(--line-2)] rounded px-1.5 py-0.5">esc</kbd>
             </div>
 
             {/* Results — grouped */}
@@ -399,7 +399,7 @@ export function CommandPalette() {
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-2.5 border-t border-[var(--line-2)] bg-[var(--canvas-2)] flex items-center gap-4 text-[11px] text-[var(--ink-3)] shrink-0">
+            <div className="px-5 py-2.5 border-t border-[var(--line-2)] bg-[var(--canvas-2)] flex items-center gap-4 text-[12px] text-[var(--ink-3)] shrink-0">
               <span className="flex items-center gap-1.5">
                 <kbd className="bg-white border border-[var(--line-2)] rounded px-1 font-mono">↑</kbd>
                 <kbd className="bg-white border border-[var(--line-2)] rounded px-1 font-mono">↓</kbd>

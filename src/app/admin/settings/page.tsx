@@ -108,14 +108,14 @@ export default function AdminSettingsPage() {
                 <div className="text-[15px] font-semibold text-[var(--ink)]">Slack</div>
                 <div className="text-[11.5px] text-[var(--ink-3)] mt-1">Hvor skal Slack-notifikationer leveres?</div>
               </div>
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#2D4A0F] bg-[#E1EFD2] px-2 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#2D4A0F] bg-[#E1EFD2] px-2 py-1 rounded-full">
                 <span className="size-1.5 rounded-full bg-[#5B7F2C]" />
                 Forbundet
               </span>
             </div>
             <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
               <div>
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Standard kanal</label>
+                <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Standard kanal</label>
                 <input
                   type="text"
                   value={slackChannel}

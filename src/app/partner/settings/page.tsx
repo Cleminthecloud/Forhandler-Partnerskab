@@ -106,7 +106,7 @@ export default function PartnerSettingsPage() {
                   </div>
                   {a.connected ? (
                     <>
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#2D4A0F] bg-[#E1EFD2] px-2 py-1 rounded-full">
+                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#2D4A0F] bg-[#E1EFD2] px-2 py-1 rounded-full">
                         <span className="size-1.5 rounded-full bg-[#5B7F2C]" />
                         Forbundet
                       </span>
@@ -147,7 +147,7 @@ export default function PartnerSettingsPage() {
                     <span className="size-3 rounded-full shrink-0" style={{ background: t.accent }} />
                     <span className="flex-1 min-w-0">
                       <span className="block text-[13px] font-semibold text-[var(--ink)] truncate">{t.label}</span>
-                      <span className="block text-[11px] text-[var(--ink-3)] truncate">{t.season}</span>
+                      <span className="block text-[12px] text-[var(--ink-3)] truncate">{t.season}</span>
                     </span>
                     {sel && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-press)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">

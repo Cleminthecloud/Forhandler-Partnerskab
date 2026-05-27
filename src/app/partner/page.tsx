@@ -139,7 +139,7 @@ export default function PartnerDashboard() {
             <div className="grid lg:grid-cols-[1.3fr_1fr] h-full">
               <div className="p-7 lg:p-9 flex flex-col justify-between">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: theme.accentInk }}>
+                  <div className="text-[12px] font-semibold uppercase tracking-[0.08em]" style={{ color: theme.accentInk }}>
                     Aktiv kampagne
                   </div>
                   <h2
@@ -277,7 +277,7 @@ export default function PartnerDashboard() {
                   <div className="text-[13px] font-medium text-[var(--ink)] truncate">{l.kunde}</div>
                   <div className="text-[12px] text-[var(--ink-3)] truncate">{l.behov}</div>
                 </div>
-                <span className="text-[11px] text-[var(--ink-3)] shrink-0 tabular-nums">{l.værdi}</span>
+                <span className="text-[12px] text-[var(--ink-3)] shrink-0 tabular-nums">{l.værdi}</span>
               </li>
             ))}
             {newLeads.length === 0 && (
@@ -328,7 +328,7 @@ export default function PartnerDashboard() {
                   <div className="text-[13px] font-medium text-[var(--ink)] truncate">{p.firma}</div>
                   <div className="text-[12px] text-[var(--ink-3)] truncate">{p.faggruppe} · {p.by}</div>
                 </div>
-                <span className="text-[11px] text-[var(--ink-3)] shrink-0">{p.tier}</span>
+                <span className="text-[12px] text-[var(--ink-3)] shrink-0">{p.tier}</span>
               </li>
             ))}
           </ul>
@@ -363,10 +363,10 @@ export default function PartnerDashboard() {
               <div className="text-[18px] font-semibold text-[var(--ink)] mt-0.5 leading-tight">{CARL_RAS_KONSULENT.navn}</div>
               <div className="text-[12.5px] text-[var(--ink-3)] mt-0.5">{CARL_RAS_KONSULENT.rolle} · {CURRENT_PARTNER.region} · {CURRENT_PARTNER.faggruppe}</div>
               <div className="flex items-center gap-3 mt-2">
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#324A14]">
+                <span className="inline-flex items-center gap-1 text-[12px] font-medium text-[#324A14]">
                   <span className="size-1.5 rounded-full" style={{ background: "#5B7F2C" }} /> Online · {CARL_RAS_KONSULENT.responstid}
                 </span>
-                <span className="text-[11px] text-[var(--ink-3)]">Sidste besøg {CARL_RAS_KONSULENT.sidsteBesog.replace(/ 2026$/, "")}</span>
+                <span className="text-[12px] text-[var(--ink-3)]">Sidste besøg {CARL_RAS_KONSULENT.sidsteBesog.replace(/ 2026$/, "")}</span>
               </div>
             </div>
           </div>
@@ -374,17 +374,17 @@ export default function PartnerDashboard() {
           {/* Stats */}
           <div className="flex gap-4 text-center shrink-0 px-2">
             <div>
-              <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Besøg i år</div>
+              <div className="text-[12px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Besøg i år</div>
               <div className="text-[20px] font-semibold text-[var(--ink)] mt-1 tabular-nums">4</div>
             </div>
             <div className="w-px bg-[var(--line-2)]" />
             <div>
-              <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Næste besøg</div>
+              <div className="text-[12px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Næste besøg</div>
               <div className="text-[14px] font-semibold text-[var(--ink)] mt-1 tabular-nums">3. jun</div>
             </div>
             <div className="w-px bg-[var(--line-2)]" />
             <div>
-              <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Relation</div>
+              <div className="text-[12px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Relation</div>
               <div className="text-[14px] font-semibold mt-1" style={{ color: "#2D4A0F" }}>Stærk · 8.4</div>
             </div>
           </div>
@@ -461,7 +461,7 @@ export default function PartnerDashboard() {
 
               {/* BODY — clear hierarchy: brand → name → price + margin pinned bottom */}
               <div className="p-5 flex flex-col flex-1 border-t border-[var(--line-2)]">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)]">{p.brand}</div>
+                <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)]">{p.brand}</div>
                 <h3 className="text-[17px] font-semibold text-[var(--ink)] mt-1.5 leading-[1.3] tracking-[-0.005em] line-clamp-2 min-h-[44px]">
                   {p.navn.split("·")[0].trim()}
                 </h3>
@@ -475,7 +475,7 @@ export default function PartnerDashboard() {
                       )}
                     </div>
                     {p.margin && (
-                      <div className="text-[11px] text-[var(--ink-3)] mt-2 inline-flex items-center gap-1.5">
+                      <div className="text-[12px] text-[var(--ink-3)] mt-2 inline-flex items-center gap-1.5">
                         <span className="size-1 rounded-full" style={{ background: "var(--accent)" }} />
                         {p.margin}
                       </div>
@@ -657,7 +657,7 @@ function KpiTile({
       <div className="flex items-baseline justify-between">
         <span className="text-[12px] text-[var(--ink-3)] font-medium">{label}</span>
         {delta && (
-          <span className={"text-[11px] font-semibold " + (deltaPositive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>
+          <span className={"text-[12px] font-semibold " + (deltaPositive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>
             {delta}
           </span>
         )}
@@ -686,7 +686,7 @@ function TierDot({ tier, current, done }: { tier: "Bronze" | "Sølv" | "Guld"; c
           <svg width="11" height="11" viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
         )}
       </div>
-      <span className={"text-[11px] " + (current ? "font-semibold text-[var(--ink)]" : "text-[var(--ink-3)]")}>{tier}</span>
+      <span className={"text-[12px] " + (current ? "font-semibold text-[var(--ink)]" : "text-[var(--ink-3)]")}>{tier}</span>
     </div>
   );
 }

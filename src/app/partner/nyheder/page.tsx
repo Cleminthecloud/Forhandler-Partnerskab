@@ -111,7 +111,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
             </span>
           )}
         </div>
-        <div className="absolute bottom-3 right-4 inline-flex items-center gap-1.5 text-[11px] text-white/90 font-medium">
+        <div className="absolute bottom-3 right-4 inline-flex items-center gap-1.5 text-[12px] text-white/90 font-medium">
           <Icon name="clock" size={11} /> {post.læsetid}
         </div>
       </div>
@@ -140,7 +140,7 @@ function SecondaryCard({ post }: { post: BlogPost }) {
       <div className="p-4 lg:p-5 flex-1 flex flex-col min-w-0">
         <div className="flex items-center gap-2">
           <KategoriPill kategori={post.kategori} small />
-          <span className="text-[11px] text-[var(--ink-3)] tabular-nums">{post.læsetid}</span>
+          <span className="text-[12px] text-[var(--ink-3)] tabular-nums">{post.læsetid}</span>
         </div>
         <h3 className="mt-2 text-[15.5px] font-semibold text-[var(--cr-navy-deep)] leading-[1.3] line-clamp-3">{post.titel}</h3>
         <p className="text-[12.5px] text-[var(--ink-3)] mt-1.5 leading-[1.5] line-clamp-2">{post.excerpt}</p>
@@ -167,7 +167,7 @@ function ArticleCard({ post }: { post: BlogPost }) {
         <p className="text-[12.5px] text-[var(--ink-3)] mt-2 leading-[1.5] line-clamp-3 flex-1">{post.excerpt}</p>
         <div className="mt-3 pt-3 border-t border-[var(--line-2)] flex items-center justify-between gap-3">
           <AuthorChip post={post} size="sm" />
-          <span className="text-[11px] text-[var(--ink-3)] tabular-nums inline-flex items-center gap-1 shrink-0">
+          <span className="text-[12px] text-[var(--ink-3)] tabular-nums inline-flex items-center gap-1 shrink-0">
             <Icon name="clock" size={10} /> {post.læsetid}
           </span>
         </div>

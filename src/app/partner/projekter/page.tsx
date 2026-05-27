@@ -346,7 +346,7 @@ function ProjekterPageInner() {
                   </div>
                 ))}
                 {products.length > 4 && (
-                  <span className="text-[11px] text-[var(--ink-3)] ml-1">+{products.length - 4}</span>
+                  <span className="text-[12px] text-[var(--ink-3)] ml-1">+{products.length - 4}</span>
                 )}
                 <div className="ml-auto text-right">
                   <div className="text-[13.5px] font-semibold text-[var(--ink)] tabular-nums">
@@ -365,13 +365,13 @@ function ProjekterPageInner() {
                     <div className="size-5 rounded-full grid place-items-center text-white font-semibold text-[9px] shrink-0" style={{ background: specialist.bg }}>
                       {specialist.initialer}
                     </div>
-                    <span className="text-[11px] text-[var(--ink-2)] truncate">{specialist.navn.split(" ")[0]}</span>
+                    <span className="text-[12px] text-[var(--ink-2)] truncate">{specialist.navn.split(" ")[0]}</span>
                   </div>
                 ) : (
-                  <span className="text-[11px] text-[var(--ink-3)] italic">Ingen specialist booket</span>
+                  <span className="text-[12px] text-[var(--ink-3)] italic">Ingen specialist booket</span>
                 )}
                 {p.deadline && (
-                  <span className="ml-auto text-[11px] text-[var(--ink-3)] tabular-nums">
+                  <span className="ml-auto text-[12px] text-[var(--ink-3)] tabular-nums">
                     Frist {new Date(p.deadline).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}
                   </span>
                 )}
@@ -465,7 +465,7 @@ function ProjectDrawer({
             <div className="text-[12.5px] text-[var(--ink-3)] mt-1">{project.kontakt}</div>
           </div>
           <span
-            className="text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0"
+            className="text-[12px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0"
             style={{ background: style.bg, color: style.ink }}
           >
             {project.status}
@@ -491,7 +491,7 @@ function ProjectDrawer({
                 key={s}
                 onClick={() => onUpdateStatus(project.id, s)}
                 className={
-                  "flex-1 text-[11px] font-semibold uppercase tracking-wider py-1.5 rounded transition-colors border " +
+                  "flex-1 text-[12px] font-semibold uppercase tracking-wider py-1.5 rounded transition-colors border " +
                   (sel
                     ? "bg-[var(--ink)] text-white border-[var(--ink)]"
                     : passed
@@ -546,7 +546,7 @@ function ProjectDrawer({
                   <div className="flex-1 min-w-0">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
                     <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate mt-0.5">{p.navn}</div>
-                    <div className="text-[11px] text-[var(--ink-3)] tabular-nums mt-0.5">#{p.id} · {p.pris}</div>
+                    <div className="text-[12px] text-[var(--ink-3)] tabular-nums mt-0.5">#{p.id} · {p.pris}</div>
                   </div>
                   <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-[11.5px] font-semibold text-[var(--accent)] hover:underline shrink-0">PDP ↗</a>
                 </li>
@@ -567,11 +567,11 @@ function ProjectDrawer({
                     <div className="flex-1 min-w-0">
                       <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
                       <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate mt-0.5">{p.navn}</div>
-                      <div className="text-[11px] text-[var(--ink-3)] tabular-nums mt-0.5">{p.pris} · {p.margin}</div>
+                      <div className="text-[12px] text-[var(--ink-3)] tabular-nums mt-0.5">{p.pris} · {p.margin}</div>
                     </div>
                     <button
                       onClick={() => { addToBasket(p, project.enheder); pushToast(`${p.brand} lagt i kurv (×${project.enheder})`, "success"); }}
-                      className="text-[11px] font-semibold text-[var(--accent)] hover:underline shrink-0"
+                      className="text-[12px] font-semibold text-[var(--accent)] hover:underline shrink-0"
                     >
                       + Tilføj
                     </button>
@@ -606,7 +606,7 @@ function ProjectDrawer({
                 className="w-full p-4 rounded-[var(--r-md)] border-2 border-dashed border-[var(--line)] hover:border-[var(--accent)] hover:bg-[var(--accent-tint)] transition-colors text-center"
               >
                 <div className="text-[13px] font-semibold text-[var(--ink-2)]">+ Book hjemmebesøg</div>
-                <div className="text-[11px] text-[var(--ink-3)] mt-1">Få en Carl Ras-specialist med ud til kunden</div>
+                <div className="text-[12px] text-[var(--ink-3)] mt-1">Få en Carl Ras-specialist med ud til kunden</div>
               </button>
             )}
 
@@ -665,7 +665,7 @@ function ProjectDrawer({
 
         {/* Footer actions */}
         <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
-          <span className="text-[11px] text-[var(--ink-3)]">Projekt #{project.id.replace("pr-", "")}</span>
+          <span className="text-[12px] text-[var(--ink-3)]">Projekt #{project.id.replace("pr-", "")}</span>
           <div className="flex gap-2">
             <button onClick={onAddAllToBasket} className="btn btn-secondary !py-1.5" data-tt={`Læg alle ${project.produktIds.length} produkter ×${project.enheder} i kurv`}>
               Læg alt i kurv
@@ -795,7 +795,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto min-h-0">
           {/* Quick-pick templates */}
           <section className="px-7 pt-5">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2.5">Start fra et eksempel</div>
+            <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2.5">Start fra et eksempel</div>
             <div className="grid grid-cols-2 gap-2">
               {TEMPLATES.map((t) => (
                 <button
@@ -809,7 +809,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate">{t.label}</div>
-                    <div className="text-[11px] text-[var(--ink-3)] truncate mt-0.5">{t.hint}</div>
+                    <div className="text-[12px] text-[var(--ink-3)] truncate mt-0.5">{t.hint}</div>
                   </div>
                 </button>
               ))}
@@ -843,7 +843,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Type</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Type</label>
               <div className="flex flex-wrap gap-2">
                 {TYPES.map((t) => {
                   const sel = draft.type === t;
@@ -914,7 +914,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Note (valgfrit)</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Note (valgfrit)</label>
               <textarea
                 value={draft.note}
                 onChange={(e) => update("note", e.target.value)}
@@ -928,7 +928,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
 
         {/* Sticky footer */}
         <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas-2)] flex items-center justify-between gap-3 shrink-0">
-          <span className="text-[11px] text-[var(--ink-3)]">
+          <span className="text-[12px] text-[var(--ink-3)]">
             {isValid ? <>Klar til at oprette — du kan ændre alt bagefter.</> : <>Udfyld kunde, kontakt, by og enheder for at fortsætte.</>}
           </span>
           <div className="flex gap-2">
@@ -955,7 +955,7 @@ function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; 
 function Field({ label, value, onChange, placeholder, required = false, autoFocus = false }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; required?: boolean; autoFocus?: boolean }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">
+      <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">
         {label} {required && <span className="text-[var(--accent)] normal-case">*</span>}
       </label>
       <input
@@ -973,7 +973,7 @@ function Field({ label, value, onChange, placeholder, required = false, autoFocu
 function NumberField({ label, value, onChange, min, placeholder, hint }: { label: string; value: number; onChange: (v: number) => void; min?: number; placeholder?: string; hint?: string }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
+      <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
       <input
         type="number"
         value={value === 0 ? "" : value}
@@ -990,7 +990,7 @@ function NumberField({ label, value, onChange, min, placeholder, hint }: { label
 function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
+      <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}

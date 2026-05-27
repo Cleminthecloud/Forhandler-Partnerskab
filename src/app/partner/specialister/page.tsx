@@ -236,7 +236,7 @@ export default function SpecialisterPage() {
         <aside className="card !p-0 overflow-y-auto self-stretch">
           <div className="px-4 py-3 border-b border-[var(--line-2)]">
             <div className="t-eyebrow !text-[10px]">Mine specialister</div>
-            <div className="text-[11px] text-[var(--ink-3)] mt-1">6 tilknyttet din region</div>
+            <div className="text-[12px] text-[var(--ink-3)] mt-1">6 tilknyttet din region</div>
           </div>
           {SPECIALISTS.map((s) => {
             const sel = activeId === s.id;
@@ -251,8 +251,8 @@ export default function SpecialisterPage() {
                 <SpecialistAvatar specialist={s} size={40} showOnline />
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{s.navn}</div>
-                  <div className="text-[11px] text-[var(--ink-3)] truncate">{s.rolle} · {s.bu}</div>
-                  {last && <div className="text-[11px] text-[var(--ink-3)] truncate mt-0.5">{last.text.slice(0, 38)}{last.text.length > 38 ? "…" : ""}</div>}
+                  <div className="text-[12px] text-[var(--ink-3)] truncate">{s.rolle} · {s.bu}</div>
+                  {last && <div className="text-[12px] text-[var(--ink-3)] truncate mt-0.5">{last.text.slice(0, 38)}{last.text.length > 38 ? "…" : ""}</div>}
                 </div>
               </button>
             );
@@ -269,7 +269,7 @@ export default function SpecialisterPage() {
                 <span className="text-[14px] font-semibold text-[var(--ink)]">{active.navn}</span>
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[var(--accent-tint)] text-[var(--accent-press)]">AI-assisteret</span>
               </div>
-              <div className="text-[11px] text-[var(--ink-3)]">
+              <div className="text-[12px] text-[var(--ink-3)]">
                 {active.online ? <><span className="text-[#5DBA47]">●</span> Online · {active.responstid}</> : <><span className="text-[var(--ink-4)]">●</span> Offline · {active.responstid}</>}
                 <span className="mx-1.5">·</span>
                 {active.rolle} · {active.bu}
@@ -386,7 +386,7 @@ export default function SpecialisterPage() {
             <div className="flex items-baseline justify-between mb-3">
               <div className="t-eyebrow !text-[10px]">Kurv</div>
               {basket.length > 0 && (
-                <span className="text-[11px] text-[var(--ink-3)] tabular-nums">
+                <span className="text-[12px] text-[var(--ink-3)] tabular-nums">
                   {basket.reduce((n, b) => n + b.qty, 0)} stk
                 </span>
               )}
@@ -409,17 +409,17 @@ export default function SpecialisterPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-[12px] font-semibold text-[var(--ink)] truncate">{b.brand}</div>
-                        <div className="text-[11px] text-[var(--ink-3)] truncate">×{b.qty} · {b.pris}</div>
+                        <div className="text-[12px] text-[var(--ink-3)] truncate">×{b.qty} · {b.pris}</div>
                       </div>
                     </li>
                   ))}
                   {basket.length > 4 && (
-                    <li className="text-[11px] text-[var(--ink-3)]">+{basket.length - 4} til</li>
+                    <li className="text-[12px] text-[var(--ink-3)]">+{basket.length - 4} til</li>
                   )}
                 </ul>
                 <div className="mt-4 pt-3 border-t border-[var(--line-2)]">
                   <div className="flex items-baseline justify-between mb-3">
-                    <span className="text-[11px] text-[var(--ink-3)]">Total ex. moms</span>
+                    <span className="text-[12px] text-[var(--ink-3)]">Total ex. moms</span>
                     <span className="text-[15px] font-semibold text-[var(--ink)] tabular-nums">
                       {basketTotalKr.toLocaleString("da-DK", { maximumFractionDigits: 0 })} kr
                     </span>
@@ -600,7 +600,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product)
       <div className="flex flex-col gap-1.5 shrink-0">
         <button
           onClick={() => onAdd(product)}
-          className="text-[11px] font-semibold px-3 py-1.5 rounded-full bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+          className="text-[12px] font-semibold px-3 py-1.5 rounded-full bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
         >
           + Læg i kurv
         </button>
@@ -608,7 +608,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product)
           href={product.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[11px] font-medium px-3 py-1.5 rounded-full text-[var(--ink-2)] hover:text-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap text-center"
+          className="text-[12px] font-medium px-3 py-1.5 rounded-full text-[var(--ink-2)] hover:text-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap text-center"
         >
           Se PDP ↗
         </a>

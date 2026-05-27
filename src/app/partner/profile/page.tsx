@@ -67,7 +67,7 @@ export default function PartnerProfilePage() {
                 >
                   Skift logo
                 </button>
-                <div className="text-[11px] text-[var(--ink-3)] mt-1.5">
+                <div className="text-[12px] text-[var(--ink-3)] mt-1.5">
                   PNG eller SVG · maks 2 MB
                 </div>
               </div>
@@ -92,7 +92,7 @@ export default function PartnerProfilePage() {
               <Field label="Webadresse" value={webadresse} onChange={setWebadresse} />
               <Field label="By · region" value={`${CURRENT_PARTNER.by}, ${CURRENT_PARTNER.region}`} onChange={() => undefined} disabled />
             </div>
-            <div className="mt-3 text-[11px] text-[var(--ink-3)] flex items-center gap-1.5">
+            <div className="mt-3 text-[12px] text-[var(--ink-3)] flex items-center gap-1.5">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg>
               Region kan kun ændres af Carl Ras Drift — kontakt din specialist.
             </div>
@@ -103,7 +103,7 @@ export default function PartnerProfilePage() {
             <SectionHeader title="Faggruppe & specialer" hint="Bruges af kunder til at finde dig på /find" />
             <Field label="Faggruppe" value={CURRENT_PARTNER.faggruppe} onChange={() => undefined} disabled />
             <div className="mt-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">Specialer</div>
+              <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">Specialer</div>
               <div className="flex flex-wrap gap-2 mb-2.5">
                 {specialer.map((s) => (
                   <span
@@ -202,7 +202,7 @@ function SectionHeader({ title, hint }: { title: string; hint?: string }) {
 function Field({ label, value, onChange, multiline = false, disabled = false, type = "text" }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean; disabled?: boolean; type?: string }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
+      <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">{label}</label>
       {multiline ? (
         <textarea
           value={value}

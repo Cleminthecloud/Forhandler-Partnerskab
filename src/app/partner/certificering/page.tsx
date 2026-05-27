@@ -33,7 +33,7 @@ export default function CertificeringPage() {
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide bg-[#EAF1DC] text-[#324A14]">
                       ✓ Opnået
                     </span>
-                    <span className="text-[11px] text-[var(--ink-muted-48)]">{cert.niveau}</span>
+                    <span className="text-[12px] text-[var(--ink-muted-48)]">{cert.niveau}</span>
                   </div>
                   <div className="t-body-strong mt-1 text-[var(--cr-navy-deep)]">{cert.titel}</div>
                   <div className="t-caption">{cert.udsteder}</div>
@@ -68,7 +68,7 @@ export default function CertificeringPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] text-[var(--ink-muted-48)]">{cert.niveau}</span>
+                      <span className="text-[12px] text-[var(--ink-muted-48)]">{cert.niveau}</span>
                       {tema && (
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide" style={{ background: tema.accentSoft, color: tema.accentInk }}>
                           {tema.label}
@@ -83,7 +83,7 @@ export default function CertificeringPage() {
 
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <div className="flex-1">
-                    <div className="flex items-center justify-between text-[11px] text-[var(--ink-muted-48)] mb-1">
+                    <div className="flex items-center justify-between text-[12px] text-[var(--ink-muted-48)] mb-1">
                       <span>{started ? `${modulerFærdige} / ${cert.moduler} moduler` : "Ikke startet"}</span>
                       <span>{pct}%</span>
                     </div>

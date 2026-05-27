@@ -128,7 +128,7 @@ export function CarlRasHeader() {
     <header className="bg-white sticky top-0 z-30">
       {/* ── Utility strip (navy) ─────────────────────────────────────── */}
       <div className="bg-[#001A33] text-white">
-        <div className="mx-auto max-w-[1440px] px-6 h-8 flex items-center text-[11px]">
+        <div className="mx-auto max-w-[1440px] px-6 h-8 flex items-center text-[12px]">
           <button className="flex items-center gap-1.5 hover:opacity-80">
             <span>Pris</span>
             <strong className="font-semibold">inkl. moms</strong>

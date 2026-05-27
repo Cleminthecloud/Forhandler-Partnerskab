@@ -206,12 +206,12 @@ export default function ForumPage() {
             <ul className="mt-4 space-y-3">
               {ligesindede.map((p) => (
                 <li key={p.id} className="flex items-center gap-3">
-                  <div className="size-9 rounded-xl grid place-items-center text-white text-[11px] font-semibold shrink-0" style={{ background: p.logoBg }}>
+                  <div className="size-9 rounded-xl grid place-items-center text-white text-[12px] font-semibold shrink-0" style={{ background: p.logoBg }}>
                     {p.initialer}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{p.firma}</div>
-                    <div className="text-[11px] text-[var(--ink-3)] truncate">{p.by} · {p.tier}</div>
+                    <div className="text-[12px] text-[var(--ink-3)] truncate">{p.by} · {p.tier}</div>
                   </div>
                   <button onClick={() => pushToast(`Forbindelsesforespørgsel sendt til ${p.firma}`)} className="text-[12px] font-semibold text-[var(--accent)] hover:underline shrink-0">
                     Skriv
@@ -228,7 +228,7 @@ export default function ForumPage() {
                 <li key={t.id}>
                   <button onClick={() => setOpenThread(t)} className="text-left block w-full group">
                     <div className="text-[13px] font-semibold text-[var(--ink)] group-hover:text-[var(--accent)] line-clamp-2">{t.titel}</div>
-                    <div className="text-[11px] text-[var(--ink-3)] mt-0.5">♡ {t.likes} · 💬 {t.svar}</div>
+                    <div className="text-[12px] text-[var(--ink-3)] mt-0.5">♡ {t.likes} · 💬 {t.svar}</div>
                   </button>
                 </li>
               ))}
@@ -296,9 +296,9 @@ function ThreadDrawer({
               <ForumAvatar navn={thread.forfatter} size={40} bg={ac} />
               <div>
                 <div className="text-[14px] font-semibold text-[var(--ink)]">{thread.forfatter}</div>
-                <div className="text-[11px] text-[var(--ink-3)]">{thread.forfatterFirma} · {thread.forfatterRegion}</div>
+                <div className="text-[12px] text-[var(--ink-3)]">{thread.forfatterFirma} · {thread.forfatterRegion}</div>
               </div>
-              <span className="ml-auto text-[11px] text-[var(--ink-3)]">{thread.dato}</span>
+              <span className="ml-auto text-[12px] text-[var(--ink-3)]">{thread.dato}</span>
             </div>
             <p className="text-[14px] text-[var(--ink)] leading-[1.55]">{thread.body}</p>
             <div className="mt-4 flex items-center gap-4 text-[12px]">
@@ -321,9 +321,9 @@ function ThreadDrawer({
                   <ForumAvatar navn={r.forfatter} size={32} bg={rc} />
                   <div>
                     <div className="text-[13px] font-semibold text-[var(--ink)]">{r.forfatter}</div>
-                    <div className="text-[11px] text-[var(--ink-3)]">{r.firma} · {r.region}</div>
+                    <div className="text-[12px] text-[var(--ink-3)]">{r.firma} · {r.region}</div>
                   </div>
-                  <span className="ml-auto text-[11px] text-[var(--ink-3)]">{r.tid}</span>
+                  <span className="ml-auto text-[12px] text-[var(--ink-3)]">{r.tid}</span>
                 </div>
                 <p className="text-[14px] text-[var(--ink)] leading-[1.55]">{r.body}</p>
                 <div className="mt-3 flex items-center gap-3 text-[12px]">
@@ -332,7 +332,7 @@ function ThreadDrawer({
                     {r.likes}
                   </button>
                   {r.reactions?.map((rx) => (
-                    <span key={rx.emoji} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--canvas-2)] text-[11px]">
+                    <span key={rx.emoji} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--canvas-2)] text-[12px]">
                       {rx.emoji} {rx.count}
                     </span>
                   ))}

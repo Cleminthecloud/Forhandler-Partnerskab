@@ -50,7 +50,7 @@ export default function AdminKalender() {
 
       {/* Table */}
       <div className="mt-6 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[80px_1fr_140px_140px_180px_80px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[11px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
+        <div className="grid grid-cols-[80px_1fr_140px_140px_180px_80px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <span>Dato</span><span>Titel · vært</span><span>Type</span><span>Region</span><span>Tilmeldte</span><span></span>
         </div>
         {sorted.map((e) => {
@@ -64,7 +64,7 @@ export default function AdminKalender() {
             >
               <div className="text-[13px]">
                 <div className="font-semibold text-[var(--ink)]">{new Date(e.dato).getDate()}/{new Date(e.dato).getMonth() + 1}</div>
-                <div className="text-[11px] text-[var(--ink-3)]">{e.tid}</div>
+                <div className="text-[12px] text-[var(--ink-3)]">{e.tid}</div>
               </div>
               <div className="min-w-0">
                 <div className="text-[14px] font-semibold text-[var(--ink)] truncate">{e.titel}</div>
@@ -134,7 +134,7 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
             </svg>
           </button>
           <div className="absolute bottom-5 left-6 right-6 text-white">
-            <span className="inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md uppercase tracking-wider">{event.type}</span>
+            <span className="inline-block text-[12px] font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md uppercase tracking-wider">{event.type}</span>
             <h2 className="mt-3 text-[24px] font-semibold leading-[1.1] tracking-tight" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.35)" }}>
               {event.titel}
             </h2>
@@ -155,12 +155,12 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
           <section className="rounded-[var(--r-md)] bg-[var(--canvas-2)] p-4">
             <div className="flex items-baseline justify-between mb-2">
               <div>
-                <div className="text-[11px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Tilmelding</div>
+                <div className="text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Tilmelding</div>
                 <div className="text-[20px] font-bold text-[var(--ink)] tabular-nums mt-1">{event.tilmeldte} <span className="text-[var(--ink-3)] font-normal">/ {event.pladser} pladser</span></div>
               </div>
               <div className="text-right">
                 <div className="text-[28px] font-bold tabular-nums" style={{ color: fillColor }}>{Math.round(fill * 100)}%</div>
-                <div className="text-[11px] text-[var(--ink-3)]">udfyldt</div>
+                <div className="text-[12px] text-[var(--ink-3)]">udfyldt</div>
               </div>
             </div>
             <div className="h-2 rounded-full bg-white overflow-hidden mt-3">
@@ -243,7 +243,7 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
 
         {/* Footer actions — admin */}
         <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between gap-3 shrink-0">
-          <span className="text-[11px] text-[var(--ink-3)]">Event #{event.id}</span>
+          <span className="text-[12px] text-[var(--ink-3)]">Event #{event.id}</span>
           <div className="flex gap-2">
             <button onClick={() => pushToast("Påmindelse sendt til alle tilmeldte")} className="btn btn-secondary !py-1.5">Send påmindelse</button>
             <button onClick={() => pushToast("Redigér event…")} className="btn btn-secondary !py-1.5">Rediger</button>
@@ -272,7 +272,7 @@ function Tile({ label, value, delta, subtle = false }: { label: string; value: s
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</dt>
+      <dt className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</dt>
       <dd className="text-[13.5px] text-[var(--ink)] mt-0.5">{children}</dd>
     </div>
   );

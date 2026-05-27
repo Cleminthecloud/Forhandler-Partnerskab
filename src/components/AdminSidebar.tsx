@@ -198,7 +198,7 @@ function AdminUserCell({ collapsed, pushToast }: { collapsed: boolean; pushToast
           <>
             <div className="min-w-0 flex-1">
               <div className="text-[13px] font-semibold text-[var(--ink)] truncate leading-tight">{ADMIN_USER.navn}</div>
-              <div className="text-[11px] text-[var(--ink-3)] truncate mt-0.5">{ADMIN_USER.rolle}</div>
+              <div className="text-[12px] text-[var(--ink-3)] truncate mt-0.5">{ADMIN_USER.rolle}</div>
             </div>
             <svg
               width="14"
@@ -229,7 +229,7 @@ function AdminUserCell({ collapsed, pushToast }: { collapsed: boolean; pushToast
           {collapsed && (
             <div className="px-3 py-2.5 border-b border-[var(--line-2)]">
               <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{ADMIN_USER.navn}</div>
-              <div className="text-[11px] text-[var(--ink-3)] truncate">{ADMIN_USER.rolle}</div>
+              <div className="text-[12px] text-[var(--ink-3)] truncate">{ADMIN_USER.rolle}</div>
             </div>
           )}
 

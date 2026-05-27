@@ -76,11 +76,11 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
         <div className="flex-1 min-w-[280px]">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-[34px] font-semibold tracking-tight text-[var(--cr-navy-deep)]">{partner.firma}</h1>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{
+            <span className="text-[12px] font-semibold px-2 py-0.5 rounded-full" style={{
               background: partner.tier === "Guld" ? "#FFF4D6" : partner.tier === "Sølv" ? "#F1F3F5" : "#FBE9DC",
               color: partner.tier === "Guld" ? "#7A5300" : partner.tier === "Sølv" ? "#52595E" : "#7A3F12",
             }}>{partner.tier}-partner</span>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[var(--cr-blue-tint)] text-[var(--cr-navy)]">
+            <span className="text-[12px] font-semibold px-2 py-0.5 rounded-full bg-[var(--cr-blue-tint)] text-[var(--cr-navy)]">
               ✓ Carl Ras Certificeret
             </span>
           </div>
@@ -118,7 +118,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <div key={c.titel} className="card !p-4">
                 <div className="text-[13px] font-semibold text-[var(--cr-navy-deep)]">{c.titel}</div>
                 <p className="text-[12px] text-[var(--ink-muted-80)] mt-1">{c.body}</p>
-                <div className="text-[11px] text-[var(--ink-muted-48)] mt-2">{c.pris}</div>
+                <div className="text-[12px] text-[var(--ink-muted-48)] mt-2">{c.pris}</div>
               </div>
             ))}
           </div>

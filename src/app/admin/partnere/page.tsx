@@ -66,7 +66,7 @@ export default function AdminPartnere() {
 
       {/* Partner table */}
       <div className="mt-4 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[11px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
+        <div className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <span>Firma · ejer</span>
           <span>Tier</span>
           <span>Faggruppe</span>

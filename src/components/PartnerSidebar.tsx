@@ -76,7 +76,7 @@ export function PartnerSidebar() {
             </div>
 
             <div className="mt-3">
-              <div className="flex items-baseline justify-between text-[11px] mb-1.5">
+              <div className="flex items-baseline justify-between text-[12px] mb-1.5">
                 <span className="text-[var(--ink-2)] font-medium tabular-nums">{CURRENT_PARTNER.points.toLocaleString("da-DK")} <span className="text-[var(--ink-3)] font-normal">point</span></span>
                 <span className="text-[var(--ink-3)] tabular-nums">{Math.max(0, CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points)} til Guld</span>
               </div>
@@ -220,7 +220,7 @@ function UserCell({ collapsed, pushToast }: { collapsed: boolean; pushToast: (te
           <>
             <div className="min-w-0 flex-1">
               <div className="text-[13px] font-semibold text-[var(--ink)] truncate leading-tight">{CURRENT_PARTNER.ejer}</div>
-              <div className="text-[11px] text-[var(--ink-3)] truncate mt-0.5">{CURRENT_PARTNER.email}</div>
+              <div className="text-[12px] text-[var(--ink-3)] truncate mt-0.5">{CURRENT_PARTNER.email}</div>
             </div>
             <svg
               width="14"
@@ -253,7 +253,7 @@ function UserCell({ collapsed, pushToast }: { collapsed: boolean; pushToast: (te
           {collapsed && (
             <div className="px-3 py-2.5 border-b border-[var(--line-2)]">
               <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{CURRENT_PARTNER.ejer}</div>
-              <div className="text-[11px] text-[var(--ink-3)] truncate">{CURRENT_PARTNER.email}</div>
+              <div className="text-[12px] text-[var(--ink-3)] truncate">{CURRENT_PARTNER.email}</div>
             </div>
           )}
 

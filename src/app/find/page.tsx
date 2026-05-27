@@ -144,7 +144,7 @@ export default function FindPartnerPage() {
                 (fag === "Alle" ? "border-b-2 border-[var(--ink)] text-[var(--ink)]" : "border-b-2 border-transparent text-[var(--ink-3)] hover:text-[var(--ink)]")}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18"/></svg>
-              <span className="text-[11px] font-medium whitespace-nowrap">Alle</span>
+              <span className="text-[12px] font-medium whitespace-nowrap">Alle</span>
             </button>
             {(FAGGRUPPER.filter((f) => f !== "Alle") as Faggruppe[]).map((f) => (
               <button
@@ -156,7 +156,7 @@ export default function FindPartnerPage() {
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d={FAG_ICONS[f]} />
                 </svg>
-                <span className="text-[11px] font-medium whitespace-nowrap">{f}</span>
+                <span className="text-[12px] font-medium whitespace-nowrap">{f}</span>
               </button>
             ))}
           </div>
@@ -204,15 +204,15 @@ export default function FindPartnerPage() {
               <div className="t-eyebrow !text-[var(--accent)]">Sådan virker det</div>
               <ol className="mt-3 space-y-3 text-[13px] text-[var(--ink-2)] leading-[1.5]">
                 <li className="flex gap-3">
-                  <span className="size-5 shrink-0 rounded-full bg-[var(--accent)] text-white grid place-items-center text-[11px] font-semibold">1</span>
+                  <span className="size-5 shrink-0 rounded-full bg-[var(--accent)] text-white grid place-items-center text-[12px] font-semibold">1</span>
                   Filtrér på opgave, faggruppe og lokation.
                 </li>
                 <li className="flex gap-3">
-                  <span className="size-5 shrink-0 rounded-full bg-[var(--accent)] text-white grid place-items-center text-[11px] font-semibold">2</span>
+                  <span className="size-5 shrink-0 rounded-full bg-[var(--accent)] text-white grid place-items-center text-[12px] font-semibold">2</span>
                   Klik en partner og send en kort beskrivelse.
                 </li>
                 <li className="flex gap-3">
-                  <span className="size-5 shrink-0 rounded-full bg-[var(--accent)] text-white grid place-items-center text-[11px] font-semibold">3</span>
+                  <span className="size-5 shrink-0 rounded-full bg-[var(--accent)] text-white grid place-items-center text-[12px] font-semibold">3</span>
                   Partneren kontakter dig — typisk inden for 24 timer.
                 </li>
               </ol>
@@ -229,7 +229,7 @@ export default function FindPartnerPage() {
 function SearchField({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <label className={"flex-1 min-w-0 px-5 py-2.5 hover:bg-[var(--canvas-2)] transition-colors cursor-pointer " + (className ?? "")}>
-      <span className="block text-[11px] font-semibold text-[var(--ink)]">{label}</span>
+      <span className="block text-[12px] font-semibold text-[var(--ink)]">{label}</span>
       <div className="mt-0.5 truncate text-[var(--ink-2)]">{children}</div>
     </label>
   );
@@ -286,7 +286,7 @@ function PartnerCard({ partner, cover, isFav, onToggleFav }: { partner: PartnerP
 
         {/* Logo monogram bottom-left */}
         <div className="absolute bottom-3 left-3 flex items-center gap-2">
-          <div className="size-9 rounded-lg grid place-items-center text-white font-semibold text-[11px] shadow-md" style={{ background: partner.logoBg }}>
+          <div className="size-9 rounded-lg grid place-items-center text-white font-semibold text-[12px] shadow-md" style={{ background: partner.logoBg }}>
             {partner.initialer}
           </div>
           <div className="text-white text-[10px] uppercase tracking-wider font-semibold drop-shadow">
@@ -310,10 +310,10 @@ function PartnerCard({ partner, cover, isFav, onToggleFav }: { partner: PartnerP
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           {partner.specialer.slice(0, 2).map((s) => (
-            <span key={s} className="text-[11px] px-2 py-0.5 rounded-md bg-[var(--canvas-2)] text-[var(--ink-2)]">{s}</span>
+            <span key={s} className="text-[12px] px-2 py-0.5 rounded-md bg-[var(--canvas-2)] text-[var(--ink-2)]">{s}</span>
           ))}
           {partner.specialer.length > 2 && (
-            <span className="text-[11px] px-2 py-0.5 text-[var(--ink-3)]">+{partner.specialer.length - 2}</span>
+            <span className="text-[12px] px-2 py-0.5 text-[var(--ink-3)]">+{partner.specialer.length - 2}</span>
           )}
         </div>
 

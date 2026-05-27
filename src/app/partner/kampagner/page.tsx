@@ -123,7 +123,7 @@ export default function KampagnerPage() {
                       </div>
                       <div className="flex-1 min-w-0 pt-0.5">
                         <div className="text-[13px] font-semibold text-[var(--ink)] leading-tight truncate">{c.titel}</div>
-                        <div className="text-[11px] text-[var(--ink-3)] mt-0.5">
+                        <div className="text-[12px] text-[var(--ink-3)] mt-0.5">
                           {c.formater.length} formater · {c.status}
                         </div>
                       </div>
@@ -158,7 +158,7 @@ export default function KampagnerPage() {
                           </div>
                           <div className="flex-1 min-w-0 pt-0.5">
                             <div className="text-[13px] font-medium text-[var(--ink)] leading-tight truncate">{c.titel}</div>
-                            <div className="text-[11px] text-[var(--ink-3)] mt-0.5 flex items-center gap-1.5">
+                            <div className="text-[12px] text-[var(--ink-3)] mt-0.5 flex items-center gap-1.5">
                               <span className="size-1.5 rounded-full" style={{ background: otherTheme?.accent }} />
                               <span>{otherTheme?.label}</span>
                             </div>
@@ -176,7 +176,7 @@ export default function KampagnerPage() {
           <div className="card !p-4">
             <div className="flex items-baseline justify-between mb-3">
               <span className="text-[12px] font-semibold text-[var(--ink-2)]">Billede</span>
-              <span className="text-[11px] text-[var(--ink-3)]">{variants.length} valg</span>
+              <span className="text-[12px] text-[var(--ink-3)]">{variants.length} valg</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {variants.map((v, idx) => (
@@ -191,7 +191,7 @@ export default function KampagnerPage() {
                 />
               ))}
             </div>
-            <div className="mt-3 text-[11px] text-[var(--ink-3)]">
+            <div className="mt-3 text-[12px] text-[var(--ink-3)]">
               <strong className="text-[var(--ink-2)] font-medium">{variants[imageVariant].label}</strong>
             </div>
           </div>
@@ -365,7 +365,7 @@ export default function KampagnerPage() {
 
           {/* BOTTOM INFO STRIP — quiet, no actions, no card. Just contextual info
               the partner cares about. All actions live in the top bar now. */}
-          <div className="absolute left-6 right-6 bottom-3 z-10 flex items-center justify-between gap-3 text-[11px] text-[var(--ink-3)] pointer-events-none">
+          <div className="absolute left-6 right-6 bottom-3 z-10 flex items-center justify-between gap-3 text-[12px] text-[var(--ink-3)] pointer-events-none">
             <span className="pointer-events-auto inline-flex items-center gap-1.5">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
                 <circle cx="12" cy="12" r="9" />
@@ -462,7 +462,7 @@ export default function KampagnerPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{CURRENT_PARTNER.firma}</div>
-                    <div className="text-[11px] text-[var(--ink-3)] truncate">Nuværende logo · auto-hentet fra profil</div>
+                    <div className="text-[12px] text-[var(--ink-3)] truncate">Nuværende logo · auto-hentet fra profil</div>
                   </div>
                 </div>
 
@@ -495,7 +495,7 @@ export default function KampagnerPage() {
                         <div className="size-8 rounded-md grid place-items-center text-white text-[14px] font-bold shrink-0" style={{ background: a.color }}>{a.icon}</div>
                         <div className="flex-1 min-w-0">
                           <div className="text-[13px] font-medium text-[var(--ink)] truncate">{a.name}</div>
-                          <div className="text-[11px] text-[var(--ink-3)] truncate">{a.connected ? a.account : "Ikke forbundet"}</div>
+                          <div className="text-[12px] text-[var(--ink-3)] truncate">{a.connected ? a.account : "Ikke forbundet"}</div>
                         </div>
                         {a.connected ? (
                           <span className="size-2 rounded-full bg-[#2D4A0F] shrink-0" data-tt="Forbundet" />
@@ -511,7 +511,7 @@ export default function KampagnerPage() {
               {/* Tip */}
               <section>
                 <div className="p-3.5 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">Tip</div>
+                  <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">Tip</div>
                   <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
                     {category === "print"
                       ? "Bestil tryk lader Carl Ras producere og levere. Eller hent en print-klar PDF til din lokale trykker."
@@ -523,7 +523,7 @@ export default function KampagnerPage() {
 
             {/* Drawer footer */}
             <div className="px-5 py-3.5 border-t border-[var(--line-2)] flex items-center justify-between gap-3 bg-[var(--canvas)]">
-              <span className="text-[11px] text-[var(--ink-3)]">
+              <span className="text-[12px] text-[var(--ink-3)]">
                 Ændringer gemmes automatisk
               </span>
               <button onClick={() => setDrawerOpen(false)} className="btn btn-primary !py-1.5">Færdig</button>
@@ -633,7 +633,7 @@ function ActionConfirm({
 
         {kind === "digital-send" && (
           <div className="mt-5">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">Vælg konto</div>
+            <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">Vælg konto</div>
             <div className="space-y-2">
               {CONNECTED_ACCOUNTS.filter((a) => a.connected).map((a) => (
                 <label key={a.id} className={"flex items-center gap-3 p-3 rounded-[var(--r-md)] border cursor-pointer transition-colors " + (target === a.id ? "border-[var(--accent)] bg-[var(--accent-tint)]" : "border-[var(--line-2)] hover:border-[var(--accent)]")}>
@@ -647,7 +647,7 @@ function ActionConfirm({
                   <div className="size-7 rounded-md grid place-items-center text-white text-[12px] font-bold shrink-0" style={{ background: a.color }}>{a.icon}</div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] font-semibold text-[var(--ink)]">{a.name}</div>
-                    <div className="text-[11px] text-[var(--ink-3)] truncate">{a.account}</div>
+                    <div className="text-[12px] text-[var(--ink-3)] truncate">{a.account}</div>
                   </div>
                 </label>
               ))}
@@ -679,7 +679,7 @@ function EditField({ label, value, onChange, max, multiline, rows }: { label: st
   return (
     <div>
       <div className="flex items-baseline justify-between mb-1.5">
-        <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</label>
+        <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</label>
         {max && (
           <span className={"text-[10px] tabular-nums " + (near ? "text-[#A32D2D]" : "text-[var(--ink-3)]")}>
             {len}/{max}

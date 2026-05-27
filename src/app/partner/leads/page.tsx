@@ -65,7 +65,7 @@ export default function LeadsPage() {
 
       {/* Leads table */}
       <div className="mt-6 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[11px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
+        <div className="grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <div>Kunde · Behov</div>
           <div>Postnr</div>
           <div>By</div>
@@ -156,7 +156,7 @@ export default function LeadsPage() {
 
             {/* Sticky footer */}
             <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas-2)] shrink-0">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2.5">Opdatér status</div>
+              <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2.5">Opdatér status</div>
               <div className="grid grid-cols-4 gap-2">
                 {STATUSES.map((s) => (
                   <button
@@ -213,7 +213,7 @@ function StatusBadge({ status }: { status: LeadStatus }) {
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[11px] uppercase tracking-wider text-[var(--ink-muted-48)] font-semibold mb-1.5">{label}</div>
+      <div className="text-[12px] uppercase tracking-wider text-[var(--ink-muted-48)] font-semibold mb-1.5">{label}</div>
       <div className="text-[14px] text-[var(--cr-navy-deep)]">{children}</div>
     </div>
   );
@@ -248,7 +248,7 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
       <div className="px-6 pt-5 pb-2 bg-[var(--canvas)]">
         <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#EAF1DC] text-[#2D4A0F]">
           <svg width="12" height="12" viewBox="0 0 14 14"><path d="M2 7l3 3 7-7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          <span className="text-[11px] font-semibold uppercase tracking-wider">Vundet — næste skridt</span>
+          <span className="text-[12px] font-semibold uppercase tracking-wider">Vundet — næste skridt</span>
         </div>
         <h3 className="text-[18px] font-semibold text-[var(--ink)] mt-3">Nu kommer arbejdet</h3>
         <p className="text-[13px] text-[var(--ink-2)] mt-1 leading-[1.5]">
@@ -309,7 +309,7 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-[14px] font-semibold text-[var(--ink)] tabular-nums">{p.pris}</div>
-                  <div className="text-[11px] text-[var(--accent)] mt-1">Åbn PDP ↗</div>
+                  <div className="text-[12px] text-[var(--accent)] mt-1">Åbn PDP ↗</div>
                 </div>
               </a>
             </li>
@@ -333,7 +333,7 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
             <div className="flex-1 min-w-0">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{træning.udsteder}</div>
               <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{træning.titel}</div>
-              <div className="text-[11px] text-[var(--ink-3)] mt-0.5">{træning.moduler} moduler · {træning.varighed}</div>
+              <div className="text-[12px] text-[var(--ink-3)] mt-0.5">{træning.moduler} moduler · {træning.varighed}</div>
             </div>
             <div className="text-[12px] font-semibold text-[var(--accent)] shrink-0">Start →</div>
           </a>
@@ -357,7 +357,7 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{specialist.navn}</div>
-            <div className="text-[11px] text-[var(--ink-3)]">
+            <div className="text-[12px] text-[var(--ink-3)]">
               {specialist.rolle} · {specialist.bu}
               {specialist.online && <span className="ml-2 text-[#2D4A0F]">● Online</span>}
             </div>

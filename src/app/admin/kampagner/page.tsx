@@ -27,7 +27,7 @@ export default function AdminKampagner() {
               <span className="size-3 rounded-full" style={{ background: theme.accent }} />
               <h2 className="text-[20px] font-semibold text-[var(--cr-navy-deep)]">{theme.label}</h2>
               <span className="text-[12px] text-[var(--ink-muted-48)]">{theme.bu} · {theme.season}</span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide ml-auto" style={{ background: theme.accentSoft, color: theme.accentInk }}>
+              <span className="text-[12px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide ml-auto" style={{ background: theme.accentSoft, color: theme.accentInk }}>
                 {theme.status}
               </span>
             </div>

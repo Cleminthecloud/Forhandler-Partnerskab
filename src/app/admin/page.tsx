@@ -190,7 +190,7 @@ export default function AdminOverview() {
           <h3 className="t-h3">Top-performere</h3>
           <Link href="/admin/partnere" className="link text-[13px]">Se alle 47 →</Link>
         </div>
-        <div className="grid grid-cols-[1fr_80px_70px_80px_110px] gap-4 px-2 mb-2 text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)]">
+        <div className="grid grid-cols-[1fr_80px_70px_80px_110px] gap-4 px-2 mb-2 text-[12px] uppercase tracking-wider font-semibold text-[var(--ink-3)]">
           <span>Partner</span><span>Tier</span><span>Sager</span><span>Rating</span><span>Region</span>
         </div>
         {PARTNERS.slice(0, 6).map((p) => (
@@ -200,7 +200,7 @@ export default function AdminOverview() {
             className="grid grid-cols-[1fr_80px_70px_80px_110px] gap-4 px-2 py-3 border-t border-[var(--line-2)] items-center hover:bg-[var(--canvas-2)] -mx-2 px-4 rounded-md transition-colors group"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="size-9 rounded-lg grid place-items-center text-white text-[11px] font-semibold shrink-0" style={{ background: p.logoBg }} aria-hidden="true">
+              <div className="size-9 rounded-lg grid place-items-center text-white text-[12px] font-semibold shrink-0" style={{ background: p.logoBg }} aria-hidden="true">
                 {p.initialer}
               </div>
               <div className="min-w-0">
@@ -257,7 +257,7 @@ function KpiTile({
       <div className="flex items-baseline justify-between">
         <span className="text-[12px] text-[var(--ink-3)] font-medium">{label}</span>
         {delta && (
-          <span className={"text-[11px] font-semibold " + (deltaPositive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>
+          <span className={"text-[12px] font-semibold " + (deltaPositive ? "text-[#2D4A0F]" : "text-[var(--ink-3)]")}>
             {delta}
           </span>
         )}

@@ -115,7 +115,7 @@ export function MiniArea({ data, color = "var(--accent)", height = 44, unit, for
               if (!active || !payload || !payload.length) return null;
               const p = payload[0];
               return (
-                <div className="bg-white rounded-md shadow-[var(--shadow-2)] border border-[var(--line-2)] px-2 py-1 text-[11px]">
+                <div className="bg-white rounded-md shadow-[var(--shadow-2)] border border-[var(--line-2)] px-2 py-1 text-[12px]">
                   <span className="text-[var(--ink-3)]">{p.payload.label}</span>{" "}
                   <span className="font-semibold text-[var(--ink)] tabular-nums">
                     {formatValue ? formatValue(p.value) : p.value}{unit ? ` ${unit}` : ""}

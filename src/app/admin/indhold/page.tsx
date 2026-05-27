@@ -25,9 +25,9 @@ export default function AdminIndhold() {
                 <span className="text-2xl shrink-0">{p.hero}</span>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-semibold text-[var(--cr-navy-deep)] truncate">{p.titel}</div>
-                  <div className="text-[11px] text-[var(--ink-muted-48)] truncate">{p.forfatter} · {p.dato} · {p.kategori}</div>
+                  <div className="text-[12px] text-[var(--ink-muted-48)] truncate">{p.forfatter} · {p.dato} · {p.kategori}</div>
                 </div>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#EAF1DC] text-[#324A14] shrink-0">Publiceret</span>
+                <span className="text-[12px] font-semibold px-2 py-0.5 rounded-full bg-[#EAF1DC] text-[#324A14] shrink-0">Publiceret</span>
               </li>
             ))}
           </ul>
@@ -37,14 +37,14 @@ export default function AdminIndhold() {
         <div className="card">
           <div className="flex items-center justify-between mb-3">
             <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>FORUM · TRÅDE</div>
-            <span className="text-[11px] text-[var(--ink-muted-48)]">2 til moderation</span>
+            <span className="text-[12px] text-[var(--ink-muted-48)]">2 til moderation</span>
           </div>
           <ul className="divide-y divide-[var(--divider-soft)]">
             {FORUM_THREADS.slice(0, 5).map((t) => (
               <li key={t.id} className="py-3 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-semibold text-[var(--cr-navy-deep)] truncate">{t.titel}</div>
-                  <div className="text-[11px] text-[var(--ink-muted-48)] truncate">{t.forfatter} · {t.svar} svar · {t.likes} ♡</div>
+                  <div className="text-[12px] text-[var(--ink-muted-48)] truncate">{t.forfatter} · {t.svar} svar · {t.likes} ♡</div>
                 </div>
                 <button onClick={() => pushToast(`Åbner tråd: ${t.titel}`)} className="text-[12px] font-semibold shrink-0" style={{ color: "var(--cr-blue)" }}>Åbn →</button>
               </li>
@@ -56,7 +56,7 @@ export default function AdminIndhold() {
         <div className="card lg:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>SPECIALIST-CHAT · KØ</div>
-            <span className="text-[11px] text-[var(--ink-muted-48)]">Gns. svartid: 14 min</span>
+            <span className="text-[12px] text-[var(--ink-muted-48)]">Gns. svartid: 14 min</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
@@ -66,10 +66,10 @@ export default function AdminIndhold() {
             ].map((s) => (
               <div key={s.name} className="p-4 rounded-xl bg-[var(--surface-pearl)]">
                 <div className="text-[13px] font-semibold text-[var(--cr-navy-deep)]">{s.name}</div>
-                <div className="text-[11px] text-[var(--ink-muted-48)]">{s.bu}</div>
+                <div className="text-[12px] text-[var(--ink-muted-48)]">{s.bu}</div>
                 <div className="mt-3 flex items-baseline justify-between">
                   <span className="text-[20px] font-semibold text-[var(--cr-navy-deep)]">{s.queue}</span>
-                  <span className="text-[11px] text-[var(--ink-muted-48)]">venter · {s.response}</span>
+                  <span className="text-[12px] text-[var(--ink-muted-48)]">venter · {s.response}</span>
                 </div>
               </div>
             ))}

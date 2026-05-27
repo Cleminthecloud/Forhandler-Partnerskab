@@ -148,7 +148,7 @@ html, body {
   background: var(--canvas);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 16px;              /* base bumped 15→16px — lifts all readable UI text */
   font-weight: 400;             /* default body weight — softens the whole app */
   line-height: 1.5;
   letter-spacing: -0.006em;     /* Neo Sans needs slightly less negative tracking than Inter */
@@ -187,38 +187,38 @@ html, body {
   font-family: var(--font-display);
 }
 .t-h3 {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   line-height: 1.28;
   letter-spacing: -0.004em;
   color: var(--ink);
 }
 .t-body {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.55;
   letter-spacing: -0.004em;
   color: var(--ink-2);
 }
 .t-body-lg {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: -0.006em;
   color: var(--ink-2);
 }
 .t-caption {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.45;
   letter-spacing: 0;
   color: var(--ink-3);
 }
 .t-eyebrow {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--ink-3);    /* CRITICAL: NOT accent. Reduces visual noise. */
 }
@@ -226,10 +226,10 @@ html, body {
 /* Legacy class aliases — keep existing components working */
 .t-display-lg { font-size: clamp(36px, 5vw, 52px); font-weight: 600; line-height: 1.08; letter-spacing: -0.022em; color: var(--ink); }
 .t-hero       { font-size: clamp(40px, 5.4vw, 56px); font-weight: 600; line-height: 1.07; letter-spacing: -0.022em; color: var(--ink); }
-.t-lead       { font-size: clamp(17px, 1.6vw, 19px); font-weight: 400; line-height: 1.45; letter-spacing: -0.014em; color: var(--ink-2); }
-.t-body-strong { font-size: 15px; font-weight: 600; letter-spacing: -0.011em; color: var(--ink); }
-.t-tagline    { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
-.t-caption-strong { font-size: 13px; font-weight: 600; color: var(--ink); }
+.t-lead       { font-size: clamp(18px, 1.6vw, 20px); font-weight: 400; line-height: 1.5; letter-spacing: -0.014em; color: var(--ink-2); }
+.t-body-strong { font-size: 16px; font-weight: 600; letter-spacing: -0.011em; color: var(--ink); }
+.t-tagline    { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.t-caption-strong { font-size: 14px; font-weight: 600; color: var(--ink); }
 
 /* === Buttons === */
 .btn,
@@ -239,7 +239,7 @@ html, body {
   justify-content: center;
   gap: var(--s-2);
   font-family: inherit;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -294,8 +294,8 @@ html, body {
 .pill-light:hover { background: var(--line); }
 
 /* Sizes */
-.btn-lg, .pill-lg { padding: 12px 22px; font-size: 15px; }
-.btn-sm, .pill-sm { padding: 7px 14px; font-size: 13px; }
+.btn-lg, .pill-lg { padding: 13px 24px; font-size: 16px; }
+.btn-sm, .pill-sm { padding: 8px 15px; font-size: 14px; }
 
 /* Link */
 .link {

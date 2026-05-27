@@ -141,7 +141,7 @@ export function BookVisitDialog({
                 <Icon name="home" size={18} />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Kunde</div>
+                <div className="text-[12px] text-[var(--ink-3)] uppercase tracking-wider font-semibold">Kunde</div>
                 <div className="text-[14px] font-semibold text-[var(--ink)] truncate">{context.customerName}</div>
               </div>
             </div>
@@ -149,7 +149,7 @@ export function BookVisitDialog({
 
           {/* Reason */}
           <div>
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Hvad handler det om?</label>
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Hvad handler det om?</label>
             <div className="grid grid-cols-2 gap-2">
               {filteredReasons.map((r) => (
                 <button
@@ -172,7 +172,7 @@ export function BookVisitDialog({
           {/* Specialist picker (specialist lane only) */}
           {!isKonsulent && (
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Specialist</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Specialist</label>
               <select
                 value={specialistId}
                 onChange={(e) => setSpecialistId(e.target.value)}
@@ -192,7 +192,7 @@ export function BookVisitDialog({
 
           {/* Suggested times */}
           <div>
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Hvornår passer det?</label>
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Hvornår passer det?</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {SUGGESTED_TIMES.map((t) => (
                 <button
@@ -214,7 +214,7 @@ export function BookVisitDialog({
 
           {/* Location */}
           <div>
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Hvor?</label>
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Hvor?</label>
             <input
               type="text"
               value={where}
@@ -226,7 +226,7 @@ export function BookVisitDialog({
 
           {/* Description */}
           <div>
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">
+            <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">
               Beskrivelse <span className="text-[var(--ink-3)] font-normal normal-case tracking-normal">— hvad skal vi forberede?</span>
             </label>
             <textarea

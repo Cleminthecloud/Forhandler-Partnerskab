@@ -68,7 +68,7 @@ export default function EventsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: tc.bg, color: tc.ink }}>{e.type}</span>
+                  <span className="text-[12px] font-semibold px-2 py-0.5 rounded-full" style={{ background: tc.bg, color: tc.ink }}>{e.type}</span>
                   <span className="text-[12px] text-[var(--ink-3)]">{e.region}</span>
                 </div>
                 <div className="text-[15px] font-semibold mt-2 text-[var(--ink)] leading-tight line-clamp-2">{e.titel}</div>
@@ -141,7 +141,7 @@ function EventDetailModal({
             </svg>
           </button>
           <div className="absolute bottom-5 left-6 right-6 text-white">
-            <span className="inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md uppercase tracking-wider">
+            <span className="inline-block text-[12px] font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md uppercase tracking-wider">
               {event.type}
             </span>
             <h2 className="mt-3 text-[26px] font-semibold leading-[1.1] tracking-tight" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.35)" }}>
@@ -221,7 +221,7 @@ function EventDetailModal({
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</dt>
+      <dt className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</dt>
       <dd className="text-[14px] text-[var(--ink)] mt-0.5">{children}</dd>
     </div>
   );
