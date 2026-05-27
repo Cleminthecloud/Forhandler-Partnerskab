@@ -2,16 +2,17 @@
 import { CAMPAIGNS } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { useApp } from "@/components/AppState";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function AdminKampagner() {
   const { pushToast } = useApp();
   return (
     <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
-      <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>KAMPAGNER · UDGIVELSE</div>
-      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Kampagner pr. tema</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
-        Tegn nye kampagner, opdatér eksisterende, publicér til partnernes Materialer-værktøjskasse.
-      </p>
+      <PageHeader
+        eyebrow="Kampagner · Udgivelse"
+        title="Kampagner pr. tema"
+        lead="Tegn nye kampagner, opdatér eksisterende, publicér til partnernes Materialer-værktøjskasse."
+      />
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <button onClick={() => pushToast("Kampagne-editor åbnes…")} className="pill pill-primary">+ Ny kampagne</button>

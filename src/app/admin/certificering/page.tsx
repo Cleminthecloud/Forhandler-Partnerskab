@@ -14,6 +14,7 @@ import {
 import { THEMES } from "@/lib/themes";
 import { useApp } from "@/components/AppState";
 import { Icon, type IconName } from "@/components/Icon";
+import { PageHeader } from "@/components/PageHeader";
 
 /* The flow stages in canonical order — used for both the per-cert kanban
    and the partner-progress chips. */
@@ -57,11 +58,11 @@ export default function AdminCertificering() {
 
   return (
     <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
-      <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>CERTIFICERING · ADMINISTRATION</div>
-      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Certificeringsprogrammer</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
-        Hvert program er en tema-koblet motor til partner-progression. Niveau 1 åbner Sølv, Niveau 2 åbner Guld. Klik et program for at se moduler, eksamen og hvilke partnere der er i flow.
-      </p>
+      <PageHeader
+        eyebrow="Certificering · Administration"
+        title="Certificeringsprogrammer"
+        lead="Hvert program er en tema-koblet motor til partner-progression. Niveau 1 åbner Sølv, Niveau 2 åbner Guld. Klik et program for at se moduler, eksamen og hvilke partnere der er i flow."
+      />
 
       <div className="mt-6 flex flex-wrap gap-2 items-center">
         <button onClick={() => pushToast("Nyt certificeringsprogram…")} className="pill pill-primary inline-flex items-center gap-1.5"><Icon name="plus" size={12} /> Nyt program</button>
@@ -181,22 +182,27 @@ function CertDetailDrawer({
     <div className="fixed inset-0 z-40 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[1000px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[1000px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start gap-4">
+        {/* Thin theme-colored accent strip */}
+        <div className="h-1 shrink-0" style={{ background: tema?.accent ?? "var(--accent)" }} />
+
+        {/* Header — generous hero */}
+        <div className="px-8 pt-7 pb-6 border-b border-[var(--line-2)] flex items-start gap-4 shrink-0">
           <div className="size-14 rounded-2xl grid place-items-center shrink-0 text-[var(--cr-navy-deep)]" style={{ background: tema?.accentSoft ?? "var(--surface-pearl)" }}>
             <Icon name={cert.niveau === "Specialist" ? "shield" : "graduation-cap"} size={26} />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="t-eyebrow !text-[10px]">{cert.niveau} · {cert.udsteder}</div>
-            <div className="text-[20px] font-semibold text-[var(--ink)] mt-1 leading-tight">{cert.titel}</div>
-            <div className="text-[12.5px] text-[var(--ink-3)] mt-1">{cert.moduler} moduler · {cert.varighed}</div>
+            <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] mb-2">
+              {cert.niveau} · {cert.udsteder}
+            </div>
+            <h2 className="text-[24px] font-bold text-[var(--ink)] leading-[1.2] tracking-tight">{cert.titel}</h2>
+            <div className="text-[13px] text-[var(--ink-3)] mt-1.5">{cert.moduler} moduler · {cert.varighed}</div>
           </div>
           <button
             onClick={onClose}
-            className="size-8 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors shrink-0"
+            className="size-9 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors shrink-0"
             aria-label="Luk"
           >
             <Icon name="x" size={16} />

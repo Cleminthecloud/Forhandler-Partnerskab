@@ -104,16 +104,26 @@ export default function LeadsPage() {
         <div className="fixed inset-0 z-50 animate-in" onClick={() => setOpenLead(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <aside
-            className="absolute top-[48px] right-0 bottom-0 w-[860px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+            className="absolute top-[48px] right-0 bottom-0 w-[860px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
           >
-            {/* Sticky header */}
-            <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start justify-between gap-3 shrink-0">
-              <div className="min-w-0">
-                <div className="t-eyebrow !text-[10px]" style={{ color: STATUS_COLOR[openLead.status].ink }}>LEAD #{openLead.id.replace("l-", "")}</div>
-                <div className="text-[24px] font-bold text-[var(--ink)] mt-1.5 leading-tight">{openLead.kunde}</div>
-                <div className="mt-2"><StatusBadge status={openLead.status} /></div>
+            {/* Thin status-colored accent strip at top */}
+            <div className="h-1 shrink-0" style={{ background: STATUS_COLOR[openLead.status].dot }} />
+
+            {/* Sticky header — generous hero, status badge integrated */}
+            <div className="px-8 pt-7 pb-6 border-b border-[var(--line-2)] flex items-start justify-between gap-4 shrink-0">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <StatusBadge status={openLead.status} />
+                  <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+                    Lead #{openLead.id.replace("l-", "")}
+                  </span>
+                </div>
+                <h2 className="text-[28px] font-bold text-[var(--ink)] leading-[1.15] tracking-tight">{openLead.kunde}</h2>
+                <p className="text-[14px] text-[var(--ink-3)] mt-1.5">
+                  {openLead.behov} · {openLead.værdi ?? "værdi ikke estimeret"}
+                </p>
               </div>
               <button onClick={() => setOpenLead(null)} className="size-9 rounded-full hover:bg-[var(--canvas-2)] grid place-items-center text-[var(--ink-3)] hover:text-[var(--ink)] shrink-0" aria-label="Luk">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -123,20 +133,19 @@ export default function LeadsPage() {
             </div>
 
             {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto px-8 py-6 space-y-5 min-h-0">
-              <Section label="Behov">{openLead.behov}</Section>
+            <div className="flex-1 overflow-y-auto px-8 py-7 space-y-7 min-h-0">
               <Section label="Beskrivelse">{openLead.beskrivelse}</Section>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Section label="Postnummer">{openLead.postnr} {openLead.by}</Section>
-                <Section label="Estimeret værdi">{openLead.værdi ?? "—"}</Section>
-                <Section label="Telefon">{openLead.telefon}</Section>
-                <Section label="Email"><span className="break-all">{openLead.email}</span></Section>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+                <Section label="Adresse">{openLead.postnr} {openLead.by}</Section>
+                <Section label="Modtaget">{new Date(openLead.dato).toLocaleDateString("da-DK", { day: "numeric", month: "long", year: "numeric" })}</Section>
+                <Section label="Telefon"><a href={`tel:${openLead.telefon.replace(/\s/g, "")}`} className="link">{openLead.telefon}</a></Section>
+                <Section label="Email"><a href={`mailto:${openLead.email}`} className="link break-all">{openLead.email}</a></Section>
               </div>
 
               <Section label="Tema">
                 <span
-                  className="inline-flex items-center gap-2 text-[12px] font-medium px-2.5 py-1 rounded-full"
+                  className="inline-flex items-center gap-2 text-[13px] font-medium px-3 py-1 rounded-full"
                   style={{
                     background: THEMES.find((t) => t.id === openLead.tema)?.accentSoft,
                     color: THEMES.find((t) => t.id === openLead.tema)?.accentInk,
@@ -146,8 +155,6 @@ export default function LeadsPage() {
                   {THEMES.find((t) => t.id === openLead.tema)?.label}
                 </span>
               </Section>
-
-              <Section label="Modtaget">{new Date(openLead.dato).toLocaleDateString("da-DK", { day: "numeric", month: "long", year: "numeric" })}</Section>
 
               {/* Won-project upsell */}
               {openLead.status === "Vundet" && (

@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { BLOG_POSTS, BlogPost } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { Icon } from "@/components/Icon";
+import { PageHeader } from "@/components/PageHeader";
 
 const KAT_COLOR: Record<BlogPost["kategori"], { bg: string; ink: string }> = {
   "Tema-update":     { bg: "#FFF1DC", ink: "#7A4400" },
@@ -25,14 +26,13 @@ export default function NyhederPage() {
   return (
     <div className="px-6 lg:px-10 xl:px-12 py-8 lg:py-10 animate-in">
       {/* ─── HEADER ─── */}
-      <header className="mb-8 max-w-[820px]">
-        <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>NYHEDER FRA CARL RAS</div>
-        <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Hvad er nyt</h1>
-        <p className="t-lead mt-2">
-          Vores specialister deler markedsindsigt, produktnyheder, cases og hvad næste tema bringer.
-          Læs hvad der virker for andre partnere.
-        </p>
-      </header>
+      <div className="mb-8">
+        <PageHeader
+          eyebrow="Nyheder fra Carl Ras"
+          title="Hvad er nyt"
+          lead="Vores specialister deler markedsindsigt, produktnyheder, cases og hvad næste tema bringer. Læs hvad der virker for andre partnere."
+        />
+      </div>
 
       {/* ─── FILTER ─── */}
       <div className="mb-7 flex flex-wrap gap-1.5">

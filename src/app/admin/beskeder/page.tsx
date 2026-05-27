@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useApp } from "@/components/AppState";
 import { ADMIN_STATS } from "@/lib/data";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function AdminBeskeder() {
   const { pushToast } = useApp();
@@ -15,11 +16,11 @@ export default function AdminBeskeder() {
 
   return (
     <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
-      <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>TARGETED MESSAGING</div>
-      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Send besked til en partner-segment</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
-        Beskeder bliver pushet til partnernes inbox + email. Personalisering via flettefelter.
-      </p>
+      <PageHeader
+        eyebrow="Targeted messaging"
+        title="Send besked til en partner-segment"
+        lead="Beskeder bliver pushet til partnernes inbox + email. Personalisering via flettefelter."
+      />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="card">

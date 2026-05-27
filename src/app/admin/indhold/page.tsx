@@ -1,16 +1,17 @@
 "use client";
 import { BLOG_POSTS, FORUM_THREADS } from "@/lib/data";
 import { useApp } from "@/components/AppState";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function AdminIndhold() {
   const { pushToast } = useApp();
   return (
     <div className="px-8 lg:px-10 xl:px-12 py-8 lg:py-10">
-      <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>INDHOLD · MODERATION</div>
-      <h1 className="t-display mt-3 text-[var(--cr-navy-deep)]">Blog, forum &amp; specialist-chat</h1>
-      <p className="t-lead mt-2 max-w-[680px]">
-        Publicér artikler, modérer trådene, hold øje med specialist-svartider.
-      </p>
+      <PageHeader
+        eyebrow="Indhold · Moderation"
+        title="Blog, forum & specialist-chat"
+        lead="Publicér artikler, modérer trådene, hold øje med specialist-svartider."
+      />
 
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
         {/* Blog management */}

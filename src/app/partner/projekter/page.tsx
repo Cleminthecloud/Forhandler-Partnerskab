@@ -480,29 +480,36 @@ function ProjectDrawer({
     <div className="fixed inset-0 z-40 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[960px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[960px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
-        {/* Drawer header */}
-        <div className="px-8 py-6 border-b border-[var(--line-2)] flex items-start gap-4">
+        {/* Thin status-colored accent strip */}
+        <div className="h-1 shrink-0" style={{ background: style.dot }} />
+
+        {/* Drawer header — generous hero with status pill integrated near eyebrow */}
+        <div className="px-8 pt-7 pb-6 border-b border-[var(--line-2)] flex items-start gap-4 shrink-0">
           <div className="size-14 rounded-2xl grid place-items-center text-[26px] shrink-0" style={{ background: "var(--canvas-2)" }}>
             {project.emoji}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="t-eyebrow !text-[10px]">{project.type} · {project.by}</div>
-            <div className="text-[20px] font-semibold text-[var(--ink)] mt-1 leading-tight">{project.kunde}</div>
-            <div className="text-[12.5px] text-[var(--ink-3)] mt-1">{project.kontakt}</div>
+            <div className="flex items-center gap-2.5 mb-2">
+              <span
+                className="text-[12px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+                style={{ background: style.bg, color: style.ink }}
+              >
+                {project.status}
+              </span>
+              <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
+                {project.type} · {project.by}
+              </span>
+            </div>
+            <h2 className="text-[24px] font-bold text-[var(--ink)] leading-[1.2] tracking-tight">{project.kunde}</h2>
+            <div className="text-[13px] text-[var(--ink-3)] mt-1.5">{project.kontakt}</div>
           </div>
-          <span
-            className="text-[12px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shrink-0"
-            style={{ background: style.bg, color: style.ink }}
-          >
-            {project.status}
-          </span>
           <button
             onClick={onClose}
-            className="size-8 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors shrink-0"
+            className="size-9 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors shrink-0"
             aria-label="Luk"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

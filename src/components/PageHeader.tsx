@@ -60,7 +60,7 @@ export function PageHeader({
           <span>{eyebrow}</span>
         </div>
         <h1 className="t-display mt-3">{title}</h1>
-        {lead && <p className="t-body-lg mt-3 max-w-[680px]">{lead}</p>}
+        {lead && <p className="t-body-lg mt-4 max-w-[680px] !text-[var(--ink-2)]">{lead}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </header>
