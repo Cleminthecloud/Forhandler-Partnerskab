@@ -461,6 +461,12 @@ textarea.field {
 [data-tt-pos="right"]::after  { left: calc(100% + 3px); bottom: 50%; transform: translateY(50%); border-color: transparent #1D1D1F transparent transparent; }
 [data-tt-pos="right"]:hover::before { transform: translateY(50%) translateX(0); }
 
+/* Bottom-positioned tooltip — for buttons at the top of a container where tooltips
+   would otherwise be clipped above. Renders BELOW the trigger. */
+[data-tt-pos="bottom"]::before { top: calc(100% + 6px); bottom: auto; transform: translateX(-50%) translateY(-2px); }
+[data-tt-pos="bottom"]::after  { top: calc(100% + 1px); bottom: auto; transform: translateX(-50%); border-color: transparent transparent #1D1D1F transparent; }
+[data-tt-pos="bottom"]:hover::before { transform: translateX(-50%) translateY(0); }
+
 /* === Animations === */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }

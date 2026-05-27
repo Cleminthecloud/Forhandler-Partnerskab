@@ -210,19 +210,23 @@ export default function KampagnerPage() {
             }}
           />
 
-          {/* FLOATING TOP BAR — campaign title + print/digital toggle + format dock */}
-          <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between gap-3 pointer-events-none flex-wrap">
-            <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-white/85 backdrop-blur-md rounded-full pl-3 pr-4 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
+          {/* FLOATING TOP BAR — three groups: title (left), mode+formats (center), actions (right).
+              Tooltips on top-bar buttons render BELOW (data-tt-pos="bottom") so they fall into
+              the canvas space instead of being clipped above. */}
+          <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-3 pointer-events-none flex-wrap">
+
+            {/* LEFT — campaign title */}
+            <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-white/90 backdrop-blur-md rounded-full pl-3 pr-4 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
               <span className="theme-dot" style={{ background: theme.accent }} />
-              <span className="text-[12px] font-semibold text-[var(--ink)]">{activeCampaign?.titel}</span>
+              <span className="text-[12.5px] font-semibold text-[var(--ink)]">{activeCampaign?.titel}</span>
               {isUnpublished && (
                 <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-[var(--ink)] text-white ml-1">Udkast</span>
               )}
             </div>
 
-            {/* Print/Digital toggle + format selector — bonded so format pills sit visually next to the mode */}
-            <div className="pointer-events-auto flex items-center gap-2">
-              <div className="inline-flex rounded-full bg-white/85 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
+            {/* CENTER — Print/Digital + format pills, visually bonded */}
+            <div className="pointer-events-auto flex items-center gap-1.5">
+              <div className="inline-flex rounded-full bg-white/90 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
                 {(["print", "digital"] as const).map((c) => (
                   <button
                     key={c}
@@ -241,9 +245,8 @@ export default function KampagnerPage() {
                 ))}
               </div>
 
-              {/* Format pills — bonded to Print/Digital so the format selection is read together */}
               {currentCategoryFormats.length > 0 && (
-                <div className="inline-flex items-center gap-1 rounded-full bg-white/85 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)] max-w-[520px] overflow-x-auto scrollbar-hidden">
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)] max-w-[520px] overflow-x-auto scrollbar-hidden">
                   {currentCategoryFormats.map((f) => {
                     const meta = FORMATS.find((x) => x.id === f)!;
                     const sel = format === f;
@@ -252,6 +255,7 @@ export default function KampagnerPage() {
                         key={f}
                         onClick={() => setFormat(f)}
                         data-tt={meta.dim}
+                        data-tt-pos="bottom"
                         className={
                           "shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full transition-all text-[12px] font-medium whitespace-nowrap " +
                           (sel ? "bg-[var(--ink)] text-white" : "text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--canvas-2)]")
@@ -265,12 +269,88 @@ export default function KampagnerPage() {
                 </div>
               )}
             </div>
+
+            {/* RIGHT — primary actions cluster (Rediger + secondary + primary CTA) */}
+            <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
+              <button
+                onClick={() => setDrawerOpen(true)}
+                data-tt="Åbn redigerings­panel"
+                data-tt-pos="bottom"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
+                </svg>
+                Rediger
+              </button>
+
+              <span className="w-px h-5 bg-[var(--line-2)]" />
+
+              {category === "print" ? (
+                <>
+                  <button
+                    onClick={() => setConfirm({ kind: "print-pdf", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                    data-tt="Print-klar PDF til lokalt tryk"
+                    data-tt-pos="bottom"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+                  >
+                    Hent PDF
+                  </button>
+                  <button
+                    onClick={() => setConfirm({ kind: "print-order", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                    data-tt="Carl Ras producerer og leverer · 50% af medieomkostninger dækket"
+                    data-tt-pos="bottom"
+                    className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+                  >
+                    Bestil tryk
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setConfirm({ kind: "digital-link", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                    data-tt="Kopiér delelink"
+                    data-tt-pos="bottom"
+                    className="size-7 grid place-items-center rounded-full text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors"
+                    aria-label="Kopiér link"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
+                      <path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setConfirm({ kind: "digital-pack", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                    data-tt="Download asset-pakke (JPG + PNG + dimensions)"
+                    data-tt-pos="bottom"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Asset-pakke
+                  </button>
+                  <button
+                    onClick={() => setConfirm({ kind: "digital-send", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
+                    data-tt="Send kampagnen som kladde til Meta / Google / LinkedIn"
+                    data-tt-pos="bottom"
+                    className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+                  >
+                    Send til konto
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* PREVIEW STAGE — auto-fit, no overflow. pt makes room for the
-              format-pill top row, pb keeps the floating action dock clear. */}
+          {/* PREVIEW STAGE — fills the canvas with maximum breathing room.
+              Top padding clears the action/format/title row; bottom padding
+              clears the thin info strip. Preview is the hero. */}
           {activeCampaign && (
-            <div className="absolute inset-0 grid place-items-center px-6 pt-24 pb-24 lg:pb-24">
+            <div className="absolute inset-0 grid place-items-center px-6 pt-24 pb-12">
               <div className="relative max-w-full max-h-full grid place-items-center">
                 <CampaignPreview
                   campaign={activeCampaign}
@@ -283,71 +363,21 @@ export default function KampagnerPage() {
             </div>
           )}
 
-          {/* FLOATING BOTTOM — just the action bar (format selector now lives in top bar) */}
-          <div className="absolute left-4 right-4 bottom-5 z-20 pointer-events-none">
-            <div className="pointer-events-auto bg-white/92 backdrop-blur-md rounded-full border border-[var(--line-2)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] overflow-hidden">
-              {/* Action bar (single row) */}
-              <div className="px-5 py-2.5 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-[11.5px] text-[var(--ink-3)] max-w-[420px] leading-snug">
-                  {category === "print"
-                    ? <>Sølv- og Guld: <strong className="text-[var(--ink-2)]">50% af medieomkostninger</strong> dækket · 5 hverdages levering.</>
-                    : <>Asset-pakken har JPG, PNG + dimensions klar til upload. Eller send direkte til din annoncekonto.</>}
-                </p>
-                <div className="flex gap-2 items-center">
-                  <button
-                    onClick={() => setDrawerOpen(true)}
-                    className="btn btn-secondary !py-1.5"
-                    data-tt="Åbn redigeringspanel"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline -mt-0.5 mr-1.5">
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
-                    </svg>
-                    Rediger
-                  </button>
-                  {category === "print" ? (
-                    <>
-                      <button
-                        onClick={() => setConfirm({ kind: "print-pdf", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                        className="btn btn-secondary !py-1.5"
-                        data-tt="Print-klar PDF til lokalt tryk"
-                      >
-                        Hent PDF
-                      </button>
-                      <button
-                        onClick={() => setConfirm({ kind: "print-order", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                        className="btn btn-primary !py-1.5"
-                      >
-                        Bestil tryk
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => setConfirm({ kind: "digital-link", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                        className="btn btn-secondary !py-1.5"
-                        data-tt="Kopiér en delelink til kampagnen"
-                      >
-                        🔗 Link
-                      </button>
-                      <button
-                        onClick={() => setConfirm({ kind: "digital-pack", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                        className="btn btn-secondary !py-1.5"
-                        data-tt="Download zip med JPG + PNG + dimensions"
-                      >
-                        ⬇ Asset-pakke
-                      </button>
-                      <button
-                        onClick={() => setConfirm({ kind: "digital-send", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                        className="btn btn-primary !py-1.5"
-                      >
-                        Send til konto
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+          {/* BOTTOM INFO STRIP — quiet, no actions, no card. Just contextual info
+              the partner cares about. All actions live in the top bar now. */}
+          <div className="absolute left-6 right-6 bottom-3 z-10 flex items-center justify-between gap-3 text-[11px] text-[var(--ink-3)] pointer-events-none">
+            <span className="pointer-events-auto inline-flex items-center gap-1.5">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v5M12 16v.5" />
+              </svg>
+              {category === "print"
+                ? <>Sølv- og Guld: <strong className="text-[var(--ink-2)] font-semibold">50% af medieomkostninger dækket</strong> · 5 hverdages levering</>
+                : <>Asset-pakken indeholder JPG + PNG + dimensions klar til upload</>}
+            </span>
+            <span className="pointer-events-auto tabular-nums opacity-80">
+              {FORMATS.find((f) => f.id === format)?.dim}
+            </span>
           </div>
         </section>
       </div>
