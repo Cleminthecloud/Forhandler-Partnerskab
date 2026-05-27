@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useApp } from "@/components/AppState";
-import { CAMPAIGNS, FORMATS, CURRENT_PARTNER, FormatKind, Campaign, type ArtDirection } from "@/lib/data";
+import { CAMPAIGNS, FORMATS, CURRENT_PARTNER, FormatKind, Campaign } from "@/lib/data";
 import { CampaignPreview, imagesForTheme } from "@/components/CampaignPreview";
 import { PageHeader } from "@/components/PageHeader";
 import { THEMES } from "@/lib/themes";
@@ -29,7 +29,15 @@ export default function KampagnerPage() {
   const [imageVariant, setImageVariant] = useState(0);
   const [edits, setEdits] = useState<Record<string, Edits>>({});
 
-  type ActionKind = "print-order" | "print-pdf" | "digital-pack" | "digital-send" | "digital-link";
+  type ActionKind =
+    | "print-order"
+    | "print-pdf"
+    | "digital-pack"
+    | "digital-send"      // Meta (FB/IG)
+    | "digital-send-google" // Google Ads
+    | "digital-link"
+    | "email-html"        // Copy email-signature HTML
+    | "email-outlook";    // Install email signature in Outlook
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -155,17 +163,25 @@ export default function KampagnerPage() {
                   <li key={c.id}>
                     <button
                       onClick={() => { setActiveCampaignId(c.id); setFormat(c.formater[0]); setCategory(c.formater[0].startsWith("print") ? "print" : "digital"); }}
-                      className={"w-full text-left flex items-start gap-3 p-2.5 rounded-[var(--r-md)] transition-colors " +
-                        (isActive ? "bg-[var(--canvas-2)]" : "hover:bg-[var(--canvas-2)]")}
+                      className={"w-full text-left flex items-start gap-3 p-2.5 rounded-[var(--r-md)] transition-colors relative " +
+                        (isActive
+                          ? "bg-[var(--accent-tint)] ring-1 ring-[var(--accent)]/30"
+                          : "hover:bg-[var(--canvas-2)]")}
+                      aria-current={isActive ? "true" : undefined}
                     >
+                      {/* Left accent strip — bolder active signal */}
+                      {isActive && (
+                        <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full" style={{ background: theme.accent }} />
+                      )}
                       <div className="size-9 rounded-lg grid place-items-center text-xl shrink-0" style={{ background: theme.accentSoft }}>
                         {c.heroEmoji}
                       </div>
                       <div className="flex-1 min-w-0 pt-0.5">
-                        <div className="text-[13px] font-semibold text-[var(--ink)] leading-tight truncate">{c.titel}</div>
-                        <div className="text-[12px] text-[var(--ink-3)] mt-0.5 flex flex-wrap items-center gap-1.5">
-                          <span>{c.formater.length} formater · {c.status}</span>
-                          {c.artDirection && <ArtDirectionChip dir={c.artDirection} />}
+                        <div className={"text-[13px] leading-tight truncate " + (isActive ? "font-bold text-[var(--accent-press)]" : "font-semibold text-[var(--ink)]")}>
+                          {c.titel}
+                        </div>
+                        <div className="text-[12px] text-[var(--ink-3)] mt-0.5 truncate">
+                          {c.formater.length} formater · {c.status}
                         </div>
                       </div>
                     </button>
@@ -291,62 +307,145 @@ export default function KampagnerPage() {
 
               <span className="w-px h-5 bg-[var(--line-2)]" />
 
-              {category === "print" ? (
-                <>
-                  <button
-                    onClick={() => setConfirm({ kind: "print-pdf", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    data-tt="Print-klar PDF til lokalt tryk"
-                    data-tt-pos="bottom"
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
-                  >
-                    Hent PDF
-                  </button>
-                  <button
-                    onClick={() => setConfirm({ kind: "print-order", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    data-tt="Carl Ras producerer og leverer · 50% af medieomkostninger dækket"
-                    data-tt-pos="bottom"
-                    className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
-                  >
-                    Bestil tryk
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setConfirm({ kind: "digital-link", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    data-tt="Kopiér delelink"
-                    data-tt-pos="bottom"
-                    className="size-7 grid place-items-center rounded-full text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors"
-                    aria-label="Kopiér link"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
-                      <path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setConfirm({ kind: "digital-pack", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    data-tt="Download asset-pakke (JPG + PNG + dimensions)"
-                    data-tt-pos="bottom"
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    Asset-pakke
-                  </button>
-                  <button
-                    onClick={() => setConfirm({ kind: "digital-send", label: FORMATS.find((f) => f.id === format)?.label ?? "" })}
-                    data-tt="Send kampagnen som kladde til Meta / Google / LinkedIn"
-                    data-tt-pos="bottom"
-                    className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
-                  >
-                    Send til konto
-                  </button>
-                </>
-              )}
+              {/* Format-specific action cluster.
+                  Each format has its own natural verbs — an email signature
+                  doesn't get "Send til konto", a Google ad doesn't get
+                  "Indsæt i Outlook". Keeps the action menu tight and on-task. */}
+              {(() => {
+                const fmtLabel = FORMATS.find((f) => f.id === format)?.label ?? "";
+
+                // — Email signature: copy HTML or install in Outlook —
+                if (format === "digital-email") {
+                  return (
+                    <>
+                      <button
+                        onClick={() => setConfirm({ kind: "email-html", label: fmtLabel })}
+                        data-tt="Kopiér HTML-snippet til email-klient"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                        </svg>
+                        Kopiér HTML
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "email-outlook", label: fmtLabel })}
+                        data-tt="Send signatur som .htm-fil til Outlook"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+                      >
+                        Indsæt i Outlook
+                      </button>
+                    </>
+                  );
+                }
+
+                // — Google ads: link, asset pack, send to Google Ads —
+                if (format === "digital-google") {
+                  return (
+                    <>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-link", label: fmtLabel })}
+                        data-tt="Kopiér delelink"
+                        data-tt-pos="bottom"
+                        className="size-7 grid place-items-center rounded-full text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors"
+                        aria-label="Kopiér link"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
+                          <path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-pack", label: fmtLabel })}
+                        data-tt="Download asset-pakke (JPG + PNG + dimensions)"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Asset-pakke
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-send-google", label: fmtLabel })}
+                        data-tt="Send kampagnen som kladde til Google Ads"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+                      >
+                        Send til Google Ads
+                      </button>
+                    </>
+                  );
+                }
+
+                // — Meta (Facebook / Instagram): link, asset pack, send to Meta —
+                if (format === "digital-facebook" || format === "digital-instagram") {
+                  return (
+                    <>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-link", label: fmtLabel })}
+                        data-tt="Kopiér delelink"
+                        data-tt-pos="bottom"
+                        className="size-7 grid place-items-center rounded-full text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors"
+                        aria-label="Kopiér link"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
+                          <path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-pack", label: fmtLabel })}
+                        data-tt="Download asset-pakke (JPG + PNG + dimensions)"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Asset-pakke
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-send", label: fmtLabel })}
+                        data-tt="Send kampagnen som kladde til Meta Business"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+                      >
+                        Send til Meta
+                      </button>
+                    </>
+                  );
+                }
+
+                // — Print (flyer / poster / magasin / bilstreamer): PDF + bestil tryk —
+                return (
+                  <>
+                    <button
+                      onClick={() => setConfirm({ kind: "print-pdf", label: fmtLabel })}
+                      data-tt="Print-klar PDF til lokalt tryk"
+                      data-tt-pos="bottom"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+                    >
+                      Hent PDF
+                    </button>
+                    <button
+                      onClick={() => setConfirm({ kind: "print-order", label: fmtLabel })}
+                      data-tt="Carl Ras producerer og leverer · 50% af medieomkostninger dækket"
+                      data-tt-pos="bottom"
+                      className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+                    >
+                      {format === "print-bilstreamer" ? "Bestil streamer" : "Bestil tryk"}
+                    </button>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -545,11 +644,14 @@ export default function KampagnerPage() {
           onClose={() => setConfirm(null)}
           onConfirm={(target) => {
             const messages: Record<typeof confirm.kind, string> = {
-              "print-order":  `${confirm.label} er bestilt. Forventet levering: 5 hverdage.`,
-              "print-pdf":    `${confirm.label} (print-PDF) er sendt til din email.`,
-              "digital-pack": `${confirm.label}-pakke downloades… ZIP er klar om få sekunder.`,
-              "digital-send": `${confirm.label} er sendt som kladde til ${target ?? "din konto"}.`,
-              "digital-link": `Delelink kopieret til udklipsholder.`,
+              "print-order":         `${confirm.label} er bestilt. Forventet levering: 5 hverdage.`,
+              "print-pdf":           `${confirm.label} (print-PDF) er sendt til din email.`,
+              "digital-pack":        `${confirm.label}-pakke downloades… ZIP er klar om få sekunder.`,
+              "digital-send":        `${confirm.label} er sendt som kladde til ${target ?? "Meta Business"}.`,
+              "digital-send-google": `${confirm.label} er sendt som kladde til Google Ads.`,
+              "digital-link":        `Delelink kopieret til udklipsholder.`,
+              "email-html":          `HTML-snippet kopieret til udklipsholder. Indsæt i din email-klient.`,
+              "email-outlook":       `${confirm.label} sendt til din email som .htm-fil — dobbeltklik for at installere i Outlook.`,
             };
             pushToast(messages[confirm.kind]);
             setConfirm(null);
@@ -572,15 +674,22 @@ const CONNECTED_ACCOUNTS = [
 function ActionConfirm({
   kind, label, formatId, onClose, onConfirm,
 }: {
-  kind: "print-order" | "print-pdf" | "digital-pack" | "digital-send" | "digital-link";
+  kind:
+    | "print-order"
+    | "print-pdf"
+    | "digital-pack"
+    | "digital-send"
+    | "digital-send-google"
+    | "digital-link"
+    | "email-html"
+    | "email-outlook";
   label: string;
   formatId: FormatKind;
   onClose: () => void;
   onConfirm: (target?: string) => void;
 }) {
   const isMeta = formatId === "digital-facebook" || formatId === "digital-instagram";
-  const isGoogle = formatId === "digital-google";
-  const defaultTarget = isMeta ? "meta" : isGoogle ? "google" : "meta";
+  const defaultTarget = isMeta ? "meta" : "meta";
   const [target, setTarget] = useState<string>(defaultTarget);
 
   const meta = (() => {
@@ -614,16 +723,43 @@ function ActionConfirm({
         cta: "Download ZIP",
       };
       case "digital-send": return {
-        eyebrow: "Send til annoncekonto",
+        eyebrow: "Send til Meta Business",
         title: `Send ${label} som kladde`,
-        body: <>Vi pusher kampagnen som <strong>kladde</strong> til din valgte konto. Du publicerer selv når du er klar.</>,
+        body: <>Vi pusher kampagnen som <strong>kladde</strong> til din Meta-konto (Facebook + Instagram). Du publicerer selv når du er klar.</>,
         cta: "Send som kladde",
+      };
+      case "digital-send-google": return {
+        eyebrow: "Send til Google Ads",
+        title: `Send ${label} som kladde`,
+        body: <>Vi pusher kampagnen som <strong>kladde</strong> til din Google Ads-konto, geo-targeted til dit lokalområde. Du publicerer selv når du er klar.</>,
+        cta: "Send til Google Ads",
       };
       case "digital-link": return {
         eyebrow: "Kopiér delelink",
         title: "Del kampagnen",
         body: <>Få en kort URL der viser kampagnen i browseren. God til Slack, email og kundedialog inden du publicerer.</>,
         cta: "Kopiér link",
+      };
+      case "email-html": return {
+        eyebrow: "Kopiér HTML-snippet",
+        title: `Kopiér ${label}`,
+        body: (
+          <>
+            Vi kopierer HTML for din email-signatur til udklipsholderen. Indsæt i:
+            <ul className="mt-2 ml-4 space-y-1 text-[13px]">
+              <li>• <strong>Gmail</strong> · Indstillinger → Signatur → Indsæt</li>
+              <li>• <strong>Apple Mail</strong> · Indstillinger → Signaturer → træk ind</li>
+              <li>• <strong>Outlook</strong> · brug “Indsæt i Outlook” for nemmeste installation</li>
+            </ul>
+          </>
+        ),
+        cta: "Kopiér HTML",
+      };
+      case "email-outlook": return {
+        eyebrow: "Send til Outlook",
+        title: `Installér ${label}`,
+        body: <>Vi mailer signaturen som en <strong>.htm-fil</strong> til din adresse. Dobbeltklik for at åbne i Outlook — den lægger sig automatisk under Indstillinger → Mail → Signaturer.</>,
+        cta: "Send som .htm",
       };
     }
   })();
@@ -731,23 +867,3 @@ function FormatThumb({ format, active }: { format: FormatKind; active: boolean }
   );
 }
 
-/* ─── Art-direction chip — small label on each campaign card showing the
-   visual treatment (photo / minimal / bold-type / editorial). Distilled from
-   ui-ux-pro-max banner-design's 22 styles. ─── */
-function ArtDirectionChip({ dir }: { dir: ArtDirection }) {
-  const styles: Record<ArtDirection, { label: string; bg: string; ink: string }> = {
-    "photo":      { label: "Foto",        bg: "#E8F0FA", ink: "#0C447C" },
-    "minimal":    { label: "Minimal",     bg: "#F0F1F4", ink: "#3A3F44" },
-    "bold-type":  { label: "Typografi",   bg: "#FCE4E6", ink: "#7E0309" },
-    "editorial":  { label: "Editorial",   bg: "#EAF1DC", ink: "#324A14" },
-  };
-  const s = styles[dir];
-  return (
-    <span
-      className="inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider"
-      style={{ background: s.bg, color: s.ink }}
-    >
-      {s.label}
-    </span>
-  );
-}
