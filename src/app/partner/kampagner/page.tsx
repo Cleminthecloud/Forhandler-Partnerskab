@@ -282,19 +282,29 @@ export default function KampagnerPage() {
                   {currentCategoryFormats.map((f) => {
                     const meta = FORMATS.find((x) => x.id === f)!;
                     const sel = format === f;
+                    // Short pill label — strip the channel suffix ("-opslag",
+                    // " story", "-signatur", "-annonce", " A3/A5") so all four
+                    // formats fit on one row alongside the action cluster.
+                    // Full name still appears in the tooltip via data-tt.
+                    const shortLabel = meta.label
+                      .replace(/ A[35]/, "")
+                      .replace(/-opslag$/, "")
+                      .replace(/ story$/, "")
+                      .replace(/-signatur$/, "")
+                      .replace(/-annonce$/, "");
                     return (
                       <button
                         key={f}
                         onClick={() => setFormat(f)}
-                        data-tt={meta.dim}
+                        data-tt={`${meta.label} · ${meta.dim}`}
                         data-tt-pos="bottom"
                         className={
-                          "shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full transition-all text-[12px] font-medium whitespace-nowrap " +
+                          "shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all text-[12px] font-medium whitespace-nowrap " +
                           (sel ? "bg-[var(--ink)] text-white" : "text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--canvas-2)]")
                         }
                       >
                         <FormatThumb format={f} active={sel} />
-                        <span>{meta.label.replace(/ A[35]/, "")}</span>
+                        <span>{shortLabel}</span>
                       </button>
                     );
                   })}
