@@ -25,12 +25,36 @@ function tierClass(tier: "Bronze" | "Sølv" | "Guld") {
 function fmtKr(n: number) { return n.toLocaleString("da-DK") + " kr"; }
 function fmtK(n: number)  { return Math.round(n / 1000) + "k"; }
 
+// Deterministic next-visit date from partner id (Mon–Fri, next 14 days)
+function nextVisitFor(partnerId: string): { dato: string; ugedag: string; tidStart: string; tidSlut: string; isoDay: number } {
+  const seed = partnerId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const dayOffset = 3 + (seed % 11); // 3-13 days out
+  const date = new Date(2026, 4, 27 + dayOffset); // base = today (2026-05-27)
+  const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+  const days = ["søn", "man", "tir", "ons", "tor", "fre", "lør"];
+  // bump weekends to Monday
+  if (date.getDay() === 0) date.setDate(date.getDate() + 1);
+  if (date.getDay() === 6) date.setDate(date.getDate() + 2);
+  const hour = 9 + (seed % 4);
+  return {
+    dato: `${date.getDate()}. ${months[date.getMonth()]} ${date.getFullYear()}`,
+    ugedag: days[date.getDay()],
+    tidStart: `${hour}:00`,
+    tidSlut: `${hour + 1}:30`,
+    isoDay: date.getDate(),
+  };
+}
+
 export default function PartnerProfilePage({ params }: { params: Promise<{ partnerId: string }> }) {
   const { partnerId } = use(params);
   const partner = PARTNERS.find((p) => p.id === partnerId);
   const { pushToast } = useApp();
   const [offerSent, setOfferSent] = useState(false);
   const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [showVisitDialog, setShowVisitDialog] = useState(false);
+  const [visitDate, setVisitDate] = useState("");
+  const [visitAgenda, setVisitAgenda] = useState("");
+  const [visitRescheduled, setVisitRescheduled] = useState(false);
 
   if (!partner) {
     return (
@@ -54,6 +78,14 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
     setShowOfferDialog(false);
     pushToast(`Forudsigt-tilbud sendt til ${partner!.firma} (${partner!.email}).`);
   }
+
+  function saveVisit() {
+    setVisitRescheduled(true);
+    setShowVisitDialog(false);
+    pushToast(`Besøg planlagt hos ${partner!.firma}. ${partner!.ejer} & Dennis Holmberg er underrettet.`);
+  }
+
+  const nextVisit = nextVisitFor(partner.id);
   void CURRENT_PARTNER;
 
   return (
@@ -86,8 +118,8 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <button onClick={() => setShowVisitDialog(true)} className="btn btn-secondary">📅 Planlæg besøg</button>
             <button onClick={() => pushToast("Beskedseditor åbnes…")} className="btn btn-secondary">Send besked</button>
-            <button onClick={() => pushToast("Tier-opgradering kræver godkendelse")} className="btn btn-secondary">Opgradér tier</button>
             <button
               onClick={() => setShowOfferDialog(true)}
               className="btn btn-primary"
@@ -98,6 +130,91 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
           </div>
         </div>
       </header>
+
+      {/* ─── CRM RAIL: Kontakt + Konsulent + Næste besøg ─── */}
+      <section className="px-6 lg:px-12 mt-7">
+        <div className="grid gap-3 lg:grid-cols-3">
+          {/* Contact card */}
+          <div className="card card-lg">
+            <div className="flex items-baseline justify-between mb-4">
+              <h3 className="t-h3">Kontakt</h3>
+              <span className="t-caption">Ejer · ansvarlig</span>
+            </div>
+            <ul className="space-y-2.5">
+              <ContactRow label="Ejer" value={partner.ejer} />
+              <ContactRow label="Telefon" value={partner.telefon} href={`tel:${partner.telefon.replace(/\s/g, "")}`} />
+              <ContactRow label="Email" value={partner.email} href={`mailto:${partner.email}`} />
+              <ContactRow label="Web" value={partner.webadresse} href={`https://${partner.webadresse}`} external />
+              <ContactRow label="Adresse" value={`${partner.postnr} ${partner.by}`} />
+            </ul>
+            <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
+              <a href={`tel:${partner.telefon.replace(/\s/g, "")}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5">📞 Ring</a>
+              <a href={`mailto:${partner.email}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5">✉ Email</a>
+              <button onClick={() => pushToast(`Note tilføjet til ${partner.firma}`)} className="btn btn-secondary text-[12px] !px-3 !py-1.5">＋ Note</button>
+            </div>
+          </div>
+
+          {/* Assigned consultant */}
+          <div className="card card-lg">
+            <div className="flex items-baseline justify-between mb-4">
+              <h3 className="t-h3">Tilknyttet konsulent</h3>
+              <button onClick={() => pushToast("Skift konsulent kræver godkendelse fra teamleder")} className="link text-[12px]">Skift →</button>
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className="size-12 rounded-full grid place-items-center text-white font-bold text-[15px] shrink-0"
+                style={{ background: "#0C447C" }}
+              >
+                DH
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[14px] font-semibold text-[var(--ink)]">Dennis Holmberg</div>
+                <div className="text-[12px] text-[var(--ink-3)]">Salgskonsulent · {partner.region}</div>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#EAF1DC", color: "#324A14" }}>
+                <span className="size-1.5 rounded-full" style={{ background: "#5B7F2C" }} /> Aktiv
+              </span>
+            </div>
+            <div className="space-y-1.5 text-[12px] text-[var(--ink-2)]">
+              <div className="flex justify-between"><span className="text-[var(--ink-3)]">Sidste besøg</span><span className="tabular-nums">19. apr 2026</span></div>
+              <div className="flex justify-between"><span className="text-[var(--ink-3)]">Besøg i år</span><span className="tabular-nums">4 (mål: 6)</span></div>
+              <div className="flex justify-between"><span className="text-[var(--ink-3)]">Sidste touchpoint</span><span className="tabular-nums">5 dage siden</span></div>
+              <div className="flex justify-between"><span className="text-[var(--ink-3)]">Relation-score</span><span className="tabular-nums font-semibold text-[#2D4A0F]">Stærk · 8.4</span></div>
+            </div>
+            <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
+              <button onClick={() => pushToast("Beskedseditor til Dennis åbnes…")} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Skriv til Dennis</button>
+              <button onClick={() => pushToast("Briefing genereret — sendt til Dennis' indbakke")} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Send briefing</button>
+            </div>
+          </div>
+
+          {/* Next visit */}
+          <div className="card card-lg flex flex-col">
+            <div className="flex items-baseline justify-between mb-4">
+              <h3 className="t-h3">Næste besøg</h3>
+              <span className="t-caption">{visitRescheduled ? "Genplanlagt" : "Planlagt"}</span>
+            </div>
+            <div className="rounded-[var(--r-md)] bg-[var(--canvas-2)] p-4 mb-4">
+              <div className="flex items-baseline justify-between">
+                <div className="text-[20px] font-semibold text-[var(--ink)] leading-none">{nextVisit.dato}</div>
+                <div className="text-[12px] text-[var(--ink-3)] tabular-nums">{nextVisit.tidStart}–{nextVisit.tidSlut}</div>
+              </div>
+              <div className="text-[12px] text-[var(--ink-3)] mt-1 capitalize">{nextVisit.ugedag}dag · Hos partneren</div>
+            </div>
+            <div className="space-y-2 text-[12px] text-[var(--ink-2)] flex-1 leading-[1.5]">
+              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · Stroxx Q3-pipeline · genforhandling af bonusaftale</div>
+              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[10px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, Jens Pedersen (Sikring)</div>
+              <div className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
+                <span>✓</span> {partner.ejer} har bekræftet
+              </div>
+            </div>
+            <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
+              <button onClick={() => setShowVisitDialog(true)} className="btn btn-primary text-[12px] !px-3 !py-1.5">Genplanlæg</button>
+              <button onClick={() => pushToast("Besøg tilføjet til din Outlook-kalender")} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Tilføj kal.</button>
+              <button onClick={() => pushToast(`Aflysning sendt til ${partner.ejer}`)} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Aflys</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ─── KPI ROW ─── */}
       <section className="px-6 lg:px-12 mt-8">
@@ -273,6 +390,55 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
         </div>
       </section>
 
+      {/* ─── SCHEDULE VISIT DIALOG ─── */}
+      {showVisitDialog && (
+        <div className="fixed inset-0 z-50 bg-black/45 grid place-items-center p-4 animate-in" onClick={() => setShowVisitDialog(false)}>
+          <div className="bg-white rounded-[var(--r-xl)] max-w-lg w-full p-7 shadow-[var(--shadow-4)]" onClick={(e) => e.stopPropagation()}>
+            <div className="t-eyebrow">Planlæg besøg</div>
+            <h3 className="t-h2 mt-2">Book et møde hos {partner.firma}</h3>
+            <p className="t-body mt-2">
+              Dennis Holmberg og {partner.ejer} bliver underrettet med kalender-invite + email-bekræftelse.
+            </p>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Dato &amp; tid</label>
+                <input
+                  type="datetime-local"
+                  value={visitDate}
+                  onChange={(e) => setVisitDate(e.target.value)}
+                  defaultValue="2026-06-03T10:30"
+                  className="w-full px-3 py-2 rounded-[var(--r-sm)] border border-[var(--line-2)] text-[14px] focus:outline-none focus:border-[var(--accent)]"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Agenda</label>
+                <textarea
+                  value={visitAgenda}
+                  onChange={(e) => setVisitAgenda(e.target.value)}
+                  rows={3}
+                  placeholder="Fx kvartals-review, ny Stroxx-pris, Q3 pipeline …"
+                  className="w-full px-3 py-2 rounded-[var(--r-sm)] border border-[var(--line-2)] text-[13px] focus:outline-none focus:border-[var(--accent)] resize-none"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">Deltagere</label>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="tag" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}>👤 {partner.ejer}</span>
+                  <span className="tag" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}>👤 Dennis Holmberg</span>
+                  <span className="tag" style={{ background: "var(--canvas-2)", color: "var(--ink-2)" }}>＋ Tilføj</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-2 justify-end">
+              <button onClick={() => setShowVisitDialog(false)} className="btn btn-secondary">Annullér</button>
+              <button onClick={saveVisit} className="btn btn-primary">📅 Book &amp; underret</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── CONFIRMATION DIALOG ─── */}
       {showOfferDialog && (
         <div className="fixed inset-0 z-50 bg-black/45 grid place-items-center p-4 animate-in" onClick={() => setShowOfferDialog(false)}>
@@ -309,6 +475,25 @@ function Kpi({ label, value, delta, positive, sparkline, color, labels, unit }: 
         </div>
       )}
     </div>
+  );
+}
+
+function ContactRow({ label, value, href, external }: { label: string; value: string; href?: string; external?: boolean }) {
+  return (
+    <li className="flex items-baseline justify-between gap-3 text-[13px]">
+      <span className="text-[11px] text-[var(--ink-3)] uppercase tracking-wider font-semibold shrink-0 min-w-[60px]">{label}</span>
+      {href ? (
+        <a
+          href={href}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          className="link tabular-nums truncate text-right text-[13px]"
+        >
+          {value}
+        </a>
+      ) : (
+        <span className="text-[var(--ink-2)] tabular-nums truncate text-right">{value}</span>
+      )}
+    </li>
   );
 }
 
