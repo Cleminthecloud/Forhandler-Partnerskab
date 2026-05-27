@@ -1,4 +1,8 @@
 "use client";
+
+// Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
+// heavy Recharts components that can hang Next.js static page generation.
+export const dynamic = "force-dynamic";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";

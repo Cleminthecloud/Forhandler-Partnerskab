@@ -1,4 +1,8 @@
 "use client";
+
+// Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
+// heavy Recharts components that can hang Next.js static page generation.
+export const dynamic = "force-dynamic";
 import { useTheme } from "@/components/ThemeProvider";
 import { ADMIN_STATS, Region, Tier } from "@/lib/data";
 import { InteractiveArea, InteractivePie } from "@/components/ChartsInteractive";

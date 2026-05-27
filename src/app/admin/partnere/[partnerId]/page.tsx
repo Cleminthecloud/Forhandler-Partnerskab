@@ -1,4 +1,8 @@
 "use client";
+
+// Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
+// heavy Recharts components that can hang Next.js static page generation.
+export const dynamic = "force-dynamic";
 import { use, useState } from "react";
 import Link from "next/link";
 import { PARTNERS, PRODUCTS, salesFor, CURRENT_PARTNER } from "@/lib/data";
