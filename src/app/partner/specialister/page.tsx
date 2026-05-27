@@ -556,10 +556,10 @@ function SuggestionsRow({ scenarios, onPick }: { scenarios: Scenario[]; onPick: 
 
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product) => void }) {
   return (
-    <div className="bg-white rounded-[var(--r-md)] border border-[var(--line-2)] p-3 flex items-center gap-3 max-w-[78%] hover:border-[var(--accent)] hover:shadow-[var(--shadow-1)] transition-all">
-      <div className="size-14 rounded-[var(--r-sm)] bg-[var(--canvas-2)] grid place-items-center text-[24px] shrink-0 overflow-hidden">
+    <div className="bg-white rounded-[var(--r-md)] border border-[var(--line-2)] p-3 flex items-center gap-4 max-w-[82%] hover:border-[var(--accent)] hover:shadow-[var(--shadow-1)] transition-all">
+      <div className="size-24 rounded-[var(--r-md)] bg-white border border-[var(--line-2)] grid place-items-center text-[32px] shrink-0 overflow-hidden p-2">
         {product.image ? (
-          <Image src={product.image} alt={product.navn} width={56} height={56} className="object-cover size-14" />
+          <Image src={product.image} alt={product.navn} width={96} height={96} className="object-contain max-h-full max-w-full" />
         ) : (
           <span>{product.emoji}</span>
         )}
@@ -569,8 +569,8 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (p: Product)
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{product.brand}</span>
           <span className="text-[9.5px] text-[var(--ink-4)] tabular-nums">#{product.id}</span>
         </div>
-        <div className="text-[13px] font-semibold text-[var(--ink)] mt-0.5 leading-[1.3] line-clamp-2">{product.navn}</div>
-        <div className="text-[12px] mt-1 flex items-baseline gap-2">
+        <div className="text-[13.5px] font-semibold text-[var(--ink)] mt-1 leading-[1.3] line-clamp-2">{product.navn}</div>
+        <div className="text-[12.5px] mt-1.5 flex items-baseline gap-2">
           <span className="font-semibold text-[var(--ink)] tabular-nums">{product.pris}</span>
           {product.margin && (
             <span className="text-[10.5px] text-[var(--ink-3)]">· {product.margin}</span>

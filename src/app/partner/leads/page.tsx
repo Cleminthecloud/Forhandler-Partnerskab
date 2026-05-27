@@ -292,24 +292,24 @@ function WonProjectUpsell({ lead }: { lead: Lead }) {
                 href={p.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors group"
+                className="flex items-center gap-4 p-3.5 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--accent)] hover:bg-[var(--canvas-2)] transition-colors group"
               >
-                <div className="size-16 rounded-lg bg-[var(--canvas-2)] overflow-hidden grid place-items-center shrink-0">
+                <div className="size-24 rounded-lg bg-white border border-[var(--line-2)] overflow-hidden grid place-items-center shrink-0 p-2">
                   {p.image ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={p.image} alt={p.navn} className="size-full object-cover" />
+                    <img src={p.image} alt={p.navn} className="max-h-full max-w-full object-contain" />
                   ) : (
-                    <span className="text-2xl">{p.emoji}</span>
+                    <span className="text-3xl">{p.emoji}</span>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
-                  <div className="text-[13px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)]">{p.navn}</div>
-                  <div className="text-[11px] text-[var(--ink-3)] mt-0.5">Varenr {p.id} {p.margin ? `· ${p.margin}` : ""}</div>
+                  <div className="text-[14px] font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] mt-0.5">{p.navn}</div>
+                  <div className="text-[11.5px] text-[var(--ink-3)] mt-1">Varenr {p.id} {p.margin ? `· ${p.margin}` : ""}</div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-[13px] font-semibold text-[var(--ink)] tabular-nums">{p.pris}</div>
-                  <div className="text-[11px] text-[var(--accent)] mt-0.5">Åbn PDP ↗</div>
+                  <div className="text-[14px] font-semibold text-[var(--ink)] tabular-nums">{p.pris}</div>
+                  <div className="text-[11px] text-[var(--accent)] mt-1">Åbn PDP ↗</div>
                 </div>
               </a>
             </li>

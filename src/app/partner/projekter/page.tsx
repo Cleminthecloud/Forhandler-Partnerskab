@@ -543,15 +543,16 @@ function ProjectDrawer({
             </div>
             <ul className="space-y-2">
               {products.map((p) => (
-                <li key={p.id} className="flex items-center gap-3 p-2.5 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
-                  <div className="size-10 rounded-md bg-white grid place-items-center text-[18px] shrink-0 overflow-hidden">
-                    {p.image ? <Image src={p.image} alt={p.navn} width={40} height={40} className="object-cover size-10" /> : <span>{p.emoji}</span>}
+                <li key={p.id} className="flex items-center gap-3.5 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
+                  <div className="size-16 rounded-md bg-white border border-[var(--line-2)] grid place-items-center text-[22px] shrink-0 overflow-hidden p-1.5">
+                    {p.image ? <Image src={p.image} alt={p.navn} width={64} height={64} className="object-contain max-h-full max-w-full" /> : <span>{p.emoji}</span>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[12px] font-semibold text-[var(--ink)] truncate">{p.brand} <span className="font-normal text-[var(--ink-2)]">· {p.navn}</span></div>
-                    <div className="text-[11px] text-[var(--ink-3)] tabular-nums">#{p.id} · {p.pris}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                    <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate mt-0.5">{p.navn}</div>
+                    <div className="text-[11px] text-[var(--ink-3)] tabular-nums mt-0.5">#{p.id} · {p.pris}</div>
                   </div>
-                  <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-[var(--ink-3)] hover:text-[var(--accent)] shrink-0">PDP ↗</a>
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-[11.5px] font-semibold text-[var(--accent)] hover:underline shrink-0">PDP ↗</a>
                 </li>
               ))}
             </ul>
@@ -563,13 +564,14 @@ function ProjectDrawer({
               <div className="t-eyebrow mb-3">Kryds-salg — kunder med {project.type.toLowerCase()} køber også</div>
               <ul className="space-y-2">
                 {crossSell.map((p) => (
-                  <li key={p.id} className="flex items-center gap-3 p-2.5 rounded-[var(--r-md)] border border-dashed border-[var(--line)]">
-                    <div className="size-10 rounded-md bg-[var(--canvas-2)] grid place-items-center text-[18px] shrink-0 overflow-hidden">
-                      {p.image ? <Image src={p.image} alt={p.navn} width={40} height={40} className="object-cover size-10" /> : <span>{p.emoji}</span>}
+                  <li key={p.id} className="flex items-center gap-3.5 p-3 rounded-[var(--r-md)] border border-dashed border-[var(--line)]">
+                    <div className="size-16 rounded-md bg-white border border-[var(--line-2)] grid place-items-center text-[22px] shrink-0 overflow-hidden p-1.5">
+                      {p.image ? <Image src={p.image} alt={p.navn} width={64} height={64} className="object-contain max-h-full max-w-full" /> : <span>{p.emoji}</span>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[12px] font-semibold text-[var(--ink)] truncate">{p.brand} <span className="font-normal text-[var(--ink-2)]">· {p.navn}</span></div>
-                      <div className="text-[11px] text-[var(--ink-3)] tabular-nums">{p.pris} · {p.margin}</div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{p.brand}</div>
+                      <div className="text-[12.5px] font-semibold text-[var(--ink)] truncate mt-0.5">{p.navn}</div>
+                      <div className="text-[11px] text-[var(--ink-3)] tabular-nums mt-0.5">{p.pris} · {p.margin}</div>
                     </div>
                     <button
                       onClick={() => { addToBasket(p, project.enheder); pushToast(`${p.brand} lagt i kurv (×${project.enheder})`, "success"); }}

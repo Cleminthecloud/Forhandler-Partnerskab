@@ -1126,15 +1126,15 @@ export interface Product {
 }
 
 export const PRODUCTS: Product[] = [
-  // Smart locks — real product photos
-  { id: "40013215", brand: "STROXX", navn: "Smart Lock ST-2 sort XLOCK · skandinavisk lås", pris: "3.737,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-sort-xlock-t-skandinavisk-las/?product=40013215/40013215", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-smart-lock.jpg" },
-  { id: "40013216", brand: "STROXX", navn: "Smart Lock ST-2 RS XLOCK · europæisk lås", pris: "3.612,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-rs-xlock-t-europaeisk-las/?product=40013216/40013216", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-smart-lock.jpg" },
+  // Smart locks — real product photos pulled from carl-ras.dk PDPs
+  { id: "40013215", brand: "STROXX", navn: "Smart Lock ST-2 sort XLOCK · skandinavisk lås", pris: "3.737,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-sort-xlock-t-skandinavisk-las/?product=40013215/40013215", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-st-2-skandinavisk.jpg" },
+  { id: "40013216", brand: "STROXX", navn: "Smart Lock ST-2 RS XLOCK · europæisk lås", pris: "3.612,50 kr", url: "https://www.carl-ras.dk/langskiltesaet-smart-lock-st-2-rs-xlock-t-europaeisk-las/?product=40013216/40013216", kategori: "Smart Lock", margin: "≈18% partner", emoji: "🔐", image: "/products/stroxx-st-2-europaeisk.jpg" },
   { id: "40013955", brand: "STROXX", navn: "Gateway Smart Lock G2 hvid · XLOCK WIFI",     pris: "973,75 kr",   url: "https://www.carl-ras.dk/gateway-smart-lock-g2-hvid-xlock-wifi/?product=40013955/40013955", kategori: "Adgangskontrol", margin: "≈22% partner", emoji: "📡", image: "/products/stroxx-gateway-g2.jpg" },
 
   // Alarm / smoke / motion
   { id: "55011840", brand: "Housegard", navn: "Røgalarm Pebble 10 års SA701 · optisk",    pris: "213,75 kr",   url: "https://www.carl-ras.dk/roegalarm-pebble-10ars-sa701-optisk/?product=55011840/55011840", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️", image: "/products/housegard-pebble.jpg" },
-  { id: "55011841", brand: "Housegard", navn: "Røgalarm Luma trådløs seriekoblet · 2-pak", pris: "561,25 kr",   url: "https://www.carl-ras.dk/roegalarm-luma-10ars-tradlos-seriekoblet-a-2-stk/?product=55011841/55011841", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️", image: "/products/housegard-pebble.jpg" },
-  { id: "41008815", brand: "Dormakaba", navn: "Normalarm Sølv 0-225 mm t/ED100 og ED250", pris: "1.948,75 kr", url: "https://www.carl-ras.dk/normalarm-soelv-0-225-mm-t-ed100-og-ed250-ny/?product=41008815/41008815", kategori: "Alarm", margin: "≈20% partner", emoji: "🚨" },
+  { id: "55011841", brand: "Housegard", navn: "Røgalarm Luma trådløs seriekoblet · 2-pak", pris: "561,25 kr",   url: "https://www.carl-ras.dk/roegalarm-luma-10ars-tradlos-seriekoblet-a-2-stk/?product=55011841/55011841", kategori: "Brand & røg", margin: "≈25% partner", emoji: "🛎️", image: "/products/housegard-luma.jpg" },
+  { id: "41008815", brand: "Dormakaba", navn: "Normalarm Sølv 0-225 mm t/ED100 og ED250", pris: "1.948,75 kr", url: "https://www.carl-ras.dk/normalarm-soelv-0-225-mm-t-ed100-og-ed250-ny/?product=41008815/41008815", kategori: "Alarm", margin: "≈20% partner", emoji: "🚨", image: "/products/dormakaba-normalarm.jpg" },
 ];
 
 /** Map: lead.behov substring → suggested product ids in order of relevance */
