@@ -32,7 +32,6 @@ export default function KampagnerPage() {
 
   type ActionKind = "print-order" | "print-pdf" | "digital-pack" | "digital-send" | "digital-link";
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
-  const [showLogoSheet, setShowLogoSheet] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // ESC closes drawer
@@ -80,7 +79,7 @@ export default function KampagnerPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-48px)] animate-in">
-      {/* ─── COMPACT HEADER ─── */}
+      {/* ─── COMPACT HEADER (logo changer now lives in the edit drawer) ─── */}
       <div className="px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
         <PageHeader
           variant="compact"
@@ -93,9 +92,6 @@ export default function KampagnerPage() {
                 ⤺ Nulstil tekst
               </button>
             )}
-            <button onClick={() => setShowLogoSheet(true)} className="btn btn-secondary" data-tt="Upload eller skift firma-logo">
-              Skift logo
-            </button>
             <button onClick={() => pushToast("Gemt som skabelon")} className="btn btn-secondary" data-tt="Gem som personlig skabelon">
               Gem skabelon
             </button>
@@ -105,8 +101,8 @@ export default function KampagnerPage() {
 
       {/* ─── EDITOR: left rail + canvas. Generous pb so the floating dock never crowds the browser-window edge. */}
       <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-8 lg:pb-10 grid-cols-[280px_1fr] min-h-0">
-        {/* LEFT — campaign picker + image variants */}
-        <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1">
+        {/* LEFT — campaign picker + image variants (scrollbar visually hidden) */}
+        <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1 scrollbar-hidden">
           <div className="card !p-3">
             <div className="px-2 py-1 mb-1 flex items-center gap-2">
               <span className="theme-dot" style={{ background: theme.accent }} />
@@ -214,8 +210,8 @@ export default function KampagnerPage() {
             }}
           />
 
-          {/* FLOATING TOP BAR — campaign title + print/digital toggle */}
-          <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between gap-3 pointer-events-none">
+          {/* FLOATING TOP BAR — campaign title + print/digital toggle + format dock */}
+          <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between gap-3 pointer-events-none flex-wrap">
             <div className="pointer-events-auto inline-flex items-center gap-2.5 bg-white/85 backdrop-blur-md rounded-full pl-3 pr-4 py-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
               <span className="theme-dot" style={{ background: theme.accent }} />
               <span className="text-[12px] font-semibold text-[var(--ink)]">{activeCampaign?.titel}</span>
@@ -224,29 +220,57 @@ export default function KampagnerPage() {
               )}
             </div>
 
-            <div className="pointer-events-auto inline-flex rounded-full bg-white/85 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
-              {(["print", "digital"] as const).map((c) => (
-                <button
-                  key={c}
-                  onClick={() => {
-                    setCategory(c);
-                    const first = activeCampaign?.formater.find((f) => f.startsWith(c + "-"));
-                    if (first) setFormat(first);
-                  }}
-                  className={
-                    "px-3.5 py-1 rounded-full text-[12px] font-medium transition-colors " +
-                    (category === c ? "bg-[var(--ink)] text-white" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
-                  }
-                >
-                  {c === "print" ? "Print" : "Digital"}
-                </button>
-              ))}
+            {/* Print/Digital toggle + format selector — bonded so format pills sit visually next to the mode */}
+            <div className="pointer-events-auto flex items-center gap-2">
+              <div className="inline-flex rounded-full bg-white/85 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
+                {(["print", "digital"] as const).map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => {
+                      setCategory(c);
+                      const first = activeCampaign?.formater.find((f) => f.startsWith(c + "-"));
+                      if (first) setFormat(first);
+                    }}
+                    className={
+                      "px-3.5 py-1 rounded-full text-[12px] font-medium transition-colors " +
+                      (category === c ? "bg-[var(--ink)] text-white" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
+                    }
+                  >
+                    {c === "print" ? "Print" : "Digital"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Format pills — bonded to Print/Digital so the format selection is read together */}
+              {currentCategoryFormats.length > 0 && (
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/85 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)] max-w-[520px] overflow-x-auto scrollbar-hidden">
+                  {currentCategoryFormats.map((f) => {
+                    const meta = FORMATS.find((x) => x.id === f)!;
+                    const sel = format === f;
+                    return (
+                      <button
+                        key={f}
+                        onClick={() => setFormat(f)}
+                        data-tt={meta.dim}
+                        className={
+                          "shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full transition-all text-[12px] font-medium whitespace-nowrap " +
+                          (sel ? "bg-[var(--ink)] text-white" : "text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--canvas-2)]")
+                        }
+                      >
+                        <FormatThumb format={f} active={sel} />
+                        <span>{meta.label.replace(/ A[35]/, "")}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* PREVIEW STAGE — auto-fit, no overflow. Generous pb so it never bumps the dock. */}
+          {/* PREVIEW STAGE — auto-fit, no overflow. pt makes room for the
+              format-pill top row, pb keeps the floating action dock clear. */}
           {activeCampaign && (
-            <div className="absolute inset-0 grid place-items-center px-6 pt-20 pb-48 lg:pb-44">
+            <div className="absolute inset-0 grid place-items-center px-6 pt-24 pb-24 lg:pb-24">
               <div className="relative max-w-full max-h-full grid place-items-center">
                 <CampaignPreview
                   campaign={activeCampaign}
@@ -259,35 +283,11 @@ export default function KampagnerPage() {
             </div>
           )}
 
-          {/* FLOATING BOTTOM — format dock + action bar (single unit) */}
+          {/* FLOATING BOTTOM — just the action bar (format selector now lives in top bar) */}
           <div className="absolute left-4 right-4 bottom-5 z-20 pointer-events-none">
-            <div className="pointer-events-auto bg-white/90 backdrop-blur-md rounded-[var(--r-xl)] border border-[var(--line-2)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] overflow-hidden">
-              {/* Format dock */}
-              <div className="px-3 py-2 border-b border-[var(--line-2)] flex items-center gap-2 overflow-x-auto">
-                {currentCategoryFormats.map((f) => {
-                  const meta = FORMATS.find((x) => x.id === f)!;
-                  const sel = format === f;
-                  return (
-                    <button
-                      key={f}
-                      onClick={() => setFormat(f)}
-                      data-tt={meta.dim}
-                      className={
-                        "shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-[var(--r-md)] transition-all border text-[12px] font-medium " +
-                        (sel
-                          ? "bg-[var(--ink)] text-white border-[var(--ink)]"
-                          : "bg-transparent text-[var(--ink-2)] border-transparent hover:bg-[var(--canvas-2)]")
-                      }
-                    >
-                      <FormatThumb format={f} active={sel} />
-                      <span className="whitespace-nowrap">{meta.label.replace(/ A[35]/, "")}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Action bar */}
-              <div className="px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <div className="pointer-events-auto bg-white/92 backdrop-blur-md rounded-full border border-[var(--line-2)] shadow-[0_4px_18px_rgba(0,0,0,0.08)] overflow-hidden">
+              {/* Action bar (single row) */}
+              <div className="px-5 py-2.5 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-[11.5px] text-[var(--ink-3)] max-w-[420px] leading-snug">
                   {category === "print"
                     ? <>Sølv- og Guld: <strong className="text-[var(--ink-2)]">50% af medieomkostninger</strong> dækket · 5 hverdages levering.</>
@@ -420,10 +420,10 @@ export default function KampagnerPage() {
                 )}
               </section>
 
-              {/* Partner / logo */}
+              {/* Partner logo — full editor lives here inside the drawer */}
               <section>
-                <div className="t-eyebrow mb-3">Partner</div>
-                <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
+                <div className="t-eyebrow mb-3">Dit logo</div>
+                <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)] mb-2.5">
                   <div
                     className="size-10 rounded-lg grid place-items-center text-white font-semibold text-[13px] shrink-0"
                     style={{ background: CURRENT_PARTNER.logoBg }}
@@ -432,11 +432,26 @@ export default function KampagnerPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{CURRENT_PARTNER.firma}</div>
-                    <div className="text-[11px] text-[var(--ink-3)] truncate">Auto-hentet fra profil</div>
+                    <div className="text-[11px] text-[var(--ink-3)] truncate">Nuværende logo · auto-hentet fra profil</div>
                   </div>
-                  <button onClick={() => setShowLogoSheet(true)} data-tt="Skift logo" className="text-[12px] font-semibold text-[var(--accent)] shrink-0">
-                    Skift
-                  </button>
+                </div>
+
+                {/* Drag-drop upload area */}
+                <label
+                  className="block p-4 rounded-[var(--r-md)] border-2 border-dashed border-[var(--line)] text-center cursor-pointer hover:border-[var(--accent)] hover:bg-[var(--accent-tint)] transition-colors"
+                  onClick={() => pushToast("Filvælger åbnes (demo)")}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-[var(--ink-3)]">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  <div className="text-[12.5px] font-semibold text-[var(--ink-2)] mt-2">Træk en fil hertil, eller klik</div>
+                  <div className="text-[10.5px] text-[var(--ink-3)] mt-1">PNG eller SVG · maks 2 MB · transparent baggrund anbefales</div>
+                </label>
+                <div className="text-[10.5px] text-[var(--ink-3)] mt-2 flex items-center gap-1.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16v.5" /></svg>
+                  Vi tilpasser automatisk logoets størrelse pr. format.
                 </div>
               </section>
 
@@ -508,31 +523,6 @@ export default function KampagnerPage() {
         />
       )}
 
-      {/* Logo sheet */}
-      {showLogoSheet && (
-        <div className="fixed inset-0 z-50 bg-black/45 grid place-items-center p-6 animate-in" onClick={() => setShowLogoSheet(false)}>
-          <div className="bg-white rounded-[var(--r-xl)] max-w-md w-full p-7 shadow-[var(--shadow-4)]" onClick={(e) => e.stopPropagation()}>
-            <div className="t-eyebrow">Logo</div>
-            <h3 className="t-h2 mt-2">Skift dit firma-logo</h3>
-            <p className="t-body mt-3">
-              Logoet bliver brugt på alle kampagner. PNG eller SVG anbefales. Vi tilpasser automatisk størrelse pr. format.
-            </p>
-            <div className="mt-5 p-4 rounded-[var(--r-md)] border-2 border-dashed border-[var(--line)] text-center">
-              <div className="size-12 rounded-lg grid place-items-center text-white font-semibold text-[15px] shrink-0 mx-auto" style={{ background: CURRENT_PARTNER.logoBg }}>
-                {CURRENT_PARTNER.initialer}
-              </div>
-              <div className="text-[13px] font-medium text-[var(--ink)] mt-3">Nuværende: {CURRENT_PARTNER.firma}</div>
-              <div className="text-[11px] text-[var(--ink-3)] mt-1">Træk en fil her, eller</div>
-              <button onClick={() => { pushToast("Filvælger åbnes (demo)"); setShowLogoSheet(false); }} className="btn btn-secondary mt-3">
-                Upload PNG
-              </button>
-            </div>
-            <div className="mt-5 flex gap-2 justify-end">
-              <button className="btn btn-secondary" onClick={() => setShowLogoSheet(false)}>Færdig</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

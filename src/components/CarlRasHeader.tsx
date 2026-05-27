@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
+import { CarlRasLogo } from "./BrandLogos";
 
 /* ------------------------------------------------------------------ */
 /* SISTER BRANDS — exact colors from live carl-ras.dk nav.            */
@@ -147,20 +147,12 @@ export function CarlRasHeader() {
       {/* ── Top row: logo · meta links · search · user actions ────── */}
       <div className="border-b border-[#E5E5E7]">
         <div className="mx-auto max-w-[1440px] px-6 h-[68px] flex items-center gap-6">
-          {/* Logo */}
-          <Link href="/find" className="flex items-center gap-2.5 shrink-0">
-            <span className="size-10 rounded-md grid place-items-center bg-[#1158A3]">
-              <Image
-                src="/carl-ras-logo.png"
-                alt="Carl Ras"
-                width={40}
-                height={40}
-                className="size-10 object-contain"
-              />
-            </span>
-            <span className="hidden sm:flex flex-col leading-[1.05]">
-              <span className="text-[15px] font-bold tracking-tight text-[#1D1D1F]">carl ras</span>
+          {/* Logo — real Carl Ras wordmark (with GRUPPEN sub-label) */}
+          <Link href="/find" className="flex items-center gap-2.5 shrink-0 group">
+            <CarlRasLogo color="#1158A3" height={26} ariaLabel="Carl Ras" />
+            <span className="hidden sm:flex flex-col leading-[1.05] pl-1 border-l border-[#E0E0E0] ml-0.5">
               <span className="text-[9px] font-bold tracking-[0.22em] text-[#1158A3]">GRUPPEN</span>
+              <span className="text-[10px] text-[#86868B] mt-0.5">B2B</span>
             </span>
           </Link>
 

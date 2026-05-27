@@ -1,6 +1,7 @@
 "use client";
 import { Campaign, FormatKind, PartnerProfile } from "@/lib/data";
 import { Theme } from "@/lib/themes";
+import { CarlRasSikringLogo } from "./BrandLogos";
 
 /* =====================================================================
    Real ad-layout renderer. HTML/CSS — not SVG. Each format is a piece
@@ -124,6 +125,16 @@ function PhotoArea({ image, height = "100%", className }: { image: CampaignImage
   );
 }
 
+/* Renders the official Carl Ras Sikring logo at a size relative to the ad.
+   Wrapped in a small container so the logo height scales with the container query. */
+function SikringMark({ inkColor }: { inkColor: string }) {
+  return (
+    <div style={{ height: "5.4cqw" }} aria-hidden>
+      <CarlRasSikringLogo color={inkColor} height={undefined as unknown as number} className="!h-full" />
+    </div>
+  );
+}
+
 function CoBrandFooterLight({ partner }: { partner: PartnerProfile }) {
   return (
     <div className="flex items-center justify-between gap-3">
@@ -132,12 +143,10 @@ function CoBrandFooterLight({ partner }: { partner: PartnerProfile }) {
         <div className="font-bold mt-0.5 truncate" style={{ color: "white", fontSize: "3.6cqw" }}>{partner.firma}</div>
         <div className="truncate" style={{ color: "rgba(255,255,255,0.86)", fontSize: "2.2cqw" }}>{partner.telefon} · {partner.webadresse}</div>
       </div>
-      <div className="shrink-0 text-right">
+      <div className="shrink-0 text-right flex flex-col items-end">
         <div style={{ fontSize: "1.8cqw", letterSpacing: "0.18em", lineHeight: 1, color: "rgba(255,255,255,0.55)", fontWeight: 700, textTransform: "uppercase" }}>I samarbejde med</div>
-        <div className="mt-1 inline-flex items-center gap-1.5 rounded px-1.5 py-1" style={{ background: "rgba(255,255,255,0.95)" }}>
-          <span className="rounded-sm grid place-items-center font-bold" style={{ background: "#1158A3", color: "white", fontSize: "1.6cqw", padding: "1cqw 1.4cqw", letterSpacing: "0.04em", lineHeight: 1 }}>CR</span>
-          <span style={{ color: "#1158A3", fontSize: "2.4cqw", fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1 }}>CARL RAS</span>
-          <span className="rounded-sm" style={{ background: "#E30613", color: "white", fontSize: "1.6cqw", fontWeight: 800, padding: "1cqw 1.2cqw", letterSpacing: "0.06em", lineHeight: 1 }}>SIKRING</span>
+        <div className="mt-1.5">
+          <SikringMark inkColor="white" />
         </div>
       </div>
     </div>
@@ -152,12 +161,10 @@ function CoBrandFooterDark({ partner }: { partner: PartnerProfile }) {
         <div className="font-bold mt-0.5 truncate" style={{ color: "#1D1D1F", fontSize: "3.6cqw" }}>{partner.firma}</div>
         <div className="truncate" style={{ color: "rgba(0,0,0,0.7)", fontSize: "2.2cqw" }}>{partner.telefon} · {partner.webadresse}</div>
       </div>
-      <div className="shrink-0 text-right">
+      <div className="shrink-0 text-right flex flex-col items-end">
         <div style={{ fontSize: "1.8cqw", letterSpacing: "0.18em", lineHeight: 1, color: "rgba(0,0,0,0.55)", fontWeight: 700, textTransform: "uppercase" }}>I samarbejde med</div>
-        <div className="mt-1 inline-flex items-center gap-1.5 rounded px-1.5 py-1" style={{ background: "#1158A3" }}>
-          <span className="rounded-sm grid place-items-center font-bold" style={{ background: "white", color: "#1158A3", fontSize: "1.6cqw", padding: "1cqw 1.4cqw", letterSpacing: "0.04em", lineHeight: 1 }}>CR</span>
-          <span style={{ color: "white", fontSize: "2.4cqw", fontWeight: 800, letterSpacing: "0.04em", lineHeight: 1 }}>CARL RAS</span>
-          <span className="rounded-sm" style={{ background: "#E30613", color: "white", fontSize: "1.6cqw", fontWeight: 800, padding: "1cqw 1.2cqw", letterSpacing: "0.06em", lineHeight: 1 }}>SIKRING</span>
+        <div className="mt-1.5">
+          <SikringMark inkColor="#002C5B" />
         </div>
       </div>
     </div>
