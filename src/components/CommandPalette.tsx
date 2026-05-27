@@ -40,6 +40,7 @@ const PAGES: CmdItem[] = [
   { id: "p-partner",         title: "Oversigt",            subtitle: "Partner dashboard",          category: "Side",        href: "/partner",               icon: "M3 12l9-9 9 9M5 10v10h14V10" },
   { id: "p-kampagner",       title: "Kampagner",           subtitle: "Marketing-værktøjskasse",    category: "Side",        href: "/partner/kampagner",     icon: "M3 10v4l13 5V5L3 10z M18 9a4 4 0 010 6" },
   { id: "p-leads",           title: "Leads",               subtitle: "Carl Ras Partnerfinder",     category: "Side",        href: "/partner/leads",         icon: "M3 8l9 6 9-6M3 8v10h18V8M3 8l9-5 9 5" },
+  { id: "p-projekter",       title: "Projekter",           subtitle: "Kunde-projekter & pipeline",  category: "Side",        href: "/partner/projekter",     icon: "M9 4h6l1 3h4v13H4V7h4z M9 11h6 M9 15h4" },
   { id: "p-events",          title: "Events",              subtitle: "Faglige Fredage & møder",    category: "Side",        href: "/partner/events",        icon: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" },
   { id: "p-cert",            title: "Certificering",       subtitle: "Mine certificeringer",       category: "Side",        href: "/partner/certificering", icon: "M12 3a6 6 0 110 12 6 6 0 010-12z M8 14l-2 7 6-3 6 3-2-7" },
   { id: "p-spec",            title: "Tal med Carl Ras",    subtitle: "Specialist-chat",            category: "Side",        href: "/partner/specialister",  icon: "M21 11.5c0 4.7-4 8.5-9 8.5-1.5 0-2.9-.3-4.1-.9L3 20l1.5-4.4C3.5 14 3 12.8 3 11.5 3 6.8 7 3 12 3s9 3.8 9 8.5z" },

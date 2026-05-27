@@ -793,6 +793,171 @@ export function salesFor(partnerId: string): PartnerSales {
   return data;
 }
 
+/* ─────────────────────────── Customer projects ───────────────────────────
+   Partners manage their own customer projects through a 5-stage pipeline:
+   Konsultation → Tilbud → Aftalt → I gang → Færdig. Each project carries
+   the products in scope, an optional booked specialist, expected revenue,
+   timeline, and free-form notes.
+   ─────────────────────────────────────────────────────────────────────── */
+
+export type ProjectStatus = "Konsultation" | "Tilbud" | "Aftalt" | "I gang" | "Færdig";
+export type ProjectType = "Sommerhus" | "Bolig" | "Erhverv" | "Udlejning" | "Ejendom";
+
+export interface ProjectNote {
+  tid: string;       // e.g. "for 2 dage"
+  forfatter: string; // partner name
+  body: string;
+}
+
+export interface Project {
+  id: string;
+  partnerId: string;
+  kunde: string;
+  kontakt: string;       // email or phone
+  type: ProjectType;
+  by: string;
+  status: ProjectStatus;
+  enheder: number;
+  produktIds: string[];
+  specialistId?: string;
+  hjemmebesøgDato?: string;  // ISO date
+  forventetKr: number;        // expected revenue in DKK
+  marginPct: number;
+  deadline?: string;          // ISO date
+  noter: ProjectNote[];
+  oprettet: string;           // ISO date
+  emoji: string;
+}
+
+export const PROJECTS: Project[] = [
+  {
+    id: "pr-001",
+    partnerId: "p-001",
+    kunde: "Sommerhusforening Hornbæk Strand",
+    kontakt: "best@hornbaek-strand.dk",
+    type: "Udlejning",
+    by: "Hornbæk",
+    status: "Tilbud",
+    enheder: 25,
+    produktIds: ["40013215", "40013955", "55011840"],
+    specialistId: "s-jens",
+    hjemmebesøgDato: "2026-06-04",
+    forventetKr: 123100,
+    marginPct: 18,
+    deadline: "2026-07-15",
+    noter: [
+      { tid: "for 3 dage",  forfatter: "Mads Sørensen", body: "Hjemmebesøg gennemført med 4 fra bestyrelsen. De vil have demo af kode-rotation før de underskriver." },
+      { tid: "for 1 dag",   forfatter: "Mads Sørensen", body: "Sendt tilbudspakke med Jens' anbefaling — STROXX ST-2 + Gateway G2 + Pebble røgalarm. Venter på svar." },
+    ],
+    oprettet: "2026-05-15",
+    emoji: "🏖️",
+  },
+  {
+    id: "pr-002",
+    partnerId: "p-001",
+    kunde: "Familie Eriksen",
+    kontakt: "te@eriksen.dk",
+    type: "Sommerhus",
+    by: "Tisvilde",
+    status: "Aftalt",
+    enheder: 1,
+    produktIds: ["40013215", "40013955"],
+    specialistId: "s-marie",
+    hjemmebesøgDato: "2026-06-01",
+    forventetKr: 4711,
+    marginPct: 18,
+    deadline: "2026-06-10",
+    noter: [
+      { tid: "i går", forfatter: "Mads Sørensen", body: "Aftale skrevet under. Installation booket til 1/6 kl 10. Marie tager med som backup." },
+    ],
+    oprettet: "2026-05-20",
+    emoji: "🏡",
+  },
+  {
+    id: "pr-003",
+    partnerId: "p-001",
+    kunde: "Ejendomsservice Nordsjælland A/S",
+    kontakt: "indkøb@ens-as.dk",
+    type: "Ejendom",
+    by: "Helsingør",
+    status: "Konsultation",
+    enheder: 8,
+    produktIds: ["40013216", "40013955"],
+    forventetKr: 36514,
+    marginPct: 18,
+    deadline: "2026-08-30",
+    noter: [
+      { tid: "for 5 timer", forfatter: "Mads Sørensen", body: "Indledende kontakt — de har 8 udlejningsejendomme og overvejer Smart Lock-opgradering. Skal sende prislister og case-study." },
+    ],
+    oprettet: "2026-05-26",
+    emoji: "🏢",
+  },
+  {
+    id: "pr-004",
+    partnerId: "p-001",
+    kunde: "Café Hornbæk Havn",
+    kontakt: "kim@cafehavnen.dk",
+    type: "Erhverv",
+    by: "Hornbæk",
+    status: "I gang",
+    enheder: 3,
+    produktIds: ["55011841", "41008815"],
+    specialistId: "s-jens",
+    forventetKr: 7860,
+    marginPct: 20,
+    deadline: "2026-06-08",
+    noter: [
+      { tid: "i går",       forfatter: "Mads Sørensen", body: "Installation 1/3 enheder færdig. Resten i næste uge." },
+      { tid: "for 4 dage",  forfatter: "Mads Sørensen", body: "Kim vil have alarm + automatisk dørlukker — Jens har spec'et Dormakaba ED100." },
+    ],
+    oprettet: "2026-05-10",
+    emoji: "☕",
+  },
+  {
+    id: "pr-005",
+    partnerId: "p-001",
+    kunde: "Familie Birk",
+    kontakt: "+45 28 14 02 91",
+    type: "Bolig",
+    by: "Hornbæk",
+    status: "Færdig",
+    enheder: 1,
+    produktIds: ["40013215"],
+    specialistId: "s-jens",
+    forventetKr: 3738,
+    marginPct: 18,
+    deadline: "2026-05-22",
+    noter: [
+      { tid: "for 4 dage", forfatter: "Mads Sørensen", body: "Færdig, kunde tilfreds. Fået testimonial til /find profilen." },
+    ],
+    oprettet: "2026-05-12",
+    emoji: "🔑",
+  },
+  {
+    id: "pr-006",
+    partnerId: "p-001",
+    kunde: "Sommerhus Maja Lund",
+    kontakt: "maja.lund@gmail.com",
+    type: "Sommerhus",
+    by: "Tisvildeleje",
+    status: "Konsultation",
+    enheder: 1,
+    produktIds: ["40013215", "55011840"],
+    forventetKr: 3951,
+    marginPct: 18,
+    deadline: "2026-07-01",
+    noter: [
+      { tid: "for 2 dage", forfatter: "Mads Sørensen", body: "Henvendelse via Carl Ras finder. Vil have nøglefri adgang inden sommerferien — privatejet, ingen udlejning." },
+    ],
+    oprettet: "2026-05-25",
+    emoji: "🏝️",
+  },
+];
+
+export function projectsForPartner(partnerId: string): Project[] {
+  return PROJECTS.filter((p) => p.partnerId === partnerId).sort((a, b) => b.oprettet.localeCompare(a.oprettet));
+}
+
 /* ─────────────────────────── Carl Ras products (real PDPs) ─────────────────────────── */
 export interface Product {
   id: string;
