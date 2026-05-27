@@ -2,7 +2,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import {
   ProjectPhase, PhaseStatus, PhaseOwner, ProjectType,
-  SPECIALISTS, templateFor,
+  SPECIALISTS, CURRENT_PARTNER, templateFor, applyTemplate,
 } from "@/lib/data";
 
 /* =====================================================================
@@ -18,6 +18,10 @@ import {
 
 interface Props {
   projectType: ProjectType;
+  /** Customer name — interpolated into phase names from template */
+  kunde: string;
+  /** Booked specialist on this project, if any (their first name appears in phases) */
+  specialistId?: string;
   phases: ProjectPhase[];
   onChange: (phases: ProjectPhase[]) => void;
 }
@@ -46,11 +50,20 @@ const OWNER_STYLE: Record<PhaseOwner, { bg: string; ink: string }> = {
 const WEEK_PX = 64;     // column width per week
 const ROW_PX  = 44;     // height of each phase row
 
-export function ProjectPlanner({ projectType, phases, onChange }: Props) {
+export function ProjectPlanner({ projectType, kunde, specialistId, phases, onChange }: Props) {
   const [editId, setEditId] = useState<string | null>(null);
   const template = templateFor(projectType);
   const curator = template ? SPECIALISTS.find((s) => s.id === template.curatorSpecialistId) : undefined;
   const hasPlan = phases.length > 0;
+
+  // Specialist whose first name appears inside phase texts. Prefers the
+  // one booked on this project, falls back to the template curator.
+  const inlineSpecialist = (specialistId ? SPECIALISTS.find((s) => s.id === specialistId) : undefined) ?? curator;
+  const ctx = {
+    kunde,
+    partner:    CURRENT_PARTNER.ejer.split(" ")[0],     // "Mads"
+    specialist: (inlineSpecialist?.navn ?? "Specialist").split(" ")[0],
+  };
 
   // Total weeks = max end of any phase, min 8 for visual breathing room
   const totalWeeks = useMemo(() => {
@@ -65,13 +78,9 @@ export function ProjectPlanner({ projectType, phases, onChange }: Props) {
     return Math.round((done / phases.length) * 100);
   }, [phases]);
 
-  function applyTemplate() {
+  function applyTemplateNow() {
     if (!template) return;
-    const next: ProjectPhase[] = template.phases.map((p, i) => ({
-      ...p,
-      id: `tpl-${Date.now()}-${i}`,
-    }));
-    onChange(next);
+    onChange(applyTemplate(template, ctx));
   }
 
   function updatePhase(id: string, patch: Partial<ProjectPhase>) {
@@ -119,7 +128,7 @@ export function ProjectPlanner({ projectType, phases, onChange }: Props) {
                 {template.phases.length} faser, ca. {Math.max(...template.phases.map((p) => p.startUge + p.varighedUger))} ugers løb. Du kan altid redigere, fjerne eller tilføje faser bagefter.
               </p>
               <div className="flex gap-2 mt-3">
-                <button onClick={applyTemplate} className="btn btn-primary !py-1.5">
+                <button onClick={applyTemplateNow} className="btn btn-primary !py-1.5">
                   Anvend {curator.navn.split(" ")[0]}s skabelon
                 </button>
                 <button onClick={addPhase} className="btn btn-secondary !py-1.5">
@@ -243,7 +252,7 @@ export function ProjectPlanner({ projectType, phases, onChange }: Props) {
             </div>
             <div className="flex items-center gap-2">
               {template && phases.length === 0 && (
-                <button onClick={applyTemplate} className="btn btn-secondary !py-1.5">
+                <button onClick={applyTemplateNow} className="btn btn-secondary !py-1.5">
                   ✨ Brug skabelon
                 </button>
               )}

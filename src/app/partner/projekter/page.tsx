@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   CURRENT_PARTNER, PROJECTS, PRODUCTS, SPECIALISTS,
@@ -123,12 +124,28 @@ const TEMPLATES: ProjectTemplate[] = [
 
 export default function ProjekterPage() {
   const { pushToast, addToBasket } = useApp();
+  const searchParams = useSearchParams();
   const [projects, setProjects] = useState<Project[]>(() =>
     PROJECTS.filter((p) => p.partnerId === CURRENT_PARTNER.id)
   );
   const [openProject, setOpenProject] = useState<Project | null>(null);
   const [activeStatus, setActiveStatus] = useState<ProjectStatus | "Alle">("Alle");
-  const [showNew, setShowNew] = useState(false);
+  const [showNew, setShowNew] = useState(() => searchParams.get("new") === "1");
+
+  // Pre-fill values coming from a "Lav en plan for X" deep-link (e.g. from a won lead)
+  const prefillFromQuery = useMemo(() => {
+    if (searchParams.get("new") !== "1") return undefined;
+    const validTypes: ProjectType[] = ["Sommerhus", "Bolig", "Erhverv", "Udlejning", "Ejendom"];
+    const t = searchParams.get("type");
+    return {
+      kunde:   searchParams.get("kunde")   ?? "",
+      kontakt: searchParams.get("kontakt") ?? "",
+      type:    (validTypes.includes(t as ProjectType) ? t : "Sommerhus") as ProjectType,
+      by:      searchParams.get("by")      ?? CURRENT_PARTNER.by,
+      enheder: parseInt(searchParams.get("enheder") || "1", 10) || 1,
+      note:    searchParams.get("note")    ?? "",
+    };
+  }, [searchParams]);
 
   // Close drawer on ESC
   useEffect(() => {
@@ -377,6 +394,7 @@ export default function ProjekterPage() {
         <NewProjectSheet
           onClose={() => setShowNew(false)}
           onCreate={createProject}
+          prefill={prefillFromQuery}
         />
       )}
     </div>
@@ -422,7 +440,7 @@ function ProjectDrawer({
     <div className="fixed inset-0 z-40 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[720px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
+        className="absolute top-[48px] right-0 bottom-0 w-[860px] max-w-[96vw] bg-white border-l border-[var(--line)] shadow-[-8px_0_24px_rgba(0,0,0,0.10)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
@@ -494,6 +512,8 @@ function ProjectDrawer({
             <div className="t-eyebrow mb-3">Projektplan</div>
             <ProjectPlanner
               projectType={project.type}
+              kunde={project.kunde}
+              specialistId={project.specialistId}
               phases={project.phases ?? []}
               onChange={onUpdatePhases}
             />
@@ -706,16 +726,16 @@ interface NewProjectDraft {
   note: string;
 }
 
-function NewProjectSheet({ onClose, onCreate }: { onClose: () => void; onCreate: (draft: NewProjectDraft) => void }) {
+function NewProjectSheet({ onClose, onCreate, prefill }: { onClose: () => void; onCreate: (draft: NewProjectDraft) => void; prefill?: Partial<NewProjectDraft> }) {
   const [draft, setDraft] = useState<NewProjectDraft>({
-    kunde: "",
-    kontakt: "",
-    type: "Sommerhus",
-    by: CURRENT_PARTNER.by,
-    enheder: 1,
-    forventetKr: 0,
-    deadlineWeeks: 6,
-    note: "",
+    kunde: prefill?.kunde ?? "",
+    kontakt: prefill?.kontakt ?? "",
+    type: prefill?.type ?? "Sommerhus",
+    by: prefill?.by ?? CURRENT_PARTNER.by,
+    enheder: prefill?.enheder ?? 1,
+    forventetKr: prefill?.forventetKr ?? 0,
+    deadlineWeeks: prefill?.deadlineWeeks ?? 6,
+    note: prefill?.note ?? "",
   });
 
   // ESC closes

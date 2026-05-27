@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { useApp } from "@/components/AppState";
 import { CURRENT_PARTNER, Lead, LeadStatus, productsForBehov, CERTS_AVAILABLE, SPECIALISTS } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
@@ -145,7 +146,7 @@ export default function LeadsPage() {
 
               {/* Won-project upsell */}
               {openLead.status === "Vundet" && (
-                <WonProjectUpsell behov={openLead.behov} />
+                <WonProjectUpsell lead={openLead} />
               )}
             </div>
 
@@ -214,10 +215,29 @@ function Section({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
-function WonProjectUpsell({ behov }: { behov: string }) {
-  const { products, træningId } = productsForBehov(behov);
+function WonProjectUpsell({ lead }: { lead: Lead }) {
+  const { products, træningId } = productsForBehov(lead.behov);
   const træning = træningId ? CERTS_AVAILABLE.find((c) => c.cert.id === træningId)?.cert : undefined;
   const specialist = SPECIALISTS[0]; // Jens Pedersen — Sikring
+
+  // Map the lead's behov/tema to a project type for sensible pre-fill
+  const guessedType: "Sommerhus" | "Bolig" | "Udlejning" | "Erhverv" | "Ejendom" =
+    /udlejning|sommerhus.*udlej/i.test(lead.behov) ? "Udlejning" :
+    /sommerhus/i.test(lead.behov) ? "Sommerhus" :
+    /butik|kontor|erhverv/i.test(lead.behov) ? "Erhverv" :
+    /ejendom|bolig.*forening/i.test(lead.behov) ? "Ejendom" :
+    /sommer|sommerhus/i.test(lead.tema) ? "Sommerhus" : "Bolig";
+
+  // Pre-fill query string for /partner/projekter?new=…
+  const planQuery = new URLSearchParams({
+    new: "1",
+    kunde: lead.kunde,
+    kontakt: lead.email || lead.telefon,
+    type: guessedType,
+    by: lead.by,
+    enheder: "1",
+    note: `Vundet lead fra carl-ras.dk · ${lead.behov}`,
+  }).toString();
 
   return (
     <div className="border-t-8 border-[#EAF1DC] mt-2">
@@ -228,8 +248,22 @@ function WonProjectUpsell({ behov }: { behov: string }) {
         </div>
         <h3 className="text-[18px] font-semibold text-[var(--ink)] mt-3">Nu kommer arbejdet</h3>
         <p className="text-[13px] text-[var(--ink-2)] mt-1 leading-[1.5]">
-          Her er hvad du skal bruge til opgaven. Køb varerne hos Carl Ras til partner-priser og forbered dig på selve installationen.
+          Lav en plan så du holder styr på alle faser. Eller dyk direkte ned i produkterne du skal bestille.
         </p>
+
+        {/* Primary CTA — pre-fills the project form with this lead's data */}
+        <Link
+          href={`/partner/projekter?${planQuery}`}
+          className="mt-4 inline-flex items-center gap-2 btn btn-primary"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 4h6l1 3h4v13H4V7h4z" /><path d="M9 11h6" /><path d="M9 15h4" />
+          </svg>
+          Lav en plan for {lead.kunde.split(" ").slice(-1)[0]}
+        </Link>
+        <span className="ml-3 text-[11.5px] text-[var(--ink-3)]">
+          ✨ {specialist.navn.split(" ")[0]} har et færdigt forløb klar til {guessedType.toLowerCase()}-projekter
+        </span>
       </div>
 
       {/* Products from Carl Ras */}
@@ -239,7 +273,7 @@ function WonProjectUpsell({ behov }: { behov: string }) {
             Anbefalede produkter
           </h4>
           <a
-            href={`https://www.carl-ras.dk/search/?sortType=0&search=${encodeURIComponent(behov)}`}
+            href={`https://www.carl-ras.dk/search/?sortType=0&search=${encodeURIComponent(lead.behov)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[12px] font-semibold text-[var(--accent)] hover:underline"

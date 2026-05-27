@@ -5,10 +5,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { useTheme } from "@/components/ThemeProvider";
 
 type NotificationKey =
-  | "new-lead"        | "lead-status"
-  | "event-rsvp"      | "event-reminder"
-  | "specialist-msg"  | "forum-mention"
-  | "campaign-publish" | "weekly-digest";
+  | "new-lead"          | "lead-status"
+  | "phase-due"         | "phase-overdue"    | "phase-blocked"
+  | "event-rsvp"        | "event-reminder"
+  | "specialist-msg"    | "forum-mention"
+  | "campaign-publish"  | "weekly-digest";
 
 interface NotificationDef {
   key: NotificationKey;
@@ -19,14 +20,17 @@ interface NotificationDef {
 }
 
 const DEFAULT_NOTIFICATIONS: NotificationDef[] = [
-  { key: "new-lead",         label: "Nye leads",                   hint: "Når en sommerhusejer udfylder kontaktformularen til dig", email: true,  push: true  },
-  { key: "lead-status",      label: "Lead-status ændringer",       hint: "Når et lead ændrer status (Vundet, Tabt, etc.)",          email: false, push: true  },
-  { key: "event-rsvp",       label: "Event-bekræftelser",          hint: "Når Carl Ras bekræfter din tilmelding",                   email: true,  push: false },
-  { key: "event-reminder",   label: "Event-påmindelser",           hint: "24 timer før et event du er tilmeldt",                    email: true,  push: true  },
-  { key: "specialist-msg",   label: "Beskeder fra specialist",     hint: "Når en Carl Ras-specialist svarer dig",                   email: true,  push: true  },
-  { key: "forum-mention",    label: "@Omtaler i Forum",            hint: "Når en partner-kollega tagger dig i en tråd",             email: false, push: true  },
-  { key: "campaign-publish", label: "Nye kampagner",               hint: "Når Carl Ras udgiver en ny kampagne i et tema",           email: true,  push: false },
-  { key: "weekly-digest",    label: "Ugentlig statusmail",         hint: "Sammendrag af leads, point og events hver mandag",        email: true,  push: false },
+  { key: "new-lead",         label: "Nye leads",                          hint: "Når en sommerhusejer udfylder kontaktformularen til dig",         email: true,  push: true  },
+  { key: "lead-status",      label: "Lead-status ændringer",              hint: "Når et lead ændrer status (Vundet, Tabt, etc.)",                  email: false, push: true  },
+  { key: "phase-due",        label: "Projekt-fase forfalder",             hint: "24 timer før en fase i en af dine kundeprojekter skal være færdig", email: true, push: true  },
+  { key: "phase-overdue",    label: "Projekt-fase forsinket",             hint: "Når en fase har passeret sin slut-uge uden at være markeret færdig", email: true, push: true  },
+  { key: "phase-blocked",    label: "Fase blokeret",                      hint: "Når en fase markeres som blokeret — typisk hvor specialist eller kunde holder dig op", email: true, push: false },
+  { key: "event-rsvp",       label: "Event-bekræftelser",                 hint: "Når Carl Ras bekræfter din tilmelding",                           email: true,  push: false },
+  { key: "event-reminder",   label: "Event-påmindelser",                  hint: "24 timer før et event du er tilmeldt",                            email: true,  push: true  },
+  { key: "specialist-msg",   label: "Beskeder fra specialist",            hint: "Når en Carl Ras-specialist svarer dig",                           email: true,  push: true  },
+  { key: "forum-mention",    label: "@Omtaler i Forum",                   hint: "Når en partner-kollega tagger dig i en tråd",                     email: false, push: true  },
+  { key: "campaign-publish", label: "Nye kampagner",                      hint: "Når Carl Ras udgiver en ny kampagne i et tema",                   email: true,  push: false },
+  { key: "weekly-digest",    label: "Ugentlig statusmail",                hint: "Mandagsmail med leads, point, åbne projekter og events",          email: true,  push: false },
 ];
 
 const CONNECTED_ACCOUNTS = [

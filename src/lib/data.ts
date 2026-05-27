@@ -862,19 +862,25 @@ export interface ProjectTemplate {
   phases: Omit<ProjectPhase, "id">[];
 }
 
+/* Tokens replaced when a template is applied to a real project:
+ *   {{kunde}}      → project.kunde
+ *   {{partner}}    → CURRENT_PARTNER.ejer (e.g. Mads)
+ *   {{specialist}} → specialist on project (or template's curator's first name)
+ */
 export const PROJECT_TEMPLATES: ProjectTemplate[] = [
   {
     type: "Sommerhus",
     curatorSpecialistId: "s-jens",
     basedOnCount: 18,
     phases: [
-      { navn: "Hjemmebesøg & afklaring", startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true, beskrivelse: "Mål døre, afdæk eksisterende cylindre, vis demo." },
-      { navn: "Tilbud sendt",            startUge: 1, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true, beskrivelse: "Skriftligt tilbud + pakkepris + leveringstid." },
-      { navn: "Kundens beslutning",      startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "kunde",     fromTemplate: true },
-      { navn: "Materialer fra Carl Ras", startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",  fromTemplate: true, beskrivelse: "Cylindre, gateway og røgalarm leveret til partner-adresse." },
-      { navn: "Installation",            startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
-      { navn: "Onboarding af kunde",     startUge: 5, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "App-setup + kode-administration. Jens kan tage med på første besøg." },
-      { navn: "30-dages opfølgning",     startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
+      { navn: "{{partner}}: måle døre + tjekke eksisterende cylindere",     startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true, beskrivelse: "Hjemmebesøg hos {{kunde}}. Tag prøver med fra Carl Ras til at vise i hånden." },
+      { navn: "{{specialist}}: sammensætte pakketilbud + Smart Lock-spec",   startUge: 1, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "STROXX ST-2 + Gateway G2 + Pebble røgalarm. {{specialist}} verificerer pris." },
+      { navn: "{{partner}}: sende skriftligt tilbud til {{kunde}}",          startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "{{kunde}}: tage stilling",                                    startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
+      { navn: "Carl Ras: pakke + sende materialer",                          startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true, beskrivelse: "Levering til værkstedet. Husk at tjekke alle dele før installation." },
+      { navn: "{{partner}}: skifte cylinder + montere Smart Lock",           startUge: 5, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true, beskrivelse: "Ca. 30 min pr. dør. Husk at tage gamle nøgler med tilbage til kunden." },
+      { navn: "{{partner}}: opsætte app + lære {{kunde}} kode-administration", startUge: 5, varighedUger: 1, status: "todo", ansvarlig: "partner",  fromTemplate: true, beskrivelse: "Vis kunden hvordan de tilføjer familie, ændrer koder, og deler adgang." },
+      { navn: "{{partner}}: ringe efter 30 dage og høre om alt virker",       startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
     ],
   },
   {
@@ -882,14 +888,14 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     curatorSpecialistId: "s-jens",
     basedOnCount: 24,
     phases: [
-      { navn: "Site-survey alle enheder",  startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
-      { navn: "Specialist-spec & tilbud",  startUge: 1, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Jens hjælper med kode-rotation setup og pakkepris-forhandling." },
-      { navn: "Kontrakt underskrives",     startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "kunde",     fromTemplate: true },
-      { navn: "Materialer i bulk",         startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",  fromTemplate: true, beskrivelse: "Carl Ras leverer hele bulk-pakken på én gang." },
-      { navn: "Installation enhed 1–N",    startUge: 5, varighedUger: 3, status: "todo", ansvarlig: "partner",   fromTemplate: true },
-      { navn: "Airbnb / udlejer-integration", startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Zapier-flow for automatisk kode-rotation pr. booking." },
-      { navn: "Træning af udlejer",        startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
-      { navn: "60-dages servicetjek",      startUge: 13, varighedUger: 1, status: "todo", ansvarlig: "partner",  fromTemplate: true },
+      { navn: "{{partner}}: køre rundt og måle alle enheder op",              startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true, beskrivelse: "Notér eksisterende cylinder-type pr. enhed. Tag fotos af dørene." },
+      { navn: "{{specialist}}: lave bulk-tilbud + spec til kode-rotation",   startUge: 1, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "{{specialist}} har forhandlet pakkepris for ≥10 enheder. Kode-rotation kører via app eller Airbnb-integration." },
+      { navn: "{{kunde}}: bestyrelsen skriver kontrakt under",                startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
+      { navn: "Carl Ras: levere alle materialer i én bulk-forsendelse",       startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true, beskrivelse: "Spar leveringsgebyr — alt kommer på én pall." },
+      { navn: "{{partner}}: installere Smart Locks + gateways i alle enheder", startUge: 5, varighedUger: 3, status: "todo", ansvarlig: "partner",  fromTemplate: true, beskrivelse: "Planlæg 8 enheder pr. uge. Tag en hjælper med — det er hurtigere parvis." },
+      { navn: "{{specialist}}: koble Airbnb-kalender på automatisk kode-rotation", startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Zapier-flow: ny booking → ny kode → SMS til lejer dagen før." },
+      { navn: "{{partner}}: lære udlejer at administrere koder selv",         startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "{{partner}}: 60-dages tjek — er der døre der binder?",         startUge: 13, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
     ],
   },
   {
@@ -897,10 +903,13 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     curatorSpecialistId: "s-marie",
     basedOnCount: 41,
     phases: [
-      { navn: "Demo & rådgivning",       startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
-      { navn: "Tilbud",                  startUge: 1, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
-      { navn: "Installation",            startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
-      { navn: "14-dages opfølgning",     startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "{{partner}}: hjemmebesøg + demo af Smart Lock i hånden",       startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "{{partner}}: sende kort tilbud (1 side)",                      startUge: 1, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "{{kunde}}: tage stilling",                                     startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "kunde",   fromTemplate: true },
+      { navn: "Carl Ras: sende STROXX cylinder + monteringsskruer",           startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "carl-ras", fromTemplate: true },
+      { navn: "{{partner}}: skifte cylinder + sætte Smart Lock på (≈45 min)", startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true, beskrivelse: "Husk at tage de gamle nøgler med — kunden vil gerne beholde dem." },
+      { navn: "{{partner}}: vise {{kunde}} hvordan app og familie-deling virker", startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "{{partner}}: ringe efter 14 dage",                             startUge: 6, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
     ],
   },
   {
@@ -908,13 +917,14 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     curatorSpecialistId: "s-jens",
     basedOnCount: 9,
     phases: [
-      { navn: "Site-visit",                startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true, beskrivelse: "Sammen med specialist hvis adgangskontrol indgår." },
-      { navn: "Specialist-spec & tilbud",  startUge: 1, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true },
-      { navn: "Kontrakt",                  startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
-      { navn: "Levering",                  startUge: 4, varighedUger: 2, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
-      { navn: "Installation efter åbningstid", startUge: 6, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
-      { navn: "Træning af personale",      startUge: 7, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
-      { navn: "Serviceaftale aktivering",  startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
+      { navn: "{{partner}} + {{specialist}}: besøg butik, opmåle døre + planlægge alarm-zoner", startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true, beskrivelse: "Tag mål på personaledøren, hoveddøren og baglokalet. Notér eksisterende alarm-installation." },
+      { navn: "{{specialist}}: spec af alarm + dørlukker + adgangskontrol",                    startUge: 1, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Dormakaba ED100 + Housegard alarm + STROXX adgangskontrol til personale." },
+      { navn: "{{partner}}: sende tilbud til {{kunde}}",                                       startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "{{kunde}}: skrive kontrakt under + betale depositum",                           startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
+      { navn: "Carl Ras: levere alarm-pakke + cylindere + dørlukker",                          startUge: 5, varighedUger: 2, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
+      { navn: "{{partner}}: installere alarm + dørlukker (efter butikkens lukketid)",          startUge: 7, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true, beskrivelse: "Aften-arbejde — ca. 4 timer. Tag en assistent med." },
+      { navn: "{{partner}}: instruere personalet i alarm-koder + dagligt rutine",              startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "Carl Ras: aktivere 24/7 service-aftale",                                        startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
     ],
   },
   {
@@ -922,18 +932,37 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     curatorSpecialistId: "s-jens",
     basedOnCount: 6,
     phases: [
-      { navn: "Porteføljegennemgang",      startUge: 0, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true },
-      { navn: "Pakke-tilbud pr. ejendom",  startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
-      { navn: "Beslutning",                startUge: 3, varighedUger: 2, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
-      { navn: "Bulk-levering",             startUge: 5, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
-      { navn: "Roll-out (faseopdelt)",     startUge: 6, varighedUger: 4, status: "todo", ansvarlig: "partner",    fromTemplate: true },
-      { navn: "Bestyrelses-præsentation",  startUge: 10, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true },
+      { navn: "{{specialist}}: gennemgå hele porteføljen + prioritere enheder",                startUge: 0, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true },
+      { navn: "{{partner}}: lave individuel pakke-pris pr. ejendom",                           startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "{{kunde}}: træffe beslutning pr. ejendom",                                      startUge: 3, varighedUger: 2, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
+      { navn: "Carl Ras: bulk-levering til {{partner}}s værksted",                             startUge: 5, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
+      { navn: "{{partner}}: installere Smart Locks + gateways (≈4 enheder/uge)",               startUge: 6, varighedUger: 4, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "{{specialist}}: præsentere status for bestyrelsen",                             startUge: 10, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true },
     ],
   },
 ];
 
 export function templateFor(type: ProjectType): ProjectTemplate | undefined {
   return PROJECT_TEMPLATES.find((t) => t.type === type);
+}
+
+/** Apply a template's phases to a project — interpolates {{kunde}}, {{partner}}, {{specialist}} */
+export function applyTemplate(
+  template: ProjectTemplate,
+  ctx: { kunde: string; partner: string; specialist: string }
+): ProjectPhase[] {
+  function interpolate(s: string): string {
+    return s
+      .replace(/\{\{kunde\}\}/g, ctx.kunde)
+      .replace(/\{\{partner\}\}/g, ctx.partner)
+      .replace(/\{\{specialist\}\}/g, ctx.specialist);
+  }
+  return template.phases.map((p, i) => ({
+    ...p,
+    id: `tpl-${Date.now()}-${i}`,
+    navn: interpolate(p.navn),
+    beskrivelse: p.beskrivelse ? interpolate(p.beskrivelse) : undefined,
+  }));
 }
 
 export const PROJECTS: Project[] = [
@@ -959,13 +988,13 @@ export const PROJECTS: Project[] = [
     oprettet: "2026-05-15",
     emoji: "🏖️",
     phases: [
-      { id: "ph-001-a", navn: "Site-survey alle 25 enheder", startUge: 0, varighedUger: 1, status: "done",        ansvarlig: "partner",    fromTemplate: true },
-      { id: "ph-001-b", navn: "Specialist-spec & tilbud",    startUge: 1, varighedUger: 2, status: "in-progress", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Jens leverer pakkepris-forhandling og kode-rotation setup." },
-      { id: "ph-001-c", navn: "Kontrakt underskrives",       startUge: 3, varighedUger: 1, status: "todo",        ansvarlig: "kunde",      fromTemplate: true },
-      { id: "ph-001-d", navn: "Bulk-levering Carl Ras",      startUge: 4, varighedUger: 1, status: "todo",        ansvarlig: "carl-ras",   fromTemplate: true },
-      { id: "ph-001-e", navn: "Installation 25 enheder",     startUge: 5, varighedUger: 3, status: "todo",        ansvarlig: "partner",    fromTemplate: true },
-      { id: "ph-001-f", navn: "Airbnb-integration",          startUge: 8, varighedUger: 1, status: "todo",        ansvarlig: "specialist", fromTemplate: true },
-      { id: "ph-001-g", navn: "Træning af udlejer",          startUge: 9, varighedUger: 1, status: "todo",        ansvarlig: "partner",    fromTemplate: true },
+      { id: "ph-001-a", navn: "Mads: køre rundt og måle alle 25 enheder op", startUge: 0, varighedUger: 1, status: "done",        ansvarlig: "partner",    fromTemplate: true, beskrivelse: "25 sommerhuse, alle med eksisterende cylindere. Fotos taget." },
+      { id: "ph-001-b", navn: "Jens: lave bulk-tilbud + spec til kode-rotation", startUge: 1, varighedUger: 2, status: "in-progress", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Pakkepris med 18% rabat ved bulk. Airbnb-integration på roadmap." },
+      { id: "ph-001-c", navn: "Bestyrelsen: skrive kontrakt under",          startUge: 3, varighedUger: 1, status: "todo",        ansvarlig: "kunde",      fromTemplate: true },
+      { id: "ph-001-d", navn: "Carl Ras: levere alle materialer i én bulk-forsendelse", startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "carl-ras", fromTemplate: true },
+      { id: "ph-001-e", navn: "Mads: installere Smart Locks + gateways (8 enheder/uge)", startUge: 5, varighedUger: 3, status: "todo", ansvarlig: "partner", fromTemplate: true, beskrivelse: "Tager Anders med — det er hurtigere parvis." },
+      { id: "ph-001-f", navn: "Jens: koble Airbnb-kalender på automatisk kode-rotation", startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true },
+      { id: "ph-001-g", navn: "Mads: lære udlejer at administrere koder selv", startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
     ],
   },
   {
@@ -1029,13 +1058,13 @@ export const PROJECTS: Project[] = [
     oprettet: "2026-05-10",
     emoji: "☕",
     phases: [
-      { id: "ph-004-a", navn: "Site-visit",                   startUge: 0, varighedUger: 1, status: "done",        ansvarlig: "partner",    fromTemplate: true },
-      { id: "ph-004-b", navn: "Spec & tilbud",                startUge: 1, varighedUger: 2, status: "done",        ansvarlig: "specialist", fromTemplate: true },
-      { id: "ph-004-c", navn: "Kontrakt",                     startUge: 3, varighedUger: 1, status: "done",        ansvarlig: "kunde",      fromTemplate: true },
-      { id: "ph-004-d", navn: "Levering",                     startUge: 4, varighedUger: 2, status: "done",        ansvarlig: "carl-ras",   fromTemplate: true },
-      { id: "ph-004-e", navn: "Installation efter åbningstid", startUge: 6, varighedUger: 1, status: "in-progress", ansvarlig: "partner",   fromTemplate: true, beskrivelse: "1/3 enheder færdig. Resten af enhederne i næste uge." },
-      { id: "ph-004-f", navn: "Træning af personale",         startUge: 7, varighedUger: 1, status: "todo",        ansvarlig: "partner",    fromTemplate: true },
-      { id: "ph-004-g", navn: "Service-aftale aktivering",    startUge: 8, varighedUger: 1, status: "todo",        ansvarlig: "carl-ras",   fromTemplate: true },
+      { id: "ph-004-a", navn: "Mads + Jens: besøg Cafén, opmåle døre + planlægge alarm-zoner", startUge: 0, varighedUger: 1, status: "done", ansvarlig: "partner", fromTemplate: true },
+      { id: "ph-004-b", navn: "Jens: spec af Dormakaba dørlukker + Housegard alarm", startUge: 1, varighedUger: 2, status: "done", ansvarlig: "specialist", fromTemplate: true },
+      { id: "ph-004-c", navn: "Kim: skrive kontrakt under + betale depositum", startUge: 3, varighedUger: 1, status: "done", ansvarlig: "kunde", fromTemplate: true },
+      { id: "ph-004-d", navn: "Carl Ras: levere alarm-pakke + dørlukker + cylindere", startUge: 4, varighedUger: 2, status: "done", ansvarlig: "carl-ras", fromTemplate: true },
+      { id: "ph-004-e", navn: "Mads: installere alarm + dørlukker (efter Cafén lukker)", startUge: 6, varighedUger: 1, status: "in-progress", ansvarlig: "partner", fromTemplate: true, beskrivelse: "1/3 enheder færdig. Resten i næste uge — Anders tager med." },
+      { id: "ph-004-f", navn: "Mads: instruere Kims personale i alarm-koder", startUge: 7, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { id: "ph-004-g", navn: "Carl Ras: aktivere 24/7 service-aftale", startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "carl-ras", fromTemplate: true },
     ],
   },
   {
