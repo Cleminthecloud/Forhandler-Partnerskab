@@ -278,7 +278,7 @@ export default function KampagnerPage() {
               </div>
 
               {currentCategoryFormats.length > 0 && (
-                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)] max-w-[520px] overflow-x-auto scrollbar-hidden">
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md p-1 shadow-[0_1px_3px_rgba(0,0,0,0.06)] border border-[var(--line-2)]">
                   {currentCategoryFormats.map((f) => {
                     const meta = FORMATS.find((x) => x.id === f)!;
                     const sel = format === f;

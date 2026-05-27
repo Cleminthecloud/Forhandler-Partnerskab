@@ -429,14 +429,13 @@ function EmailSig({ partner, image }: { campaign: Campaign; partner: PartnerProf
             <div>{partner.webadresse}</div>
             <div>{partner.by} · {partner.region}</div>
           </div>
-          <div className="flex items-center" style={{ marginTop: "1.4cqw", gap: "1.4cqw" }}>
-            {/* Real Carl Ras Partner wordmark — same blue-box treatment as the
-                Bilstreamer template. Replaces the prior text-set boilerplate
-                that read as a fake placeholder rather than a real brand mark. */}
-            <div className="rounded grid place-items-center shrink-0" style={{ background: "#1158A3", padding: "0.8cqw 1.4cqw", height: "3.6cqw" }}>
-              <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
+          <div className="flex items-center" style={{ marginTop: "2cqw", gap: "1.8cqw" }}>
+            {/* Real Carl Ras Partner wordmark — no blue box, blue ink, bigger
+                so the "carl ras PARTNER" mark is fully readable in the sig. */}
+            <div className="shrink-0" style={{ height: "5cqw" }}>
+              <CarlRasPartnerLogo color="#1158A3" height={undefined as unknown as number} className="!h-full" />
             </div>
-            <span className="text-[#86868B]" style={{ fontSize: "1.2cqw" }}>{partner.tier}-niveau</span>
+            <span className="text-[#86868B]" style={{ fontSize: "1.4cqw" }}>{partner.tier}-niveau</span>
           </div>
         </div>
       </div>
