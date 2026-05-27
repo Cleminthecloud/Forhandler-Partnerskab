@@ -3,7 +3,7 @@
 // Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
 // heavy Recharts components that can hang Next.js static page generation.
 export const dynamic = "force-dynamic";
-import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -16,6 +16,14 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProjectPlanner } from "@/components/ProjectPlanner";
 import { BookVisitDialog } from "@/components/BookVisitDialog";
 import { Icon } from "@/components/Icon";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 const STATUS_ORDER: ProjectStatus[] = ["Konsultation", "Tilbud", "Aftalt", "I gang", "Færdig"];
 
@@ -768,23 +776,7 @@ function ProjectFooter({
   onAddAllToBasket: () => void;
   onSendTilbud: () => void;
 }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const { label, next } = nextStepForProject(project.status);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    function onDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
-    }
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setMenuOpen(false); }
-    document.addEventListener("mousedown", onDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpen]);
 
   function doPrimary() {
     // "Send tilbud" wires through onSendTilbud (which also advances status to Tilbud)
@@ -802,46 +794,30 @@ function ProjectFooter({
         <button onClick={doPrimary} className="btn btn-primary">
           {label}
         </button>
-        <div ref={menuRef} className="relative">
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            className="btn btn-secondary !px-3"
-            aria-label="Flere handlinger"
-            aria-expanded={menuOpen}
-          >
-            <Icon name="ellipsis" size={16} />
-          </button>
-          {menuOpen && (
-            <div
-              className="absolute bottom-full right-0 mb-2 w-[260px] bg-white rounded-[var(--r-md)] border border-[var(--line-2)] shadow-[var(--shadow-3)] py-1.5 z-10 animate-in"
-              role="menu"
-            >
-              <button
-                role="menuitem"
-                onClick={() => { onAddAllToBasket(); setMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="btn btn-secondary !px-3" aria-label="Flere handlinger">
+              <Icon name="ellipsis" size={16} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-[260px]">
+            <DropdownMenuItem onSelect={onAddAllToBasket}>
+              <Icon name="plus" size={14} className="text-[var(--ink-3)]" />
+              Læg alle produkter i kurv
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Skift status</DropdownMenuLabel>
+            {STATUS_ORDER.filter((s) => s !== project.status).map((s) => (
+              <DropdownMenuItem
+                key={s}
+                onSelect={() => onUpdateStatus(project.id, s)}
               >
-                <Icon name="plus" size={14} className="text-[var(--ink-3)]" />
-                Læg alle produkter i kurv
-              </button>
-              <div className="h-px bg-[var(--line-2)] my-1.5" />
-              <div className="px-3 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
-                Skift status
-              </div>
-              {STATUS_ORDER.filter((s) => s !== project.status).map((s) => (
-                <button
-                  key={s}
-                  role="menuitem"
-                  onClick={() => { onUpdateStatus(project.id, s); setMenuOpen(false); }}
-                  className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
-                >
-                  <span className="size-2 rounded-full" style={{ background: STATUS_STYLE[s].dot }} />
-                  Marker som {s.toLowerCase()}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+                <span className="size-2 rounded-full" style={{ background: STATUS_STYLE[s].dot }} />
+                Marker som {s.toLowerCase()}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

@@ -3,13 +3,21 @@
 // Force dynamic rendering — these pages use client hooks (useSearchParams) and/or
 // heavy Recharts components that can hang Next.js static page generation.
 export const dynamic = "force-dynamic";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useApp } from "@/components/AppState";
 import { CURRENT_PARTNER, Lead, LeadStatus, productsForBehov, CERTS_AVAILABLE, SPECIALISTS } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { PageHeader } from "@/components/PageHeader";
 import { Icon } from "@/components/Icon";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 const STATUSES: LeadStatus[] = ["Ny", "Kontaktet", "Vundet", "Tabt"];
 
@@ -206,26 +214,9 @@ function LeadFooter({
   onChangeStatus: (id: string, status: LeadStatus) => void;
   pushToast: (text: string) => void;
 }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const next = nextStepFor(lead);
   const telHref = `tel:${lead.telefon.replace(/\s/g, "")}`;
   const mailHref = `mailto:${lead.email}`;
-
-  // Close menu on outside click + ESC
-  useEffect(() => {
-    if (!menuOpen) return;
-    function onDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
-    }
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setMenuOpen(false); }
-    document.addEventListener("mousedown", onDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpen]);
 
   return (
     <div className="px-8 py-5 border-t border-[var(--line-2)] bg-[var(--canvas)] shrink-0 flex items-center gap-2.5">
@@ -251,55 +242,35 @@ function LeadFooter({
         <Icon name="mail" size={16} />
       </a>
 
-      {/* Overflow — everything else */}
-      <div ref={menuRef} className="relative">
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          className="btn btn-secondary !px-3"
-          aria-label="Flere handlinger"
-          aria-expanded={menuOpen}
-        >
-          <Icon name="ellipsis" size={16} />
-        </button>
-        {menuOpen && (
-          <div
-            className="absolute bottom-full right-0 mb-2 w-[240px] bg-white rounded-[var(--r-md)] border border-[var(--line-2)] shadow-[var(--shadow-3)] py-1.5 z-10 animate-in"
-            role="menu"
-          >
-            <div className="px-3 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">
-              Skift status
-            </div>
-            {STATUSES.filter((s) => s !== lead.status).map((s) => (
-              <button
-                key={s}
-                role="menuitem"
-                onClick={() => { onChangeStatus(lead.id, s); setMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
-              >
-                <span className="size-2 rounded-full" style={{ background: STATUS_COLOR[s].dot }} />
-                Marker som {s.toLowerCase()}
-              </button>
-            ))}
-            <div className="h-px bg-[var(--line-2)] my-1.5" />
-            <button
-              role="menuitem"
-              onClick={() => { pushToast("Tilbuds-editor åbner …"); setMenuOpen(false); }}
-              className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
+      {/* Overflow — shadcn DropdownMenu (Radix): focus-trap, arrow-nav, ESC, ARIA all free */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="btn btn-secondary !px-3" aria-label="Flere handlinger">
+            <Icon name="ellipsis" size={16} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-[240px]">
+          <DropdownMenuLabel>Skift status</DropdownMenuLabel>
+          {STATUSES.filter((s) => s !== lead.status).map((s) => (
+            <DropdownMenuItem
+              key={s}
+              onSelect={() => onChangeStatus(lead.id, s)}
             >
-              <Icon name="file-text" size={14} className="text-[var(--ink-3)]" />
-              Send tilbud
-            </button>
-            <button
-              role="menuitem"
-              onClick={() => { pushToast("Note tilføjet til lead"); setMenuOpen(false); }}
-              className="w-full text-left px-3 py-2 text-[14px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] flex items-center gap-2.5"
-            >
-              <Icon name="plus" size={14} className="text-[var(--ink-3)]" />
-              Tilføj note
-            </button>
-          </div>
-        )}
-      </div>
+              <span className="size-2 rounded-full" style={{ background: STATUS_COLOR[s].dot }} />
+              Marker som {s.toLowerCase()}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => pushToast("Tilbuds-editor åbner …")}>
+            <Icon name="file-text" size={14} className="text-[var(--ink-3)]" />
+            Send tilbud
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => pushToast("Note tilføjet til lead")}>
+            <Icon name="plus" size={14} className="text-[var(--ink-3)]" />
+            Tilføj note
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
