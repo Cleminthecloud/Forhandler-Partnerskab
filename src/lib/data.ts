@@ -802,6 +802,21 @@ export function salesFor(partnerId: string): PartnerSales {
 
 export type ProjectStatus = "Konsultation" | "Tilbud" | "Aftalt" | "I gang" | "Færdig";
 export type ProjectType = "Sommerhus" | "Bolig" | "Erhverv" | "Udlejning" | "Ejendom";
+export type PhaseStatus = "todo" | "in-progress" | "done" | "blocked";
+export type PhaseOwner = "partner" | "specialist" | "kunde" | "carl-ras";
+
+export interface ProjectPhase {
+  id: string;
+  navn: string;
+  beskrivelse?: string;
+  startUge: number;        // weeks from project start (0 = first week)
+  varighedUger: number;    // duration in weeks
+  status: PhaseStatus;
+  ansvarlig: PhaseOwner;
+  produktIds?: string[];
+  /** Was this phase added by the specialist-recommended template? */
+  fromTemplate?: boolean;
+}
 
 export interface ProjectNote {
   tid: string;       // e.g. "for 2 dage"
@@ -827,6 +842,98 @@ export interface Project {
   noter: ProjectNote[];
   oprettet: string;           // ISO date
   emoji: string;
+  /** Optional project plan — if empty, the partner can apply the
+   *  specialist-recommended template for their project type. */
+  phases?: ProjectPhase[];
+}
+
+/* =====================================================================
+   Project templates — specialist-recommended phase sequences per type.
+   When a partner opens a new project they can apply the matching template
+   in one click, then tweak phases (rename, resize, reorder, status).
+   ===================================================================== */
+
+export interface ProjectTemplate {
+  type: ProjectType;
+  /** Specialist who curated this template — drives the recommendation banner */
+  curatorSpecialistId: string;
+  /** Number of similar projects the curator has based this on */
+  basedOnCount: number;
+  phases: Omit<ProjectPhase, "id">[];
+}
+
+export const PROJECT_TEMPLATES: ProjectTemplate[] = [
+  {
+    type: "Sommerhus",
+    curatorSpecialistId: "s-jens",
+    basedOnCount: 18,
+    phases: [
+      { navn: "Hjemmebesøg & afklaring", startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true, beskrivelse: "Mål døre, afdæk eksisterende cylindre, vis demo." },
+      { navn: "Tilbud sendt",            startUge: 1, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true, beskrivelse: "Skriftligt tilbud + pakkepris + leveringstid." },
+      { navn: "Kundens beslutning",      startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "kunde",     fromTemplate: true },
+      { navn: "Materialer fra Carl Ras", startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",  fromTemplate: true, beskrivelse: "Cylindre, gateway og røgalarm leveret til partner-adresse." },
+      { navn: "Installation",            startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
+      { navn: "Onboarding af kunde",     startUge: 5, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "App-setup + kode-administration. Jens kan tage med på første besøg." },
+      { navn: "30-dages opfølgning",     startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
+    ],
+  },
+  {
+    type: "Udlejning",
+    curatorSpecialistId: "s-jens",
+    basedOnCount: 24,
+    phases: [
+      { navn: "Site-survey alle enheder",  startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
+      { navn: "Specialist-spec & tilbud",  startUge: 1, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Jens hjælper med kode-rotation setup og pakkepris-forhandling." },
+      { navn: "Kontrakt underskrives",     startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "kunde",     fromTemplate: true },
+      { navn: "Materialer i bulk",         startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",  fromTemplate: true, beskrivelse: "Carl Ras leverer hele bulk-pakken på én gang." },
+      { navn: "Installation enhed 1–N",    startUge: 5, varighedUger: 3, status: "todo", ansvarlig: "partner",   fromTemplate: true },
+      { navn: "Airbnb / udlejer-integration", startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Zapier-flow for automatisk kode-rotation pr. booking." },
+      { navn: "Træning af udlejer",        startUge: 9, varighedUger: 1, status: "todo", ansvarlig: "partner",   fromTemplate: true },
+      { navn: "60-dages servicetjek",      startUge: 13, varighedUger: 1, status: "todo", ansvarlig: "partner",  fromTemplate: true },
+    ],
+  },
+  {
+    type: "Bolig",
+    curatorSpecialistId: "s-marie",
+    basedOnCount: 41,
+    phases: [
+      { navn: "Demo & rådgivning",       startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "Tilbud",                  startUge: 1, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "Installation",            startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "14-dages opfølgning",     startUge: 4, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+    ],
+  },
+  {
+    type: "Erhverv",
+    curatorSpecialistId: "s-jens",
+    basedOnCount: 9,
+    phases: [
+      { navn: "Site-visit",                startUge: 0, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true, beskrivelse: "Sammen med specialist hvis adgangskontrol indgår." },
+      { navn: "Specialist-spec & tilbud",  startUge: 1, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true },
+      { navn: "Kontrakt",                  startUge: 3, varighedUger: 1, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
+      { navn: "Levering",                  startUge: 4, varighedUger: 2, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
+      { navn: "Installation efter åbningstid", startUge: 6, varighedUger: 1, status: "todo", ansvarlig: "partner", fromTemplate: true },
+      { navn: "Træning af personale",      startUge: 7, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "Serviceaftale aktivering",  startUge: 8, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
+    ],
+  },
+  {
+    type: "Ejendom",
+    curatorSpecialistId: "s-jens",
+    basedOnCount: 6,
+    phases: [
+      { navn: "Porteføljegennemgang",      startUge: 0, varighedUger: 2, status: "todo", ansvarlig: "specialist", fromTemplate: true },
+      { navn: "Pakke-tilbud pr. ejendom",  startUge: 2, varighedUger: 1, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "Beslutning",                startUge: 3, varighedUger: 2, status: "todo", ansvarlig: "kunde",      fromTemplate: true },
+      { navn: "Bulk-levering",             startUge: 5, varighedUger: 1, status: "todo", ansvarlig: "carl-ras",   fromTemplate: true },
+      { navn: "Roll-out (faseopdelt)",     startUge: 6, varighedUger: 4, status: "todo", ansvarlig: "partner",    fromTemplate: true },
+      { navn: "Bestyrelses-præsentation",  startUge: 10, varighedUger: 1, status: "todo", ansvarlig: "specialist", fromTemplate: true },
+    ],
+  },
+];
+
+export function templateFor(type: ProjectType): ProjectTemplate | undefined {
+  return PROJECT_TEMPLATES.find((t) => t.type === type);
 }
 
 export const PROJECTS: Project[] = [
@@ -851,6 +958,15 @@ export const PROJECTS: Project[] = [
     ],
     oprettet: "2026-05-15",
     emoji: "🏖️",
+    phases: [
+      { id: "ph-001-a", navn: "Site-survey alle 25 enheder", startUge: 0, varighedUger: 1, status: "done",        ansvarlig: "partner",    fromTemplate: true },
+      { id: "ph-001-b", navn: "Specialist-spec & tilbud",    startUge: 1, varighedUger: 2, status: "in-progress", ansvarlig: "specialist", fromTemplate: true, beskrivelse: "Jens leverer pakkepris-forhandling og kode-rotation setup." },
+      { id: "ph-001-c", navn: "Kontrakt underskrives",       startUge: 3, varighedUger: 1, status: "todo",        ansvarlig: "kunde",      fromTemplate: true },
+      { id: "ph-001-d", navn: "Bulk-levering Carl Ras",      startUge: 4, varighedUger: 1, status: "todo",        ansvarlig: "carl-ras",   fromTemplate: true },
+      { id: "ph-001-e", navn: "Installation 25 enheder",     startUge: 5, varighedUger: 3, status: "todo",        ansvarlig: "partner",    fromTemplate: true },
+      { id: "ph-001-f", navn: "Airbnb-integration",          startUge: 8, varighedUger: 1, status: "todo",        ansvarlig: "specialist", fromTemplate: true },
+      { id: "ph-001-g", navn: "Træning af udlejer",          startUge: 9, varighedUger: 1, status: "todo",        ansvarlig: "partner",    fromTemplate: true },
+    ],
   },
   {
     id: "pr-002",
@@ -912,6 +1028,15 @@ export const PROJECTS: Project[] = [
     ],
     oprettet: "2026-05-10",
     emoji: "☕",
+    phases: [
+      { id: "ph-004-a", navn: "Site-visit",                   startUge: 0, varighedUger: 1, status: "done",        ansvarlig: "partner",    fromTemplate: true },
+      { id: "ph-004-b", navn: "Spec & tilbud",                startUge: 1, varighedUger: 2, status: "done",        ansvarlig: "specialist", fromTemplate: true },
+      { id: "ph-004-c", navn: "Kontrakt",                     startUge: 3, varighedUger: 1, status: "done",        ansvarlig: "kunde",      fromTemplate: true },
+      { id: "ph-004-d", navn: "Levering",                     startUge: 4, varighedUger: 2, status: "done",        ansvarlig: "carl-ras",   fromTemplate: true },
+      { id: "ph-004-e", navn: "Installation efter åbningstid", startUge: 6, varighedUger: 1, status: "in-progress", ansvarlig: "partner",   fromTemplate: true, beskrivelse: "1/3 enheder færdig. Resten af enhederne i næste uge." },
+      { id: "ph-004-f", navn: "Træning af personale",         startUge: 7, varighedUger: 1, status: "todo",        ansvarlig: "partner",    fromTemplate: true },
+      { id: "ph-004-g", navn: "Service-aftale aktivering",    startUge: 8, varighedUger: 1, status: "todo",        ansvarlig: "carl-ras",   fromTemplate: true },
+    ],
   },
   {
     id: "pr-005",

@@ -3,11 +3,12 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   CURRENT_PARTNER, PROJECTS, PRODUCTS, SPECIALISTS,
-  Project, ProjectStatus, ProjectType, Product,
+  Project, ProjectStatus, ProjectType, Product, ProjectPhase,
   productsForBehov,
 } from "@/lib/data";
 import { useApp } from "@/components/AppState";
 import { PageHeader } from "@/components/PageHeader";
+import { ProjectPlanner } from "@/components/ProjectPlanner";
 
 const STATUS_ORDER: ProjectStatus[] = ["Konsultation", "Tilbud", "Aftalt", "I gang", "Færdig"];
 
@@ -166,6 +167,11 @@ export default function ProjekterPage() {
     setOpenProject((cur) => cur && cur.id === id ? { ...cur, status } : cur);
     pushToast(`Status opdateret til "${status}"`, "success");
   }, [pushToast]);
+
+  const updatePhases = useCallback((id: string, phases: ProjectPhase[]) => {
+    setProjects((prev) => prev.map((p) => p.id === id ? { ...p, phases } : p));
+    setOpenProject((cur) => cur && cur.id === id ? { ...cur, phases } : cur);
+  }, []);
 
   const addProjectProductsToBasket = useCallback((project: Project) => {
     const prods = project.produktIds.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean) as Product[];
@@ -362,6 +368,7 @@ export default function ProjekterPage() {
             const sp = SPECIALISTS.find((s) => s.id === specialistId);
             pushToast(`Hjemmebesøg booket med ${sp?.navn.split(" ")[0]} · ${new Date(dato).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}`, "success");
           }}
+          onUpdatePhases={(phases) => updatePhases(openProject.id, phases)}
         />
       )}
 
@@ -381,7 +388,7 @@ export default function ProjekterPage() {
    ===================================================================== */
 
 function ProjectDrawer({
-  project, onClose, onUpdateStatus, onAddAllToBasket, onSendTilbud, onBookSpecialist,
+  project, onClose, onUpdateStatus, onAddAllToBasket, onSendTilbud, onBookSpecialist, onUpdatePhases,
 }: {
   project: Project;
   onClose: () => void;
@@ -389,6 +396,7 @@ function ProjectDrawer({
   onAddAllToBasket: () => void;
   onSendTilbud: () => void;
   onBookSpecialist: (specialistId: string, dato: string) => void;
+  onUpdatePhases: (phases: ProjectPhase[]) => void;
 }) {
   const { addToBasket, pushToast } = useApp();
   const [showBookForm, setShowBookForm] = useState(false);
@@ -478,6 +486,16 @@ function ProjectDrawer({
               label="Din provision"
               value={`${Math.round(project.forventetKr * project.marginPct / 100).toLocaleString("da-DK")} kr`}
               hint={`${project.marginPct}% margin`}
+            />
+          </section>
+
+          {/* Project plan — Gantt with specialist-recommended template */}
+          <section>
+            <div className="t-eyebrow mb-3">Projektplan</div>
+            <ProjectPlanner
+              projectType={project.type}
+              phases={project.phases ?? []}
+              onChange={onUpdatePhases}
             />
           </section>
 
