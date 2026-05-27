@@ -397,24 +397,24 @@ export default function SpecialisterPage() {
               </div>
             ) : (
               <>
-                <ul className="space-y-2.5">
+                <ul className="space-y-3">
                   {basket.slice(0, 4).map((b) => (
-                    <li key={b.productId} className="flex items-center gap-2.5">
-                      <div className="size-9 rounded-md bg-[var(--canvas-2)] grid place-items-center text-[14px] shrink-0 overflow-hidden">
+                    <li key={b.productId} className="flex items-center gap-3">
+                      <div className="size-14 rounded-[var(--r-md)] bg-white border border-[var(--line-2)] grid place-items-center text-[20px] shrink-0 overflow-hidden p-1.5">
                         {b.image ? (
-                          <Image src={b.image} alt={b.navn} width={36} height={36} className="object-cover size-9" />
+                          <Image src={b.image} alt={b.navn} width={56} height={56} className="size-full object-contain" />
                         ) : (
                           <span>{b.emoji}</span>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="text-[12px] font-semibold text-[var(--ink)] truncate">{b.brand}</div>
+                        <div className="text-[13px] font-semibold text-[var(--ink)] truncate">{b.brand}</div>
                         <div className="text-[12px] text-[var(--ink-3)] truncate">×{b.qty} · {b.pris}</div>
                       </div>
                     </li>
                   ))}
                   {basket.length > 4 && (
-                    <li className="text-[12px] text-[var(--ink-3)]">+{basket.length - 4} til</li>
+                    <li className="text-[12px] text-[var(--ink-3)] pl-1">+{basket.length - 4} til</li>
                   )}
                 </ul>
                 <div className="mt-4 pt-3 border-t border-[var(--line-2)]">

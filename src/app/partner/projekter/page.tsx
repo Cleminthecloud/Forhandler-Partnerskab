@@ -265,8 +265,8 @@ function ProjekterPageInner() {
       {/* ─── KPI strip ─── */}
       <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Tile label="Aktive projekter" value={projects.filter((p) => p.status !== "Færdig").length.toString()} delta={`${counts.Konsultation} nye`} />
-        <Tile label="Pipeline-værdi" value={`${(totalPipeline / 1000).toLocaleString("da-DK", { maximumFractionDigits: 1 })}k kr`} delta="ex. moms" subtle />
-        <Tile label="Forventet provision" value={`${(aktivProvisionEst / 1000).toLocaleString("da-DK", { maximumFractionDigits: 1 })}k kr`} delta="aktive aftaler" />
+        <Tile label="Pipeline-værdi" value={`${Math.round(totalPipeline).toLocaleString("da-DK")} kr`} delta="ex. moms" subtle />
+        <Tile label="Forventet provision" value={`${Math.round(aktivProvisionEst).toLocaleString("da-DK")} kr`} delta="aktive aftaler" />
         <Tile label="Vundne (12 mdr)" value={projects.filter((p) => p.status === "Færdig").length.toString()} delta="+1 sidste uge" />
       </section>
 
@@ -336,34 +336,40 @@ function ProjekterPageInner() {
                 </span>
               </div>
 
-              {/* VALUE — large, single emphasis */}
-              <div className="mt-4 flex items-baseline justify-between gap-3">
+              {/* VALUE — large, single emphasis. Full amount, no "k kr" shorthand. */}
+              <div className="mt-4 flex items-end justify-between gap-3">
                 <div>
                   <div className="text-[22px] font-bold text-[var(--ink)] tabular-nums leading-none">
-                    {(p.forventetKr / 1000).toLocaleString("da-DK", { maximumFractionDigits: 1 })}k kr
+                    {p.forventetKr.toLocaleString("da-DK")} kr
                   </div>
-                  <div className="text-[11.5px] text-[var(--ink-3)] mt-1.5">
+                  <div className="text-[12px] text-[var(--ink-3)] mt-2">
                     ~{Math.round(p.forventetKr * p.marginPct / 100).toLocaleString("da-DK")} kr i provision
                   </div>
                 </div>
-                {/* product mini-strip — quiet thumbnails right-aligned */}
+                {/* Product thumbnails — bigger, square tiles with full product visible (object-contain) */}
                 {products.length > 0 && (
-                  <div className="flex items-center -space-x-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     {products.slice(0, 3).map((prod) => (
                       <div
                         key={prod.id}
-                        className="size-7 rounded-full bg-white ring-2 ring-[var(--canvas)] overflow-hidden grid place-items-center"
+                        className="size-12 rounded-[var(--r-sm)] bg-white border border-[var(--line-2)] overflow-hidden grid place-items-center p-1"
                         title={prod.brand + " " + prod.navn}
                       >
                         {prod.image ? (
-                          <Image src={prod.image} alt={prod.navn} width={28} height={28} className="object-cover size-7" />
+                          <Image
+                            src={prod.image}
+                            alt={prod.navn}
+                            width={44}
+                            height={44}
+                            className="size-full object-contain"
+                          />
                         ) : (
-                          <span className="text-[14px]">{prod.emoji}</span>
+                          <span className="text-[20px]">{prod.emoji}</span>
                         )}
                       </div>
                     ))}
                     {products.length > 3 && (
-                      <div className="size-7 rounded-full bg-[var(--canvas-2)] ring-2 ring-[var(--canvas)] grid place-items-center text-[10px] font-semibold text-[var(--ink-3)] tabular-nums">
+                      <div className="size-12 rounded-[var(--r-sm)] bg-[var(--canvas-2)] border border-[var(--line-2)] grid place-items-center text-[13px] font-semibold text-[var(--ink-3)] tabular-nums">
                         +{products.length - 3}
                       </div>
                     )}
@@ -533,7 +539,7 @@ function ProjectDrawer({
           {/* KPI row */}
           <section className="grid grid-cols-3 gap-3">
             <DrawerStat label="Enheder" value={project.enheder.toString()} />
-            <DrawerStat label="Forventet" value={`${(project.forventetKr / 1000).toLocaleString("da-DK", { maximumFractionDigits: 1 })}k kr`} />
+            <DrawerStat label="Forventet" value={`${project.forventetKr.toLocaleString("da-DK")} kr`} />
             <DrawerStat
               label="Din provision"
               value={`${Math.round(project.forventetKr * project.marginPct / 100).toLocaleString("da-DK")} kr`}
