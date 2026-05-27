@@ -430,8 +430,11 @@ function EmailSig({ partner, image }: { campaign: Campaign; partner: PartnerProf
             <div>{partner.by} · {partner.region}</div>
           </div>
           <div className="flex items-center" style={{ marginTop: "1.4cqw", gap: "1.4cqw" }}>
-            <div className="rounded" style={{ background: "#1158A3", padding: "0.5cqw 1.4cqw" }}>
-              <span className="font-bold text-white" style={{ fontSize: "1.1cqw", letterSpacing: "0.08em" }}>CARL RAS PARTNER</span>
+            {/* Real Carl Ras Partner wordmark — same blue-box treatment as the
+                Bilstreamer template. Replaces the prior text-set boilerplate
+                that read as a fake placeholder rather than a real brand mark. */}
+            <div className="rounded grid place-items-center shrink-0" style={{ background: "#1158A3", padding: "0.8cqw 1.4cqw", height: "3.6cqw" }}>
+              <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
             </div>
             <span className="text-[#86868B]" style={{ fontSize: "1.2cqw" }}>{partner.tier}-niveau</span>
           </div>
