@@ -89,7 +89,7 @@ const FRAME = {
   // Square
   facebook:     { width:  "clamp(360px, min(54vh, 44vw), 600px)", aspectRatio: "1 / 1" },
   // Horizontal — width-driven
-  bilstreamer:  { width:  "clamp(560px, 70vw, 1080px)", aspectRatio: "5 / 1" },
+  bilstreamer:  { width:  "clamp(480px, 56vw, 880px)",  aspectRatio: "5 / 1" },
   email:        { width:  "clamp(440px, 56vw, 780px)", aspectRatio: "3 / 1" },
   google:       { width:  "clamp(320px, 36vw, 520px)", aspectRatio: "6 / 5" },     // 300x250-ish
 } as const;
@@ -310,15 +310,13 @@ function Bilstreamer({ partner, image }: { campaign: Campaign; partner: PartnerP
   return (
     <div className="relative shadow-[0_20px_60px_rgba(0,26,51,0.18)]" style={FRAME.bilstreamer}>
       <div className="absolute inset-0 flex overflow-hidden" style={{ borderRadius: 4, containerType: "inline-size" }}>
-        {/* LEFT — photo area with CRP wordmark in top-right corner */}
-        <div className="relative shrink-0 w-[40%] h-full">
-          <PhotoArea image={image} height="100%" />
-          <div className="absolute" style={{ top: "2cqw", right: "2cqw", height: "3.5cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.45))" }}>
-            <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
-          </div>
-        </div>
+        {/* LEFT — photo area (no overlay logo — the CRP wordmark on the navy
+            side is enough; doubling it cluttered the banner). */}
+        <PhotoArea image={image} className="shrink-0 w-[40%]" height="100%" />
 
-        {/* RIGHT — navy text block with CRP wordmark anchored bottom-right */}
+        {/* RIGHT — navy text block with CRP wordmark anchored bottom-right
+            (scaled to ~80% with extra right-padding to keep the whole
+            wordmark visible inside the 5:1 banner crop). */}
         <div className="relative flex-1 flex items-center" style={{ background: "#001A33", padding: "0 2.5cqw", gap: "2cqw" }}>
           <div className="rounded grid place-items-center text-white font-bold shrink-0" style={{ background: partner.logoBg, width: "5.6cqw", height: "5.6cqw", fontSize: "1.6cqw" }}>
             {partner.initialer}
@@ -328,7 +326,7 @@ function Bilstreamer({ partner, image }: { campaign: Campaign; partner: PartnerP
             <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "1.1cqw", marginTop: "0.4cqw" }}>{partner.faggruppe} · {partner.by}</div>
             <div style={{ color: "white", fontSize: "1.5cqw", fontWeight: 600, marginTop: "0.8cqw" }}>{partner.telefon} · {partner.webadresse}</div>
           </div>
-          <div className="absolute" style={{ bottom: "2cqw", right: "2.5cqw", height: "3.5cqw" }}>
+          <div className="absolute" style={{ bottom: "2.5cqw", right: "3cqw", height: "2.8cqw" }}>
             <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
           </div>
         </div>
@@ -349,8 +347,13 @@ function FacebookSq({ campaign, partner, theme, image }: { campaign: Campaign; p
             ? "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%)"
             : "linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, transparent 100%)",
         }} />
+        {/* Carl Ras Partner wordmark anchored top-right of image area — same
+            padding rhythm as the bilstreamer's photo-side mark. */}
+        <div className="absolute" style={{ top: "4cqw", right: "4cqw", height: "3.2cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.5))" }}>
+          <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
+        </div>
         <div className="absolute inset-x-0 top-0" style={{ padding: "5cqw 6cqw 0" }}>
-          <h3 className="font-bold tracking-tight" style={{ color: inkColor, fontSize: "6.5cqw", lineHeight: 1.05, letterSpacing: "-0.02em", textShadow: overlayDark ? "0 0.4cqw 2.4cqw rgba(0,0,0,0.45)" : "none" }}>
+          <h3 className="font-bold tracking-tight" style={{ color: inkColor, fontSize: "6.5cqw", lineHeight: 1.05, letterSpacing: "-0.02em", textShadow: overlayDark ? "0 0.4cqw 2.4cqw rgba(0,0,0,0.45)" : "none", maxWidth: "52cqw" }}>
             {campaign.hovedbudskab}
           </h3>
           <p style={{
@@ -427,7 +430,8 @@ function EmailSig({ partner, image }: { campaign: Campaign; partner: PartnerProf
     <div className="relative shadow-[0_20px_60px_rgba(0,26,51,0.18)]" style={FRAME.email}>
       <div className="absolute inset-0 flex overflow-hidden bg-white" style={{ borderRadius: 6, containerType: "inline-size" }}>
         <PhotoArea image={image} className="shrink-0 w-[35%]" height="100%" />
-        <div className="flex-1 flex flex-col justify-center" style={{ padding: "3.5cqw 4cqw" }}>
+        {/* Right column — relative so the CRP wordmark can dock bottom-right */}
+        <div className="relative flex-1 flex flex-col justify-center" style={{ padding: "3.5cqw 4cqw" }}>
           <div className="flex items-center" style={{ gap: "2cqw" }}>
             <div className="rounded-md grid place-items-center text-white font-bold shrink-0" style={{ background: partner.logoBg, width: "6cqw", height: "6cqw", fontSize: "1.8cqw" }}>
               {partner.initialer}
@@ -442,13 +446,11 @@ function EmailSig({ partner, image }: { campaign: Campaign; partner: PartnerProf
             <div>{partner.webadresse}</div>
             <div>{partner.by} · {partner.region}</div>
           </div>
-          <div className="flex items-center" style={{ marginTop: "2cqw", gap: "1.8cqw" }}>
-            {/* Real Carl Ras Partner wordmark — no blue box, blue ink, bigger
-                so the "carl ras PARTNER" mark is fully readable in the sig. */}
-            <div className="shrink-0" style={{ height: "5cqw" }}>
-              <CarlRasPartnerLogo color="#1158A3" height={undefined as unknown as number} className="!h-full" />
-            </div>
-            <span className="text-[#86868B]" style={{ fontSize: "1.4cqw" }}>{partner.tier}-niveau</span>
+          {/* CRP wordmark anchored bottom-right with comfortable padding —
+              replaces the prior "Sølv-niveau" tier text, which was redundant
+              with the partner data already visible above. */}
+          <div className="absolute" style={{ bottom: "3.5cqw", right: "4cqw", height: "4cqw" }}>
+            <CarlRasPartnerLogo color="#1158A3" height={undefined as unknown as number} className="!h-full" />
           </div>
         </div>
       </div>
@@ -461,7 +463,14 @@ function GoogleAd({ campaign, partner, theme, image }: { campaign: Campaign; par
   return (
     <div className="relative shadow-[0_20px_60px_rgba(0,26,51,0.18)]" style={FRAME.google}>
       <div className="absolute inset-0 bg-white overflow-hidden flex flex-col" style={{ borderRadius: 6, containerType: "inline-size" }}>
-        <PhotoArea image={image} height="48%" />
+        {/* Photo area with Carl Ras Partner wordmark anchored top-right —
+            consistent with FB ad + bilstreamer pattern. */}
+        <div className="relative" style={{ height: "48%" }}>
+          <PhotoArea image={image} height="100%" />
+          <div className="absolute" style={{ top: "3cqw", right: "3cqw", height: "3.5cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.5))" }}>
+            <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
+          </div>
+        </div>
         <div className="flex-1 flex flex-col" style={{ padding: "3cqw" }}>
           <h3 className="font-bold tracking-tight" style={{ color: "#1D1D1F", fontSize: "4.5cqw", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
             {campaign.hovedbudskab}
