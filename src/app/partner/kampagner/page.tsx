@@ -5,6 +5,7 @@ import { useApp } from "@/components/AppState";
 import { CAMPAIGNS, FORMATS, CURRENT_PARTNER, FormatKind, Campaign } from "@/lib/data";
 import { CampaignPreview, imagesForTheme } from "@/components/CampaignPreview";
 import { PageHeader } from "@/components/PageHeader";
+import { Icon } from "@/components/Icon";
 import { THEMES } from "@/lib/themes";
 
 interface Edits {
@@ -13,6 +14,42 @@ interface Edits {
   cta?: string;
   ctaLink?: string;     // Destination URL for digital ads (FB/IG/LinkedIn/Google/Email)
 }
+
+/* ─── Campaign history (demo data) ───────────────────────────────────
+   Past runs by this partner. In a real build this would be hydrated from
+   the partner's order/post history. For the demo, it's a curated set that
+   spans every status type (active, finished, in print, sent to ad-platform)
+   and every format so a partner can re-pick from any channel. */
+type HistoryStatus = "Aktiv" | "Afsluttet" | "I tryk" | "Sendt til Meta" | "Sendt til Google" | "Sendt til LinkedIn" | "Email-signatur";
+interface CampaignHistoryEntry {
+  id: string;
+  campaignId: string;       // → CAMPAIGNS[id]
+  format: FormatKind;
+  status: HistoryStatus;
+  dato: string;             // human-readable Danish date
+  detail: string;           // "250 flyere", "Lokalavisen Nordsjælland", "Meta Business — Hornbæk Låseservice"
+  leads?: number;           // optional performance — undefined when not yet measurable
+  imageVariant?: number;    // which photo was chosen — defaults to 0
+}
+const CAMPAIGN_HISTORY: CampaignHistoryEntry[] = [
+  { id: "h-1", campaignId: "c-sommer-smartlock",   format: "print-flyer",       status: "I tryk",          dato: "17. maj 2026",   detail: "250 stk · levering 22. maj",                            leads: 12, imageVariant: 0 },
+  { id: "h-2", campaignId: "c-sommer-alarm",       format: "digital-facebook",  status: "Aktiv",           dato: "14. maj 2026",   detail: "Meta Business · 4.500 kr brugt af 6.000 kr",            leads: 8,  imageVariant: 1 },
+  { id: "h-3", campaignId: "c-sommer-pakke",       format: "print-magasin",     status: "Afsluttet",       dato: "8. maj 2026",    detail: "Lokalavisen Nordsjælland · uge 18-19",                  leads: 5,  imageVariant: 2 },
+  { id: "h-4", campaignId: "c-sommer-smartlock",   format: "digital-email",     status: "Email-signatur",  dato: "8. maj 2026",    detail: "Installeret i Outlook · 142 udgående emails siden",     leads: 3 },
+  { id: "h-5", campaignId: "c-sommer-airbnb",      format: "digital-linkedin",  status: "Sendt til LinkedIn", dato: "5. maj 2026", detail: "LinkedIn Campaign Manager · målgruppe sommerhusejere",  leads: 6,  imageVariant: 1 },
+  { id: "h-6", campaignId: "c-sommer-alarm",       format: "digital-google",    status: "Sendt til Google",dato: "2. maj 2026",    detail: "Google Ads · geo-targeted Nordsjælland 25 km",          leads: 4 },
+  { id: "h-7", campaignId: "c-sommer-pakke",       format: "print-bilstreamer", status: "Afsluttet",       dato: "12. april 2026", detail: "Monteret på firmabilen · sæson afsluttet",              leads: 18, imageVariant: 0 },
+];
+
+const STATUS_STYLES: Record<HistoryStatus, { bg: string; ink: string; dot: string }> = {
+  "Aktiv":              { bg: "#E5F4EA", ink: "#1F6A3A", dot: "#2D9D5A" },
+  "I tryk":             { bg: "#FFF1DC", ink: "#7A4400", dot: "#F49100" },
+  "Afsluttet":          { bg: "#F0F1F4", ink: "#3A3F44", dot: "#86868B" },
+  "Sendt til Meta":     { bg: "#E5EEFB", ink: "#0C447C", dot: "#0866FF" },
+  "Sendt til Google":   { bg: "#E5F4EA", ink: "#1F6A3A", dot: "#34A853" },
+  "Sendt til LinkedIn": { bg: "#E5EEFB", ink: "#0C447C", dot: "#0A66C2" },
+  "Email-signatur":     { bg: "#F0F1F4", ink: "#3A3F44", dot: "#86868B" },
+};
 
 export default function KampagnerPage() {
   const { theme, setThemeId } = useTheme();
@@ -42,14 +79,20 @@ export default function KampagnerPage() {
     | "email-outlook";        // Install email signature in Outlook
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
-  // ESC closes drawer
+  // ESC closes drawers
   useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDrawerOpen(false); };
+    if (!drawerOpen && !historyOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setDrawerOpen(false);
+        setHistoryOpen(false);
+      }
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen]);
+  }, [drawerOpen, historyOpen]);
 
   // Image variants filtered by active theme — sommer photos for sommer-sikring,
   // winter for vinter-byg, dusk/autumn for indbrud-efterar.
@@ -119,6 +162,15 @@ export default function KampagnerPage() {
                 ⤺ Nulstil tekst
               </button>
             )}
+            <button
+              onClick={() => setHistoryOpen(true)}
+              className="btn btn-secondary inline-flex items-center gap-2"
+              data-tt="Se kampagner du har kørt — genbestil eller send igen"
+            >
+              <Icon name="history" size={14} />
+              Mine kampagner
+              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-[var(--accent)] text-white text-[10px] font-bold leading-none">{CAMPAIGN_HISTORY.length}</span>
+            </button>
             <button onClick={() => pushToast("Gemt som skabelon")} className="btn btn-secondary" data-tt="Gem som personlig skabelon">
               Gem skabelon
             </button>
@@ -707,6 +759,126 @@ export default function KampagnerPage() {
                 Ændringer gemmes automatisk
               </span>
               <button onClick={() => setDrawerOpen(false)} className="btn btn-primary !py-1.5">Færdig</button>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ─── HISTORY DRAWER: Mine kampagner ─── */}
+      {historyOpen && (
+        <div className="fixed inset-0 z-40 animate-in" onClick={() => setHistoryOpen(false)}>
+          <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
+          <aside
+            className="absolute top-[48px] right-0 bottom-0 w-[560px] max-w-[95vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
+          >
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-[var(--line-2)] flex items-center justify-between">
+              <div>
+                <div className="t-eyebrow !text-[12px]">Aktivitet</div>
+                <div className="text-[15px] font-semibold text-[var(--ink)] mt-0.5">Mine kampagner</div>
+                <div className="text-[12px] text-[var(--ink-3)] mt-0.5">
+                  {CAMPAIGN_HISTORY.length} kampagner siden april · {CAMPAIGN_HISTORY.reduce((s, h) => s + (h.leads ?? 0), 0)} leads i alt
+                </div>
+              </div>
+              <button
+                onClick={() => setHistoryOpen(false)}
+                className="size-8 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors"
+                aria-label="Luk"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
+              {CAMPAIGN_HISTORY.map((h) => {
+                const campaign = CAMPAIGNS.find((c) => c.id === h.campaignId);
+                const fmt = FORMATS.find((f) => f.id === h.format);
+                const tema = campaign ? THEMES.find((t) => t.id === campaign.tema) : null;
+                const variants = campaign ? imagesForTheme(campaign.tema) : [];
+                const img = variants[h.imageVariant ?? 0];
+                const status = STATUS_STYLES[h.status];
+                if (!campaign || !fmt) return null;
+                return (
+                  <article key={h.id} className="rounded-[var(--r-lg)] border border-[var(--line-2)] bg-white hover:shadow-[var(--shadow-2)] hover:border-[var(--line)] transition-all overflow-hidden">
+                    <div className="flex gap-3 p-3">
+                      {/* Thumbnail — themed image with format ratio hint */}
+                      <div
+                        className="shrink-0 w-[88px] h-[88px] rounded-[var(--r-md)] bg-[var(--canvas-2)] overflow-hidden grid place-items-center text-2xl"
+                        style={img ? { background: img.bg } : undefined}
+                      >
+                        {!img && campaign.heroEmoji}
+                      </div>
+                      {/* Body */}
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              {tema && <span className="size-2 rounded-full shrink-0" style={{ background: tema.accent }} aria-hidden />}
+                              <span className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] truncate">{fmt.label}</span>
+                            </div>
+                            <h3 className="text-[14px] font-semibold text-[var(--ink)] leading-tight mt-0.5 truncate">{campaign.titel}</h3>
+                          </div>
+                          <span
+                            className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0"
+                            style={{ background: status.bg, color: status.ink }}
+                          >
+                            <span className="size-1.5 rounded-full" style={{ background: status.dot }} />
+                            {h.status}
+                          </span>
+                        </div>
+                        <div className="text-[12px] text-[var(--ink-3)] mt-1 leading-[1.5]">
+                          <div className="truncate">{h.dato} · {h.detail}</div>
+                          {typeof h.leads === "number" && (
+                            <div className="mt-1 inline-flex items-center gap-1 text-[var(--ink-2)] font-semibold">
+                              <Icon name="users" size={12} /> {h.leads} {h.leads === 1 ? "lead" : "leads"} fra denne kampagne
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setActiveCampaignId(h.campaignId);
+                              setFormat(h.format);
+                              setCategory(h.format.startsWith("print") ? "print" : "digital");
+                              if (typeof h.imageVariant === "number") setImageVariant(h.imageVariant);
+                              setHistoryOpen(false);
+                              pushToast(`${campaign.titel} indlæst — klar til at sende igen`);
+                            }}
+                            className="btn btn-primary !py-1 !px-3 !text-[12px]"
+                          >
+                            Brug igen
+                          </button>
+                          <button
+                            onClick={() => {
+                              setActiveCampaignId(h.campaignId);
+                              setFormat(h.format);
+                              setCategory(h.format.startsWith("print") ? "print" : "digital");
+                              if (typeof h.imageVariant === "number") setImageVariant(h.imageVariant);
+                              setHistoryOpen(false);
+                            }}
+                            className="text-[12px] font-semibold text-[var(--ink-2)] hover:text-[var(--ink)] px-2 py-1"
+                          >
+                            Se i editor →
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+
+              {/* Empty-state hint at the bottom — reinforces the platform-as-memory pitch */}
+              <div className="mt-3 p-3.5 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
+                <div className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">Sådan virker det</div>
+                <p className="text-[12px] text-[var(--ink-2)] mt-1.5 leading-[1.5]">
+                  Hver kampagne du bestiller eller sender via platformen havner her. Brug &ldquo;Brug igen&rdquo; til at genbruge det samme materiale — Carl Ras pusher en ny kladde eller printer en ny omgang med dine ændringer fra sidst.
+                </p>
+              </div>
             </div>
           </aside>
         </div>

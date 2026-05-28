@@ -22,6 +22,7 @@ export type IconName =
   | "send"
   | "external"
   | "clock"
+  | "history"
   | "map-pin"
   | "shield"
   | "lock"
@@ -52,6 +53,7 @@ const PATHS: Record<IconName, React.ReactNode> = {
   send:        <path d="M21 3L3 11l7 3 3 7 8-18z M10 14l11-11" />,
   external:    <><path d="M14 4h6v6" /><path d="M20 4l-9 9M19 13v6H5V5h6" /></>,
   clock:       <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+  history:     <><path d="M3 12a9 9 0 109-9c-2.5 0-4.7 1-6.4 2.6L3 8" /><path d="M3 3v5h5" /><path d="M12 8v4l3 2" /></>,
   "map-pin":   <><path d="M12 21s-7-7-7-12a7 7 0 0114 0c0 5-7 12-7 12z" /><circle cx="12" cy="9" r="2.5" /></>,
   shield:      <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" />,
   lock:        <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></>,
