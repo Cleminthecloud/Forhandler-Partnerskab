@@ -80,7 +80,7 @@ export default function AdminOverview() {
         />
         <KpiTile
           label="Omsætning maj"
-          value={`${Math.round(ADMIN_STATS.omsætningDenneMåned / 1000)}k`}
+          value={ADMIN_STATS.omsætningDenneMåned.toLocaleString("da-DK", { maximumFractionDigits: 0 })}
           unit="kr"
           delta={`${omsætningGrowth > 0 ? "+" : ""}${omsætningGrowth}% vs. april`}
           deltaPositive={omsætningGrowth > 0}

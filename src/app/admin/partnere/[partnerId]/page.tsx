@@ -24,7 +24,6 @@ function tierClass(tier: "Bronze" | "Sølv" | "Guld") {
 }
 
 function fmtKr(n: number) { return n.toLocaleString("da-DK") + " kr"; }
-function fmtK(n: number)  { return Math.round(n / 1000) + "k"; }
 
 // Deterministic next-visit date from partner id (Mon–Fri, next 14 days)
 function nextVisitFor(partnerId: string): { dato: string; ugedag: string; tidStart: string; tidSlut: string; isoDay: number } {
@@ -247,7 +246,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
             data={omsætningSeries}
             color="var(--accent)"
             height={220}
-            formatValue={(v) => fmtK(v)}
+            formatValue={(v) => v.toLocaleString("da-DK")}
             unit="kr"
           />
         </div>

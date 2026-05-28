@@ -161,7 +161,7 @@ export default function PartnerProfilePage() {
             <ul className="space-y-2.5 text-[12.5px]">
               <li className="flex items-baseline justify-between">
                 <span className="text-[var(--ink-3)]">Omsætning</span>
-                <span className="font-semibold text-[var(--ink)] tabular-nums">{(sales.omsætning12mo / 1000).toLocaleString("da-DK", { maximumFractionDigits: 0 })}k kr</span>
+                <span className="font-semibold text-[var(--ink)] tabular-nums">{sales.omsætning12mo.toLocaleString("da-DK", { maximumFractionDigits: 0 })} kr</span>
               </li>
               <li className="flex items-baseline justify-between">
                 <span className="text-[var(--ink-3)]">Antal sager</span>
