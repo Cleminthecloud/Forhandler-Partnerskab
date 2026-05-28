@@ -80,19 +80,31 @@ export default function KampagnerPage() {
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  /* Mobile-only: bottom sheet for switching media/format + tapping Rediger.
+     On desktop these controls live in the floating top bar. */
+  const [mobileFormatOpen, setMobileFormatOpen] = useState(false);
 
   // ESC closes drawers
   useEffect(() => {
-    if (!drawerOpen && !historyOpen) return;
+    if (!drawerOpen && !historyOpen && !mobileFormatOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDrawerOpen(false);
         setHistoryOpen(false);
+        setMobileFormatOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen, historyOpen]);
+  }, [drawerOpen, historyOpen, mobileFormatOpen]);
+
+  // Body scroll lock while the mobile format sheet is open
+  useEffect(() => {
+    if (!mobileFormatOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [mobileFormatOpen]);
 
   // Image variants filtered by active theme — sommer photos for sommer-sikring,
   // winter for vinter-byg, dusk/autumn for indbrud-efterar.
@@ -148,7 +160,9 @@ export default function KampagnerPage() {
     : [];
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-48px)] lg:h-[calc(100vh-48px)] animate-in">
+    /* pb-[92px] on mobile leaves room for the fixed mobile bottom bar so it
+       doesn't cover the canvas preview at the end of the page. Reset on lg+. */
+    <div className="flex flex-col min-h-[calc(100vh-48px)] lg:h-[calc(100vh-48px)] pb-[92px] lg:pb-0 animate-in">
       {/* Mobile: notice that the editor is desktop-best. Browsing still works
           (campaigns, preview) — but the floating chrome and side rail were
           built for ≥1024px viewports. */}
@@ -314,14 +328,12 @@ export default function KampagnerPage() {
             }}
           />
 
-          {/* FLOATING TOP BAR — two groups: mode+formats (left), actions (right).
-              On desktop (lg:+) it floats over the canvas. On mobile we anchor it
-              as a static row above the preview with a light background + border,
-              so users can still switch Print/Digital, pick a format, and tap
-              Rediger / Send. Without this the page was view-only on mobile —
-              "I can see the preview but can't change anything". Buttons inside
-              keep their `pointer-events-auto` so they stay tappable. */}
-          <div className="relative flex flex-wrap items-center justify-between gap-2 p-3 bg-[var(--canvas-2)] border-b border-[var(--line-2)] pointer-events-none lg:absolute lg:top-4 lg:left-4 lg:right-4 lg:z-20 lg:gap-3 lg:p-0 lg:bg-transparent lg:border-0">
+          {/* FLOATING TOP BAR — desktop only. Tried inlining it on mobile but
+              the `pointer-events-none` parent + crowded layout meant the bar
+              showed but no buttons fired. On mobile we now use a dedicated
+              fixed bottom-bar + bottom-sheet pattern (further down in this
+              component) — same controls, native-mobile UX. */}
+          <div className="hidden lg:flex absolute top-4 left-4 right-4 z-20 items-center justify-between gap-3 pointer-events-none flex-wrap">
 
             {/* Udkast badge — only shown when there are unsaved edits, no longer
                 attached to the now-killed title pill. */}
@@ -625,6 +637,159 @@ export default function KampagnerPage() {
           </div>
         </section>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          MOBILE BOTTOM BAR — fixed at viewport bottom on <lg.
+          Shows the current Print/Digital · Format, an Edit icon, and a
+          "Skift format" pill that opens the bottom sheet below. This is
+          how mobile users access the controls that float over the canvas
+          on desktop.
+          ═════════════════════════════════════════════════════════════ */}
+      <div
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[var(--line-2)] flex items-center gap-2 px-3 py-2 shadow-[0_-6px_18px_rgba(0,0,0,0.06)]"
+        style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))" }}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Vises</div>
+          <div className="text-[13px] font-semibold text-[var(--ink)] truncate">
+            {category === "print" ? "Print" : "Digital"} · {FORMATS.find((f) => f.id === format)?.label ?? "—"}
+          </div>
+        </div>
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="size-10 grid place-items-center rounded-full border border-[var(--line)] text-[var(--ink)] active:bg-[var(--canvas-2)] transition-colors shrink-0"
+          aria-label="Rediger tekst"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
+          </svg>
+        </button>
+        <button
+          onClick={() => setMobileFormatOpen(true)}
+          className="inline-flex items-center gap-1.5 px-4 bg-[var(--ink)] text-white rounded-full font-semibold active:scale-[0.98] transition-transform shrink-0"
+          style={{ minHeight: 40, fontSize: 13 }}
+        >
+          Skift format
+          <svg width="10" height="6" viewBox="0 0 10 6">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          MOBILE FORMAT BOTTOM SHEET — slides up. Contains Print/Digital
+          segmented control, format chips for current media, and a quick
+          "Rediger tekst" row that opens the edit drawer.
+          ═════════════════════════════════════════════════════════════ */}
+      {mobileFormatOpen && (
+        <div className="lg:hidden fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="Skift format">
+          <div
+            onClick={() => setMobileFormatOpen(false)}
+            className="absolute inset-0 bg-black/45 backdrop-blur-[1px] animate-in"
+          />
+          <aside
+            className="absolute left-0 right-0 bottom-0 bg-white rounded-t-[20px] shadow-[0_-12px_40px_rgba(0,0,0,0.22)] flex flex-col max-h-[88dvh]"
+            style={{ animation: "slideInUp 280ms cubic-bezier(0.22,1,0.36,1)", paddingBottom: "max(20px, env(safe-area-inset-bottom, 0px))" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drag indicator */}
+            <div className="grid place-items-center pt-3">
+              <span className="w-10 h-1 rounded-full bg-[var(--line)] opacity-60" />
+            </div>
+
+            {/* Sheet header */}
+            <div className="flex items-center justify-between px-5 pt-3 pb-4">
+              <h3 className="font-bold text-[var(--ink)] tracking-tight" style={{ fontSize: 20, letterSpacing: "-0.01em" }}>Skift format</h3>
+              <button
+                onClick={() => setMobileFormatOpen(false)}
+                aria-label="Luk"
+                className="size-9 grid place-items-center rounded-full active:bg-[var(--canvas-2)] transition-colors"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-5 pb-3 overflow-y-auto">
+              {/* Media — segmented Print/Digital. Switching media also picks the
+                  first format in that category so the canvas updates immediately. */}
+              <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mb-2">Medie</div>
+              <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-[var(--canvas-2)]">
+                {(["print", "digital"] as const).map((c) => {
+                  const active = category === c;
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => {
+                        setCategory(c);
+                        const first = activeCampaign?.formater.find((f) => f.startsWith(c + "-"));
+                        if (first) setFormat(first);
+                      }}
+                      className={
+                        "py-2.5 text-[14px] font-semibold rounded-full transition-colors " +
+                        (active ? "bg-white text-[var(--ink)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--ink-3)]")
+                      }
+                    >
+                      {c === "print" ? "Print" : "Digital"}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Format chips for the current media */}
+              <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mt-5 mb-2">Format</div>
+              <div className="grid grid-cols-2 gap-2">
+                {currentCategoryFormats.map((f) => {
+                  const meta = FORMATS.find((x) => x.id === f);
+                  if (!meta) return null;
+                  const active = format === f;
+                  return (
+                    <button
+                      key={f}
+                      onClick={() => { setFormat(f); setMobileFormatOpen(false); }}
+                      className={
+                        "text-left rounded-[var(--r-md)] border-2 transition-all active:scale-[0.98] " +
+                        (active
+                          ? "border-[var(--ink)] bg-[var(--ink)] text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+                          : "border-[var(--line)] bg-white")
+                      }
+                      style={{ minHeight: 64, padding: "12px 14px" }}
+                    >
+                      <div className={"font-semibold " + (active ? "text-white" : "text-[var(--ink)]")} style={{ fontSize: 14 }}>{meta.label}</div>
+                      <div className={"mt-0.5 " + (active ? "text-white/80" : "text-[var(--ink-3)]")} style={{ fontSize: 12 }}>{meta.dim}</div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Edit text shortcut — opens the existing edit drawer */}
+              <div className="mt-5 pt-5 border-t border-[var(--line-2)]">
+                <button
+                  onClick={() => { setDrawerOpen(true); setMobileFormatOpen(false); }}
+                  className="w-full flex items-center justify-between p-4 rounded-[var(--r-md)] bg-[var(--canvas-2)] active:bg-[var(--canvas-3)] transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ink)] shrink-0">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
+                    </svg>
+                    <div className="text-left min-w-0">
+                      <div className="font-semibold text-[14px] text-[var(--ink)]">Rediger tekst</div>
+                      <div className="text-[12px] text-[var(--ink-3)] truncate">Hovedbudskab, underbudskab, CTA</div>
+                    </div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ink-3)] shrink-0">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* ─── EDIT DRAWER (slides from right) ─── */}
       {drawerOpen && (
