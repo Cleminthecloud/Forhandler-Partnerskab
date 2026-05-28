@@ -48,9 +48,11 @@ export default function AdminKalender() {
         <Tile label="Næste event"       value={upcoming[0] ? new Date(upcoming[0].dato).toLocaleDateString("da-DK", { day: "numeric", month: "short" }) : "—"} delta={upcoming[0]?.titel.slice(0, 28) ?? ""} />
       </section>
 
-      {/* Table */}
+      {/* Table — wrapped in overflow-x-auto so the 6-col layout scrolls
+          horizontally within the card on mobile rather than pushing the page. */}
       <div className="mt-6 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[80px_1fr_140px_140px_180px_80px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
+       <div className="overflow-x-auto">
+        <div className="grid grid-cols-[80px_1fr_140px_140px_180px_80px] gap-4 min-w-[800px] px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <span>Dato</span><span>Titel · vært</span><span>Type</span><span>Region</span><span>Tilmeldte</span><span></span>
         </div>
         {sorted.map((e) => {
@@ -60,7 +62,7 @@ export default function AdminKalender() {
             <button
               key={e.id}
               onClick={() => setOpen(e)}
-              className="w-full grid grid-cols-[80px_1fr_140px_140px_180px_80px] gap-4 px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 items-center text-left hover:bg-[var(--canvas-2)] transition-colors"
+              className="w-full grid grid-cols-[80px_1fr_140px_140px_180px_80px] gap-4 min-w-[800px] px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 items-center text-left hover:bg-[var(--canvas-2)] transition-colors"
             >
               <div className="text-[13px]">
                 <div className="font-semibold text-[var(--ink)]">{new Date(e.dato).getDate()}/{new Date(e.dato).getMonth() + 1}</div>
@@ -85,6 +87,7 @@ export default function AdminKalender() {
             </button>
           );
         })}
+       </div>
       </div>
 
       {/* Event detail drawer */}
@@ -121,9 +124,8 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
     <div className="fixed inset-0 z-50 animate-in" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
       <aside
-        className="absolute top-[48px] right-0 bottom-0 w-[920px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+        className="mobile-sheet md:top-[48px] md:right-0 md:bottom-0 md:w-[920px] md:max-w-[96vw] bg-white md:border-l md:border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
-        style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
       >
         {/* Hero header */}
         <div className="relative h-[180px] overflow-hidden shrink-0" style={{ background: detail.hero }}>

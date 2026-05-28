@@ -63,16 +63,16 @@ export function TierBenefitsDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/45 grid place-items-center p-6 animate-in"
+      className="fixed inset-0 z-50 bg-black/45 grid place-items-end md:place-items-center p-0 md:p-6 animate-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="tier-benefits-title"
     >
       <div
-        className="bg-white rounded-[var(--r-xl)] max-w-[860px] w-full max-h-[88vh] overflow-hidden flex flex-col shadow-[var(--shadow-4)]"
+        className="bg-white rounded-t-[18px] md:rounded-[var(--r-xl)] max-w-full md:max-w-[860px] w-full max-h-[92vh] md:max-h-[88vh] overflow-hidden flex flex-col shadow-[var(--shadow-4)]"
         onClick={(e) => e.stopPropagation()}
-        style={{ animation: "slideUpFade 280ms cubic-bezier(0.22,1,0.36,1)" }}
+        style={{ animation: "slideInUp 320ms cubic-bezier(0.22,1,0.36,1)" }}
       >
         {/* Header */}
         <div className="px-7 pt-6 pb-5 border-b border-[var(--line-2)]">
@@ -120,8 +120,8 @@ export function TierBenefitsDialog({
         </div>
 
         {/* Body — 3-column comparison */}
-        <div className="flex-1 overflow-y-auto px-7 py-6">
-          <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="flex-1 overflow-y-auto px-4 md:px-7 py-6">
+          <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4">
             {tiers.map((t) => {
               const isCurrent = t === currentTier;
               const isNext = t === nextTier;
@@ -186,7 +186,7 @@ export function TierBenefitsDialog({
         </div>
 
         {/* Footer */}
-        <div className="px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between">
+        <div className="px-4 md:px-7 py-4 border-t border-[var(--line-2)] bg-[var(--canvas)] flex items-center justify-between">
           <p className="text-[12px] text-[var(--ink-3)]">
             Niveau opgraderes automatisk hver måned baseret på sager, certificeringer og engagement.
           </p>

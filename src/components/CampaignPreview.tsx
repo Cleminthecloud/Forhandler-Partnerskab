@@ -81,19 +81,24 @@ export function CampaignPreview({ campaign, partner, theme, format, image }: Pro
    laptops and 4K monitors alike.
    ===================================================================== */
 
+/* Mobile-safe minimums: portrait formats use min(80vh, 380px) at the
+   bottom of clamp so they shrink on a phone. Horizontal formats use
+   min(85vw, ...) so they never exceed the viewport. Without this,
+   formats like bilstreamer (5:1) with a 480px min were forcing the
+   page to scroll horizontally on a 375px iPhone. */
 const FRAME = {
   // Portrait — height-driven
-  flyer:        { height: "clamp(420px, 72vh, 760px)", aspectRatio: "148 / 210" }, // A5 portrait
-  poster:       { height: "clamp(420px, 72vh, 760px)", aspectRatio: "297 / 420" }, // A3 portrait
-  magasin:      { height: "clamp(420px, 72vh, 760px)", aspectRatio: "210 / 297" }, // A4-ish
-  instagram:    { height: "clamp(440px, 72vh, 760px)", aspectRatio: "9 / 16" },    // story
+  flyer:        { height: "clamp(300px, 72vh, 760px)", maxWidth: "92vw", aspectRatio: "148 / 210" }, // A5 portrait
+  poster:       { height: "clamp(300px, 72vh, 760px)", maxWidth: "92vw", aspectRatio: "297 / 420" }, // A3 portrait
+  magasin:      { height: "clamp(300px, 72vh, 760px)", maxWidth: "92vw", aspectRatio: "210 / 297" }, // A4-ish
+  instagram:    { height: "clamp(320px, 72vh, 760px)", maxWidth: "92vw", aspectRatio: "9 / 16" },    // story
   // Square
-  facebook:     { width:  "clamp(360px, min(54vh, 44vw), 600px)", aspectRatio: "1 / 1" },
+  facebook:     { width:  "min(92vw, clamp(280px, min(54vh, 44vw), 600px))", aspectRatio: "1 / 1" },
   // Horizontal — width-driven
-  bilstreamer:  { width:  "clamp(480px, 56vw, 880px)",  aspectRatio: "5 / 1" },
-  email:        { width:  "clamp(440px, 56vw, 780px)", aspectRatio: "3 / 1" },
-  google:       { width:  "clamp(320px, 36vw, 520px)", aspectRatio: "6 / 5" },     // 300x250-ish
-  linkedin:     { width:  "clamp(520px, 60vw, 940px)", aspectRatio: "1200 / 627" }, // LinkedIn 1.91:1 single-image sponsored post
+  bilstreamer:  { width:  "min(92vw, clamp(280px, 56vw, 880px))",  aspectRatio: "5 / 1" },
+  email:        { width:  "min(92vw, clamp(280px, 56vw, 780px))",  aspectRatio: "3 / 1" },
+  google:       { width:  "min(92vw, clamp(280px, 36vw, 520px))",  aspectRatio: "6 / 5" },     // 300x250-ish
+  linkedin:     { width:  "min(92vw, clamp(300px, 60vw, 940px))",  aspectRatio: "1200 / 627" }, // LinkedIn 1.91:1 single-image sponsored post
 } as const;
 
 /* Wrap content in a container-query context so cqw-based font sizes

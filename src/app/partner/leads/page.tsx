@@ -72,9 +72,12 @@ export default function LeadsPage() {
         ))}
       </div>
 
-      {/* Leads table */}
+      {/* Leads table. Wrapped in overflow-x-auto so the 5-column layout
+          scrolls horizontally within the card on narrow viewports instead of
+          pushing the whole page sideways. */}
       <div className="mt-6 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
+       <div className="overflow-x-auto">
+        <div className="grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 min-w-[680px] px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <div>Kunde · Behov</div>
           <div>Postnr</div>
           <div>By</div>
@@ -89,7 +92,7 @@ export default function LeadsPage() {
           <button
             key={l.id}
             onClick={() => setOpenLead(l)}
-            className="w-full grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 hover:bg-[var(--canvas-2)] text-left transition-colors items-center"
+            className="w-full grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 min-w-[680px] px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 hover:bg-[var(--canvas-2)] text-left transition-colors items-center"
           >
             <div className="min-w-0">
               <div className="text-[15px] font-semibold text-[var(--ink)] truncate">{l.kunde}</div>
@@ -103,6 +106,7 @@ export default function LeadsPage() {
             </div>
           </button>
         ))}
+       </div>
       </div>
 
       {/* Side drawer — full-viewport height with sticky header + sticky footer.
@@ -112,9 +116,8 @@ export default function LeadsPage() {
         <div className="fixed inset-0 z-50 animate-in" onClick={() => setOpenLead(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <aside
-            className="absolute top-[48px] right-0 bottom-0 w-[860px] max-w-[96vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col overflow-hidden"
+            className="mobile-sheet md:top-[48px] md:right-0 md:bottom-0 md:w-[860px] md:max-w-[96vw] bg-white md:border-l md:border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
-            style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
           >
             {/* Thin status-colored accent strip at top */}
             <div className="h-1 shrink-0" style={{ background: STATUS_COLOR[openLead.status].dot }} />

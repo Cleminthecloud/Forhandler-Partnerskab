@@ -620,17 +620,20 @@ textarea.field {
 }
 
 /* ===========================================================
-   Mobile / touch sweep — Tier A "doesn't look broken" support.
-   Three things only:
-     1. iOS-Safari zoom-on-focus prevention. Safari zooms in when
-        the focused input has font-size < 16px. Force 16px on
-        narrow viewports across every input/textarea/select.
-     2. Tooltip suppression on touch-only devices. data-tt is a
-        pseudo-tooltip that fires on :hover — useless on touch
-        and causes ghost taps. Hide the ::before/::after layers
-        when the primary input is coarse.
-     3. Smooth scrolling everywhere (matches native momentum).
+   Mobile / touch sweep — Tier B "actually usable on a phone".
    =========================================================== */
+
+/* Kill horizontal overflow at the document root. Pages with any
+   absolutely-positioned chrome (kampagner floating bar, etc.) used
+   to push the body wider than the viewport on narrow screens. */
+html, body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+/* iOS Safari zooms in when the focused input has font-size < 16px.
+   Force 16px on narrow viewports across every text input. */
 @media (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   textarea,
@@ -639,9 +642,81 @@ textarea.field {
   }
 }
 
+/* Hide hover-only tooltips on touch devices so they don't ghost-tap. */
 @media (pointer: coarse) {
   [data-tt]::before,
   [data-tt]::after { display: none !important; }
 }
 
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+/* ===========================================================
+   Bottom-sheet pattern.
+   Drawers that slide in from the RIGHT on desktop should slide
+   UP from the BOTTOM on mobile, with rounded top corners and
+   a sensible max height. Apply the .mobile-sheet utility to any
+   drawer <aside>. The utility handles position, animation, and
+   border treatment. WIDTH is set by each drawer's own Tailwind
+   classes (md:w-[480px], md:w-[860px], etc.) since drawers vary.
+
+   Default state (>=md) = desktop side drawer from right.
+   <md state            = bottom sheet (full width, ~92vh tall).
+   =========================================================== */
+.mobile-sheet {
+  position: absolute;
+  /* Desktop position handled by Tailwind: top-[48px] right-0 bottom-0 */
+  animation: slideInRight 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 0;
+}
+@media (max-width: 767px) {
+  .mobile-sheet {
+    top: auto !important;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 92vh;
+    height: 92dvh;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-left: 0 !important;
+    border-top: 1px solid var(--line-2);
+    animation: slideInUp 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+  }
+  /* Drag-handle visual cue at top of sheet */
+  .mobile-sheet::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ===========================================================
+   Mobile-safe centered dialogs — make sure big modal cards
+   (e.g., TierBenefitsDialog) don't overflow on phones.
+   =========================================================== */
+@media (max-width: 767px) {
+  /* Force any "max-w-[860px] w-full" style dialog to behave on phones */
+  .mobile-modal {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    height: 92vh;
+    height: 92dvh;
+    border-radius: 18px 18px 0 0 !important;
+    align-self: flex-end;
+  }
+}

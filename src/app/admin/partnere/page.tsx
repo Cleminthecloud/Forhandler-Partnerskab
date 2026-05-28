@@ -64,9 +64,11 @@ export default function AdminPartnere() {
         Viser {filtered.length} af {PARTNERS.length} partnere
       </div>
 
-      {/* Partner table */}
+      {/* Partner table — wrapped in overflow-x-auto so the 6-col layout
+          scrolls horizontally on narrow viewports instead of pushing the page. */}
       <div className="mt-4 card !p-0 overflow-hidden">
-        <div className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
+       <div className="overflow-x-auto">
+        <div className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 min-w-[760px] px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
           <span>Firma · ejer</span>
           <span>Tier</span>
           <span>Faggruppe</span>
@@ -78,7 +80,7 @@ export default function AdminPartnere() {
           <Link
             key={p.id}
             href={`/admin/partnere/${p.id}`}
-            className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 items-center hover:bg-[var(--canvas-2)] transition-colors cursor-pointer group"
+            className="grid grid-cols-[1fr_120px_140px_120px_80px_120px] gap-4 min-w-[760px] px-5 py-4 border-b border-[var(--line-2)] last:border-b-0 items-center hover:bg-[var(--canvas-2)] transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div className="size-10 rounded-xl grid place-items-center text-white text-[12px] font-semibold shrink-0" style={{ background: p.logoBg }}>
@@ -96,6 +98,7 @@ export default function AdminPartnere() {
             <span className="text-[13px] font-semibold text-[var(--accent)] text-left inline-flex items-center gap-1">Åbn profil →</span>
           </Link>
         ))}
+       </div>
       </div>
     </div>
   );

@@ -229,8 +229,10 @@ export default function SpecialisterPage() {
         />
       </div>
 
-      {/* ─── 3-pane editor ─── */}
-      <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-6 grid-cols-[260px_1fr_300px] min-h-0">
+      {/* ─── 3-pane editor on desktop; stacks to single column on mobile.
+          Specialist list collapses to a horizontal scroll of pills above the
+          chat, and the basket moves below the chat. */}
+      <div className="flex-1 grid gap-4 px-4 lg:px-10 xl:px-12 pb-6 grid-cols-1 lg:grid-cols-[260px_1fr_300px] min-h-0">
 
         {/* LEFT — Specialist list */}
         <aside className="card !p-0 overflow-y-auto self-stretch">

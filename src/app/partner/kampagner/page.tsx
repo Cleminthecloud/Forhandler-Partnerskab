@@ -199,8 +199,11 @@ export default function KampagnerPage() {
       {/* ─── EDITOR: left rail + canvas. Generous pb so the floating dock never crowds the browser-window edge.
           On mobile (<lg) the rail stacks above the canvas so nothing overflows horizontally. */}
       <div className="flex-1 grid gap-4 px-4 lg:px-10 xl:px-12 pb-8 lg:pb-10 grid-cols-1 lg:grid-cols-[280px_1fr] min-h-0">
-        {/* LEFT — campaign picker + image variants (scrollbar visually hidden) */}
-        <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1 scrollbar-hidden">
+        {/* LEFT — campaign picker + image variants. Sticky scrolling only on
+            desktop where the rail is alongside the canvas. On mobile, render
+            inline at the top of the page so users can pick a campaign, then
+            scroll down to see the preview. */}
+        <aside className="flex flex-col gap-4 lg:self-start lg:sticky lg:top-[60px] lg:h-[calc(100vh-90px)] lg:overflow-y-auto lg:pr-1 lg:scrollbar-hidden">
           <div className="card !p-3">
             {/* Theme tabs — pick the årshjul, see only its campaigns below.
                 Short single-word labels (Sommer / Vinter / Indbrud) fit cleanly in
@@ -299,7 +302,7 @@ export default function KampagnerPage() {
         </aside>
 
         {/* CENTER — CANVAS (full bleed, floating chrome) */}
-        <section className="relative rounded-[var(--r-xl)] overflow-hidden bg-[var(--canvas-3)] border border-[var(--line-2)] min-h-[640px]">
+        <section className="relative rounded-[var(--r-xl)] overflow-hidden bg-[var(--canvas-3)] border border-[var(--line-2)] min-h-[400px] lg:min-h-[640px]">
           {/* subtle canvas grid */}
           <div
             aria-hidden
@@ -312,11 +315,13 @@ export default function KampagnerPage() {
           />
 
           {/* FLOATING TOP BAR — two groups now: mode+formats (left), actions (right).
+              Hidden on mobile (<lg) — too dense for narrow screens. Mobile shows
+              the preview canvas only with the editor accessible via drawer.
               The campaign title pill was killed — the picker on the left already
               shows which campaign is active (left accent strip + ring + bold).
               Tooltips render BELOW (data-tt-pos="bottom") so they fall into the
               canvas space instead of being clipped above. */}
-          <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-3 pointer-events-none flex-wrap">
+          <div className="hidden lg:flex absolute top-4 left-4 right-4 z-20 items-center justify-between gap-3 pointer-events-none flex-wrap">
 
             {/* Udkast badge — only shown when there are unsaved edits, no longer
                 attached to the now-killed title pill. */}
@@ -632,9 +637,8 @@ export default function KampagnerPage() {
 
           {/* panel */}
           <aside
-            className="absolute top-[48px] right-0 bottom-0 w-[480px] max-w-[95vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+            className="mobile-sheet md:top-[48px] md:right-0 md:bottom-0 md:w-[480px] md:max-w-[95vw] bg-white md:border-l md:border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
             onClick={(e) => e.stopPropagation()}
-            style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
           >
             {/* Drawer header */}
             <div className="px-5 py-4 border-b border-[var(--line-2)] flex items-center justify-between">
@@ -788,9 +792,8 @@ export default function KampagnerPage() {
         <div className="fixed inset-0 z-40 animate-in" onClick={() => setHistoryOpen(false)}>
           <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px]" />
           <aside
-            className="absolute top-[48px] right-0 bottom-0 w-[560px] max-w-[95vw] bg-white border-l border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
+            className="mobile-sheet md:top-[48px] md:right-0 md:bottom-0 md:w-[560px] md:max-w-[95vw] bg-white md:border-l md:border-[var(--line-2)] shadow-[var(--shadow-3)] flex flex-col"
             onClick={(e) => e.stopPropagation()}
-            style={{ animation: "slideInRight 280ms cubic-bezier(0.22,1,0.36,1)" }}
           >
             {/* Header */}
             <div className="px-5 py-4 border-b border-[var(--line-2)] flex items-center justify-between">
