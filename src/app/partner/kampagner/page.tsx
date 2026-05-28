@@ -148,9 +148,27 @@ export default function KampagnerPage() {
     : [];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-48px)] animate-in">
+    <div className="flex flex-col min-h-[calc(100vh-48px)] lg:h-[calc(100vh-48px)] animate-in">
+      {/* Mobile: notice that the editor is desktop-best. Browsing still works
+          (campaigns, preview) — but the floating chrome and side rail were
+          built for ≥1024px viewports. */}
+      <div className="lg:hidden mx-4 mt-4 mb-2 p-4 rounded-[var(--r-md)] border border-[var(--line-2)] bg-[var(--canvas-2)]">
+        <div className="flex items-start gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)] shrink-0 mt-0.5">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <path d="M8 21h8M12 17v4" />
+          </svg>
+          <div>
+            <div className="text-[14px] font-semibold text-[var(--ink)]">Kampagne-editoren er bygget til desktop</div>
+            <p className="text-[12.5px] text-[var(--ink-2)] mt-1 leading-[1.5]">
+              Du kan stadig gennemse kampagnerne her, men redigering af tekst, formater og send-til-Meta er bedst på en større skærm eller iPad i landskab.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* ─── COMPACT HEADER (logo changer now lives in the edit drawer) ─── */}
-      <div className="px-6 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
+      <div className="px-4 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
         <PageHeader
           variant="compact"
           eyebrow="Marketing-værktøjskasse"
@@ -178,8 +196,9 @@ export default function KampagnerPage() {
         />
       </div>
 
-      {/* ─── EDITOR: left rail + canvas. Generous pb so the floating dock never crowds the browser-window edge. */}
-      <div className="flex-1 grid gap-4 px-6 lg:px-10 xl:px-12 pb-8 lg:pb-10 grid-cols-[280px_1fr] min-h-0">
+      {/* ─── EDITOR: left rail + canvas. Generous pb so the floating dock never crowds the browser-window edge.
+          On mobile (<lg) the rail stacks above the canvas so nothing overflows horizontally. */}
+      <div className="flex-1 grid gap-4 px-4 lg:px-10 xl:px-12 pb-8 lg:pb-10 grid-cols-1 lg:grid-cols-[280px_1fr] min-h-0">
         {/* LEFT — campaign picker + image variants (scrollbar visually hidden) */}
         <aside className="flex flex-col gap-4 self-start sticky top-[60px] h-[calc(100vh-90px)] overflow-y-auto pr-1 scrollbar-hidden">
           <div className="card !p-3">

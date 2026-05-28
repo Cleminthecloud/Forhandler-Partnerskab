@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
 import { CommandPaletteTrigger } from "./CommandPalette";
 import { CarlRasPartnerLogoWide } from "./BrandLogos";
+import { MobileNav } from "./MobileNav";
 
 const PERSONAS = [
   { href: "/partner", label: "Partner" },
@@ -27,7 +28,10 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
         )
       }
     >
-      <div className={floating ? "px-2.5 h-10 flex items-center gap-2.5" : "mx-auto max-w-[1440px] px-6 h-[48px] flex items-center gap-6"}>
+      <div className={floating ? "px-2.5 h-10 flex items-center gap-2.5" : "mx-auto max-w-[1440px] px-3 sm:px-6 h-[48px] flex items-center gap-2 sm:gap-6"}>
+        {/* Mobile hamburger — opens left-side nav drawer */}
+        {!floating && <MobileNav />}
+
         {!floating && (
           <Link
             href="/partner"
@@ -44,38 +48,42 @@ export function DemoTopBar({ floating = false }: { floating?: boolean }) {
           </span>
         )}
 
-        {/* Command palette trigger */}
-        {!floating && <div className="ml-auto"><CommandPaletteTrigger /></div>}
+        {/* Command palette trigger — hidden on mobile (no keyboard) */}
+        {!floating && <div className="ml-auto hidden md:block"><CommandPaletteTrigger /></div>}
+        {!floating && <div className="ml-auto md:hidden" />}
 
-        {/* Persona switcher (segmented) */}
-        <nav className={(floating ? "" : "") + "flex items-center rounded-full bg-white/[0.08] p-[3px]"}>
+        {/* Persona switcher (segmented). On mobile, shorten "Find en partner" → "Find" */}
+        <nav className={(floating ? "" : "") + "flex items-center rounded-full bg-white/[0.08] p-[3px] shrink-0"}>
           {PERSONAS.map((p) => {
             const active = pathname === p.href || (p.href !== "/" && pathname?.startsWith(p.href));
+            const shortLabel = p.label === "Find en partner" ? "Find" : p.label;
             return (
               <Link
                 key={p.href}
                 href={p.href}
                 className={
-                  (floating ? "px-2.5 " : "px-3 ") +
-                  "py-1 text-[12px] font-medium rounded-full transition-colors " +
+                  (floating ? "px-2.5 " : "px-2 sm:px-3 ") +
+                  "py-1 text-[12px] font-medium rounded-full transition-colors whitespace-nowrap " +
                   (active ? "bg-white text-[#1D1D1F]" : "text-white/75 hover:text-white")
                 }
               >
-                {p.label}
+                <span className="sm:hidden">{shortLabel}</span>
+                <span className="hidden sm:inline">{p.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Theme switcher */}
-        <div className="relative">
+        {/* Theme switcher — collapse to colored dot + chevron on mobile */}
+        <div className="relative shrink-0">
           <button
             onClick={() => setOpen((o) => !o)}
             className="flex items-center gap-2 rounded-full pl-1.5 pr-2.5 py-1 text-[12px] bg-white/[0.08] hover:bg-white/[0.14] transition-colors"
+            aria-label={`Tema: ${theme.label}`}
           >
             <span className="inline-block size-2 rounded-full" style={{ background: theme.accent }} />
             <span className="hidden md:inline text-white/70">Tema:</span>
-            <span className="font-medium">{theme.label}</span>
+            <span className="hidden sm:inline font-medium">{theme.label}</span>
             <svg width="10" height="6" viewBox="0 0 10 6" className="opacity-60">
               <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
             </svg>

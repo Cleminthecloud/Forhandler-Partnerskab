@@ -618,3 +618,30 @@ textarea.field {
     color var(--t-slow) var(--ease),
     border-color var(--t-slow) var(--ease);
 }
+
+/* ===========================================================
+   Mobile / touch sweep — Tier A "doesn't look broken" support.
+   Three things only:
+     1. iOS-Safari zoom-on-focus prevention. Safari zooms in when
+        the focused input has font-size < 16px. Force 16px on
+        narrow viewports across every input/textarea/select.
+     2. Tooltip suppression on touch-only devices. data-tt is a
+        pseudo-tooltip that fires on :hover — useless on touch
+        and causes ghost taps. Hide the ::before/::after layers
+        when the primary input is coarse.
+     3. Smooth scrolling everywhere (matches native momentum).
+   =========================================================== */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+@media (pointer: coarse) {
+  [data-tt]::before,
+  [data-tt]::after { display: none !important; }
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
