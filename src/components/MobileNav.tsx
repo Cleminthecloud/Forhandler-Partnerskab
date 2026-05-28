@@ -119,8 +119,32 @@ export function MobileNav() {
               </button>
             </div>
 
+            {/* Persona switcher — three segmented pills at the top, like the
+                desktop top bar but here moved into the mobile drawer. */}
+            <div className="px-5 py-3 border-b border-[var(--line-2)]">
+              <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mb-2">Skift visning</div>
+              <nav className="grid grid-cols-3 gap-1 rounded-full bg-[var(--canvas-2)] p-[3px]">
+                {[{ href: "/partner", label: "Partner" }, { href: "/admin", label: "Carl Ras" }, { href: "/find", label: "Find" }].map((p) => {
+                  const active = pathname === p.href || (pathname?.startsWith(p.href + "/") ?? false);
+                  return (
+                    <Link
+                      key={p.href}
+                      href={p.href}
+                      className={
+                        "py-2 text-[12.5px] font-medium rounded-full text-center transition-colors " +
+                        (active ? "bg-white text-[var(--ink)] shadow-[var(--shadow-1)]" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
+                      }
+                      style={{ minHeight: 36 }}
+                    >
+                      {p.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+
             {/* Nav list */}
-            <nav className="flex-1 overflow-y-auto py-3">
+            <nav className="flex-1 overflow-y-auto py-2">
               <ul>
                 {nav.map((item) => {
                   const isActive = pathname === item.href || (item.href !== "/partner" && item.href !== "/admin" && pathname?.startsWith(item.href));
@@ -129,13 +153,14 @@ export function MobileNav() {
                       <Link
                         href={item.href}
                         className={
-                          "flex items-center gap-3 px-5 py-3 text-[14.5px] font-medium transition-colors " +
+                          "flex items-center gap-3 px-5 text-[15px] font-medium transition-colors " +
                           (isActive
                             ? "bg-[var(--accent-tint)] text-[var(--accent-press)] border-l-[3px] border-[var(--accent)]"
                             : "text-[var(--ink-2)] hover:bg-[var(--canvas-2)] border-l-[3px] border-transparent")
                         }
+                        style={{ minHeight: 48, paddingBlock: 12 }}
                       >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                           <path d={item.icon} />
                         </svg>
                         <span>{item.label}</span>

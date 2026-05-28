@@ -40,6 +40,11 @@ export default function SpecialisterPage() {
   const { pushToast, basket, addToBasket } = useApp();
   const [activeId, setActiveId] = useState(SPECIALISTS[0].id);
   const [draft, setDraft] = useState("");
+  /* Mobile-only navigation between list and chat views. On desktop both
+     panes are visible, so this is ignored. Default = list (mobile users
+     pick a specialist first; on desktop the first specialist is preselected
+     and the list+chat are visible side-by-side). */
+  const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 
   // Scripted-scenario state
   const [items, setItems] = useState<ChatItem[]>([]);
@@ -52,6 +57,8 @@ export default function SpecialisterPage() {
 
   /* Switching specialist — reset chat state in handler, not effect, per React 19 rules */
   function switchSpecialist(id: string) {
+    // Always advance to chat view on mobile when a specialist is tapped.
+    setMobileView("chat");
     if (id === activeId) return;
     setActiveId(id);
     setItems([]);
@@ -229,13 +236,13 @@ export default function SpecialisterPage() {
         />
       </div>
 
-      {/* ─── 3-pane editor on desktop; stacks to single column on mobile.
-          Specialist list collapses to a horizontal scroll of pills above the
-          chat, and the basket moves below the chat. */}
-      <div className="flex-1 grid gap-4 px-4 lg:px-10 xl:px-12 pb-6 grid-cols-1 lg:grid-cols-[260px_1fr_300px] min-h-0">
+      {/* ─── 3-pane editor on desktop; on mobile shows ONE pane at a time
+          (list OR chat) controlled by mobileView state. Tapping a specialist
+          advances to chat. Back button in chat header returns to list. */}
+      <div className="flex-1 grid gap-4 px-0 sm:px-4 lg:px-10 xl:px-12 pb-0 sm:pb-6 grid-cols-1 lg:grid-cols-[260px_1fr_300px] min-h-0">
 
-        {/* LEFT — Specialist list */}
-        <aside className="card !p-0 overflow-y-auto self-stretch">
+        {/* LEFT — Specialist list. On mobile: only visible when mobileView=list */}
+        <aside className={"card !p-0 overflow-y-auto self-stretch " + (mobileView === "list" ? "block" : "hidden lg:block")}>
           <div className="px-4 py-3 border-b border-[var(--line-2)]">
             <div className="t-eyebrow !text-[12px]">Mine specialister</div>
             <div className="text-[12px] text-[var(--ink-3)] mt-1">6 tilknyttet din region</div>
@@ -261,10 +268,19 @@ export default function SpecialisterPage() {
           })}
         </aside>
 
-        {/* CENTER — Chat pane */}
-        <section className="flex flex-col rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--canvas)] overflow-hidden min-h-0">
-          {/* Chat header */}
-          <div className="px-5 py-3.5 border-b border-[var(--line-2)] flex items-center gap-3 shrink-0">
+        {/* CENTER — Chat pane. On mobile: only visible when mobileView=chat */}
+        <section className={"flex flex-col sm:rounded-[var(--r-lg)] sm:border sm:border-[var(--line)] bg-[var(--canvas)] overflow-hidden min-h-0 " + (mobileView === "chat" ? "block" : "hidden lg:block")}>
+          {/* Chat header — with back button on mobile */}
+          <div className="px-3 sm:px-5 py-3 border-b border-[var(--line-2)] flex items-center gap-2 sm:gap-3 shrink-0">
+            <button
+              onClick={() => setMobileView("list")}
+              aria-label="Tilbage til specialister"
+              className="lg:hidden size-10 rounded-full grid place-items-center text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors -ml-1 shrink-0"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
             <SpecialistAvatar specialist={active} size={40} showOnline />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -377,8 +393,9 @@ export default function SpecialisterPage() {
           </div>
         </section>
 
-        {/* RIGHT — Session summary */}
-        <aside className="flex flex-col gap-3 self-stretch overflow-y-auto">
+        {/* RIGHT — Session summary. Hidden on mobile (basket count is in the
+            header Kurv link; tip cards aren't useful on a phone). */}
+        <aside className="hidden lg:flex flex-col gap-3 self-stretch overflow-y-auto">
           <div className="card !p-4">
             <div className="t-eyebrow mb-3">I denne samtale</div>
             <SessionSummary items={items} />

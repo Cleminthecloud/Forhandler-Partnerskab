@@ -45,6 +45,7 @@ export default function FindPartnerPage() {
   const [region, setRegion] = useState<"Alle" | Region>("Alle");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<"naer" | "rating" | "sager">("naer");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const r = PARTNERS.filter((p) => {
@@ -70,7 +71,7 @@ export default function FindPartnerPage() {
     <div className="animate-in">
       {/* ─── HERO + STICKY SEARCH ─────────────────────────────── */}
       <section className="surface-parchment">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-10 py-12 lg:py-16">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-7 sm:py-12 lg:py-16">
           <div className="t-eyebrow">Find en partner</div>
           <h1 className="t-display mt-3 max-w-[820px]">
             Lokal håndværker.
@@ -91,8 +92,77 @@ export default function FindPartnerPage() {
         </div>
       </section>
 
-      {/* Sticky search + faggruppe-chips strip */}
-      <div className="sticky top-[143px] z-20 bg-white/95 backdrop-blur-md border-y border-[var(--line-2)]">
+      {/* MOBILE: Airbnb-style search trigger — single pill that opens a
+          full-screen modal with the Hvad/Hvor/Hvem filters. Replaces the
+          5-column form below which won't fit on a phone. */}
+      <div className="md:hidden sticky top-[57px] z-20 bg-white/95 backdrop-blur-md border-b border-[var(--line-2)] px-4 py-3">
+        <button
+          onClick={() => setMobileSearchOpen(true)}
+          className="w-full flex items-center gap-3 bg-white rounded-full border border-[var(--line)] shadow-[0_4px_16px_rgba(0,26,51,0.06)] px-4 py-3 text-left"
+          style={{ minHeight: 56 }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ink-2)] shrink-0">
+            <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            <div className="text-[14px] font-semibold text-[var(--ink)] leading-tight">
+              {fag === "Alle" && region === "Alle" && !postnr ? "Find en partner" : "Filtrer søgning"}
+            </div>
+            <div className="text-[12.5px] text-[var(--ink-3)] leading-tight mt-0.5 truncate">
+              {[
+                fag === "Alle" ? "Alle faggrupper" : fag,
+                region === "Alle" ? "Hele Danmark" : region,
+                postnr ? `Postnr ${postnr}` : null,
+              ].filter(Boolean).join(" · ")}
+            </div>
+          </div>
+          <span className="size-9 rounded-full bg-[var(--accent)] grid place-items-center text-white shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </span>
+        </button>
+
+        {/* Faggruppe icon strip — horizontal scroll on mobile, same as desktop */}
+        <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 -mx-2 px-2 scrollbar-hidden">
+          <button
+            onClick={() => setFag("Alle")}
+            className={"flex flex-col items-center gap-1 px-3 py-2 rounded-lg shrink-0 transition-colors " +
+              (fag === "Alle" ? "border-b-2 border-[var(--ink)] text-[var(--ink)]" : "border-b-2 border-transparent text-[var(--ink-3)]")}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18"/></svg>
+            <span className="text-[12px] font-medium whitespace-nowrap">Alle</span>
+          </button>
+          {(FAGGRUPPER.filter((f) => f !== "Alle") as Faggruppe[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFag(f)}
+              className={"flex flex-col items-center gap-1 px-3 py-2 rounded-lg shrink-0 transition-colors " +
+                (fag === f ? "border-b-2 border-[var(--ink)] text-[var(--ink)]" : "border-b-2 border-transparent text-[var(--ink-3)]")}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d={FAG_ICONS[f]} />
+              </svg>
+              <span className="text-[12px] font-medium whitespace-nowrap">{f}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* MOBILE: Airbnb-style full-screen search modal */}
+      {mobileSearchOpen && (
+        <FindSearchModal
+          tema={tema} setTema={setTema}
+          fag={fag} setFag={setFag}
+          region={region} setRegion={setRegion}
+          postnr={postnr} setPostnr={setPostnr}
+          matches={filtered.length}
+          onClose={() => setMobileSearchOpen(false)}
+        />
+      )}
+
+      {/* Sticky search + faggruppe-chips strip — DESKTOP ONLY now */}
+      <div className="hidden md:block sticky top-[143px] z-20 bg-white/95 backdrop-blur-md border-y border-[var(--line-2)]">
         <div className="mx-auto max-w-[1440px] px-6 lg:px-10 py-3">
           {/* Search bar */}
           <form onSubmit={(e) => e.preventDefault()} className="bg-[var(--canvas)] rounded-full border border-[var(--line)] shadow-[0_4px_16px_rgba(0,26,51,0.04)] flex items-center divide-x divide-[var(--line-2)] hover:shadow-[0_6px_20px_rgba(0,26,51,0.08)] transition-shadow">
@@ -331,5 +401,163 @@ function Star() {
     <svg width="13" height="13" viewBox="0 0 24 24" fill="#1D1D1F" aria-hidden="true">
       <path d="M12 2l3 6 6 1-4.5 4.5L18 21l-6-3.5L6 21l1.5-7.5L3 9l6-1z" />
     </svg>
+  );
+}
+
+/* ─── FindSearchModal — Airbnb-style full-screen search ───────────────
+   Mobile-first modal: top header with close button + title, scrolling
+   body with sections (Hvad / Hvor / Hvem), sticky bottom action bar
+   showing match count + Søg button. Touch targets ≥44pt throughout,
+   uses dvh for full-height layout. */
+function FindSearchModal({
+  tema, setTema, fag, setFag, region, setRegion, postnr, setPostnr,
+  matches, onClose,
+}: {
+  tema: ThemeId | "Alle";
+  setTema: (v: ThemeId | "Alle") => void;
+  fag: "Alle" | Faggruppe;
+  setFag: (v: "Alle" | Faggruppe) => void;
+  region: "Alle" | Region;
+  setRegion: (v: "Alle" | Region) => void;
+  postnr: string;
+  setPostnr: (v: string) => void;
+  matches: number;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="md:hidden fixed inset-0 z-[70] bg-[var(--canvas)] flex flex-col"
+      style={{ height: "100dvh" }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Find en partner"
+    >
+      {/* Header — close + title */}
+      <div className="flex items-center gap-3 px-4 border-b border-[var(--line-2)] shrink-0" style={{ minHeight: 56, paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <button
+          onClick={onClose}
+          aria-label="Luk"
+          className="size-10 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] transition-colors -ml-2"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+        <h2 className="font-semibold text-[var(--ink)]" style={{ fontSize: "clamp(17px, 4.5vw, 20px)" }}>Find en partner</h2>
+      </div>
+
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto" style={{ paddingInline: "clamp(16px, 5vw, 24px)", paddingBlock: "clamp(20px, 5vw, 28px)", display: "flex", flexDirection: "column", gap: "clamp(24px, 6vw, 32px)" }}>
+        {/* Hvad — service type */}
+        <section>
+          <h3 className="text-[var(--ink)] font-semibold" style={{ fontSize: "clamp(15px, 4vw, 17px)" }}>Hvad leder du efter?</h3>
+          <p className="text-[var(--ink-3)] mt-1" style={{ fontSize: "clamp(13px, 3.5vw, 14px)" }}>Vælg et tema, eller behold alle.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <FilterChip
+              active={tema === "Alle"}
+              onClick={() => setTema("Alle")}
+              label="Alle opgaver"
+              subtitle="Hele sortimentet"
+            />
+            {THEMES.map((t) => (
+              <FilterChip
+                key={t.id}
+                active={tema === t.id}
+                onClick={() => setTema(t.id)}
+                label={t.label}
+                subtitle={t.bu}
+                accent={t.accent}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Hvem — faggruppe */}
+        <section>
+          <h3 className="text-[var(--ink)] font-semibold" style={{ fontSize: "clamp(15px, 4vw, 17px)" }}>Hvilken faggruppe?</h3>
+          <p className="text-[var(--ink-3)] mt-1" style={{ fontSize: "clamp(13px, 3.5vw, 14px)" }}>Vælg den faggruppe der passer din opgave.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {FAGGRUPPER.map((f) => (
+              <FilterChip
+                key={f}
+                active={fag === f}
+                onClick={() => setFag(f)}
+                label={f === "Alle" ? "Alle faggrupper" : f}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Hvor — region + postnr */}
+        <section>
+          <h3 className="text-[var(--ink)] font-semibold" style={{ fontSize: "clamp(15px, 4vw, 17px)" }}>Hvor søger du?</h3>
+          <p className="text-[var(--ink-3)] mt-1" style={{ fontSize: "clamp(13px, 3.5vw, 14px)" }}>Filtrér på region eller indtast postnummer.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {REGIONS.map((r) => (
+              <FilterChip
+                key={r}
+                active={region === r}
+                onClick={() => setRegion(r)}
+                label={r === "Alle" ? "Hele Danmark" : r}
+              />
+            ))}
+          </div>
+          <div className="mt-3">
+            <label className="block">
+              <span className="text-[var(--ink-3)] font-semibold uppercase tracking-wider" style={{ fontSize: "11px" }}>Postnummer</span>
+              <input
+                type="text"
+                value={postnr}
+                onChange={(e) => setPostnr(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))}
+                placeholder="3100"
+                inputMode="numeric"
+                className="w-full mt-1.5 bg-white border border-[var(--line)] rounded-[var(--r-md)] focus:border-[var(--accent)] outline-none transition-colors"
+                style={{ minHeight: 56, paddingInline: 16, fontSize: 16 }}
+              />
+            </label>
+          </div>
+        </section>
+      </div>
+
+      {/* Sticky bottom action bar */}
+      <div className="border-t border-[var(--line-2)] bg-white flex items-center justify-between gap-3 shrink-0" style={{ paddingInline: "clamp(16px, 5vw, 24px)", paddingBlock: 12, paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}>
+        <button
+          onClick={() => { setTema("Alle"); setFag("Alle"); setRegion("Alle"); setPostnr(""); }}
+          className="text-[14px] font-semibold underline text-[var(--ink-2)]"
+          style={{ minHeight: 44, paddingInline: 8 }}
+        >
+          Ryd alt
+        </button>
+        <button
+          onClick={onClose}
+          className="flex-1 max-w-[260px] bg-[var(--accent)] text-white font-semibold rounded-full hover:bg-[var(--accent-press)] transition-colors inline-flex items-center justify-center gap-2"
+          style={{ minHeight: 52, fontSize: "clamp(14px, 3.8vw, 16px)" }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+          </svg>
+          Vis {matches} {matches === 1 ? "partner" : "partnere"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function FilterChip({ active, onClick, label, subtitle, accent }: { active: boolean; onClick: () => void; label: string; subtitle?: string; accent?: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={
+        "text-left rounded-[var(--r-md)] border-2 transition-all active:scale-[0.98] " +
+        (active ? "border-[var(--ink)] bg-white" : "border-[var(--line)] bg-white hover:border-[var(--ink-3)]")
+      }
+      style={{ minHeight: 64, padding: "12px 14px" }}
+    >
+      <div className="flex items-center gap-2">
+        {accent && <span className="size-2 rounded-full shrink-0" style={{ background: accent }} />}
+        <span className="font-semibold text-[var(--ink)]" style={{ fontSize: "clamp(13px, 3.6vw, 14px)" }}>{label}</span>
+      </div>
+      {subtitle && <div className="text-[var(--ink-3)] mt-0.5" style={{ fontSize: "clamp(11.5px, 3vw, 12.5px)" }}>{subtitle}</div>}
+    </button>
   );
 }

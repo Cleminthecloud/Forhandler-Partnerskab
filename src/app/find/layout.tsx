@@ -5,8 +5,13 @@ export default function FindLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <CarlRasHeader />
-      {/* Floating demo control — keeps the carl-ras.dk illusion intact */}
-      <DemoTopBar floating />
+      {/* Floating demo control — keeps the carl-ras.dk illusion intact.
+          Hidden on mobile because it overlaps the carl-ras.dk-style header.
+          Mobile users can switch persona via the hamburger menu inside the
+          CarlRasHeader (built into the mobile carl-ras.dk skin). */}
+      <div className="hidden md:block">
+        <DemoTopBar floating />
+      </div>
       <main className="flex-1">{children}</main>
 
       {/* carl-ras.dk-style footer */}
