@@ -25,6 +25,7 @@ import {
 } from "@/lib/data";
 import { Radial, BarMini } from "@/components/Charts";
 import { MiniArea, InteractiveArea } from "@/components/ChartsInteractive";
+import { TierBenefitsDialog, TIER_COLOR, StarBadge, type Tier } from "@/components/TierBenefitsDialog";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -33,6 +34,14 @@ export default function PartnerDashboard() {
   const { leads, pushToast } = useApp();
   const [range, setRange] = useState<DateRange>("uge");
   const [showKonsulentBook, setShowKonsulentBook] = useState(false);
+  const [showTierBenefits, setShowTierBenefits] = useState(false);
+
+  // Tier-progression gradient: ring fades from current tier color to next tier color.
+  // For Guld (top tier) there's no next, so the ring stays solid gold.
+  const currentTier = CURRENT_PARTNER.tier as Tier;
+  const nextTier: Tier | null = currentTier === "Bronze" ? "Sølv" : currentTier === "Sølv" ? "Guld" : null;
+  const tierFrom = TIER_COLOR[currentTier].ring;
+  const tierTo = nextTier ? TIER_COLOR[nextTier].ring : TIER_COLOR[currentTier].ring;
 
   const myLeads = leads.filter((l) => l.partnerId === CURRENT_PARTNER.id);
   const newLeads = myLeads.filter((l) => l.status === "Ny");
@@ -196,11 +205,19 @@ export default function PartnerDashboard() {
           </Link>
         )}
 
-        {/* Tier-progress radial */}
-        <div className="card card-lg flex flex-col">
+        {/* Tier-progress radial — clickable card opens the benefits modal.
+            Ring gradiates from current tier color → next tier color so the
+            visual storytelling is "where you are heading". Star in center
+            replaces the dry % number — earned, not measured. */}
+        <button
+          type="button"
+          onClick={() => setShowTierBenefits(true)}
+          className="card card-lg flex flex-col text-left hover:shadow-[var(--shadow-3)] hover:-translate-y-0.5 transition-all group cursor-pointer"
+          aria-label="Åbn niveau-fordele"
+        >
           <div className="flex items-baseline justify-between mb-1">
             <h3 className="t-h3">Tier-progression</h3>
-            <span className="t-caption">{CURRENT_PARTNER.tier} → Guld</span>
+            <span className="t-caption">{CURRENT_PARTNER.tier}{nextTier ? ` → ${nextTier}` : ""}</span>
           </div>
           <p className="text-[12px] text-[var(--ink-3)] mb-4">
             {(CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points).toLocaleString("da-DK")} point til næste niveau
@@ -211,11 +228,17 @@ export default function PartnerDashboard() {
               value={pointsPct}
               size={180}
               thickness={16}
-              color="#C99A20"
+              gradientFrom={tierFrom}
+              gradientTo={tierTo}
               trackColor="var(--canvas-2)"
-              label={`${pointsPct}%`}
-              sub={`${CURRENT_PARTNER.points.toLocaleString("da-DK")} / ${CURRENT_PARTNER.pointsTilNæste.toLocaleString("da-DK")}`}
-            />
+            >
+              <div className="grid place-items-center group-hover:scale-105 transition-transform">
+                <StarBadge color={tierFrom} size={56} glow />
+              </div>
+              <div className="text-[12px] text-[var(--ink-3)] mt-2 tabular-nums">
+                {CURRENT_PARTNER.points.toLocaleString("da-DK")} / {CURRENT_PARTNER.pointsTilNæste.toLocaleString("da-DK")}
+              </div>
+            </Radial>
           </div>
 
           <div className="grid grid-cols-3 gap-1 text-center pt-3 border-t border-[var(--line-2)]">
@@ -223,7 +246,11 @@ export default function PartnerDashboard() {
             <TierDot tier="Sølv"   current={CURRENT_PARTNER.tier === "Sølv"}   done />
             <TierDot tier="Guld"   current={CURRENT_PARTNER.tier === "Guld"} />
           </div>
-        </div>
+
+          <div className="mt-3 text-right text-[12px] font-semibold text-[var(--accent)] group-hover:gap-1.5 inline-flex items-center gap-1 self-end transition-all">
+            Se fordele <Icon name="chevron-right" size={12} />
+          </div>
+        </button>
       </section>
 
       {/* ─── PERFORMANCE ROW ─── */}
@@ -606,6 +633,15 @@ export default function PartnerDashboard() {
             "success"
           );
         }}
+      />
+
+      {/* Tier-benefits dialog — opened from the Tier-progression card */}
+      <TierBenefitsDialog
+        open={showTierBenefits}
+        onClose={() => setShowTierBenefits(false)}
+        currentTier={currentTier}
+        points={CURRENT_PARTNER.points}
+        pointsTilNæste={CURRENT_PARTNER.pointsTilNæste}
       />
     </div>
   );

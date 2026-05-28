@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 
 /* ============================================================
    Chart primitives — pure SVG, no library, Apple-restrained.
@@ -96,26 +97,45 @@ interface RadialProps {
   size?: number;
   thickness?: number;
   color?: string;
+  /** Optional gradient — when both stops are set, the ring fades from `from` to `to`. */
+  gradientFrom?: string;
+  gradientTo?: string;
   trackColor?: string;
   label?: string;
   sub?: string;
+  /** Optional custom center renderer — overrides label/sub when provided. */
+  children?: React.ReactNode;
 }
 
-/** Big radial progress arc. Animates from 0 to value via stroke-dashoffset. */
-export function Radial({ value, size = 160, thickness = 14, color = "var(--accent)", trackColor = "var(--line-2)", label, sub }: RadialProps) {
+/** Big radial progress arc. Animates from 0 to value via stroke-dashoffset.
+ *  Supports an optional gradient stroke (gradientFrom → gradientTo) and a
+ *  custom center node via children. */
+export function Radial({ value, size = 160, thickness = 14, color = "var(--accent)", gradientFrom, gradientTo, trackColor = "var(--line-2)", label, sub, children }: RadialProps) {
   const v = Math.min(100, Math.max(0, value));
   const r = (size - thickness) / 2;
   const cx = size / 2;
   const cy = size / 2;
   const c = 2 * Math.PI * r;
   const dash = (v / 100) * c;
+  // Stable gradient id per render — avoids collisions if multiple Radials on the page
+  const gradId = React.useId();
+  const useGradient = Boolean(gradientFrom && gradientTo);
+  const stroke = useGradient ? `url(#${gradId})` : color;
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block -rotate-90">
+        {useGradient && (
+          <defs>
+            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={gradientFrom} />
+              <stop offset="100%" stopColor={gradientTo} />
+            </linearGradient>
+          </defs>
+        )}
         <circle cx={cx} cy={cy} r={r} stroke={trackColor} strokeWidth={thickness} fill="none" />
         <circle
           cx={cx} cy={cy} r={r}
-          stroke={color}
+          stroke={stroke}
           strokeWidth={thickness}
           fill="none"
           strokeLinecap="round"
@@ -128,8 +148,12 @@ export function Radial({ value, size = 160, thickness = 14, color = "var(--accen
         <style>{`@keyframes radial-sweep { from { stroke-dashoffset: ${dash}; } to { stroke-dashoffset: 0; } }`}</style>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center chart-fade">
-        {label && <div className="text-[28px] font-semibold leading-none text-[var(--ink)] tabular-nums">{label}</div>}
-        {sub && <div className="text-[12px] text-[var(--ink-3)] mt-1.5 max-w-[100px]">{sub}</div>}
+        {children ?? (
+          <>
+            {label && <div className="text-[28px] font-semibold leading-none text-[var(--ink)] tabular-nums">{label}</div>}
+            {sub && <div className="text-[12px] text-[var(--ink-3)] mt-1.5 max-w-[100px]">{sub}</div>}
+          </>
+        )}
       </div>
     </div>
   );
