@@ -598,17 +598,49 @@ export default function KampagnerPage() {
               Top padding clears the action/format/title row; bottom padding
               clears the thin info strip. Preview is the hero. */}
           {activeCampaign && (
-            <div className="absolute inset-0 grid place-items-center px-6 pt-24 pb-12">
-              <div className="relative max-w-full max-h-full grid place-items-center">
-                <CampaignPreview
-                  campaign={activeCampaign}
-                  partner={CURRENT_PARTNER}
-                  theme={theme}
-                  format={format}
-                  image={currentImage}
-                />
+            <>
+              {/* Desktop preview — natural sizing via FRAME values (vw/vh).
+                  The desktop canvas is wide enough that cqw-based text
+                  inside CampaignPreview resolves at readable sizes. */}
+              <div className="hidden lg:grid absolute inset-0 place-items-center px-6 pt-24 pb-12">
+                <div className="relative max-w-full max-h-full grid place-items-center">
+                  <CampaignPreview
+                    campaign={activeCampaign}
+                    partner={CURRENT_PARTNER}
+                    theme={theme}
+                    format={format}
+                    image={currentImage}
+                  />
+                </div>
               </div>
-            </div>
+
+              {/* Mobile preview — force desktop-scale dimensions via the
+                  --cp-max-w / --cp-h CSS variables that CampaignPreview's
+                  FRAME respects. At 720px wide, the cqw-based internal
+                  text resolves at desktop-equivalent sizes (1.8cqw is
+                  ~13px instead of ~7px). Since the preview is wider and
+                  taller than a phone viewport, the wrapper is overflow-
+                  auto so the user can pan horizontally / scroll vertically
+                  to inspect the whole ad. Centered when the preview
+                  happens to fit (e.g. small google ad, bilstreamer). */}
+              <div
+                className="lg:hidden absolute inset-0 overflow-auto"
+                style={{
+                  ["--cp-max-w" as string]: "720px",
+                  ["--cp-h" as string]: "900px",
+                }}
+              >
+                <div className="min-h-full flex items-center justify-center px-3 py-4">
+                  <CampaignPreview
+                    campaign={activeCampaign}
+                    partner={CURRENT_PARTNER}
+                    theme={theme}
+                    format={format}
+                    image={currentImage}
+                  />
+                </div>
+              </div>
+            </>
           )}
 
           {/* BOTTOM INFO STRIP — quiet, no actions, no card. Just contextual info
@@ -674,7 +706,7 @@ export default function KampagnerPage() {
           {
             id: "tema" as const,
             label: "Kampagne",
-            sub: activeCampaign?.heroEmoji ?? "—",
+            sub: activeCampaign?.titel.split(" ")[0] ?? "Vælg",
             icon: (
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-6 9 6v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -893,8 +925,11 @@ export default function KampagnerPage() {
                             (isActive ? "bg-[var(--accent-tint)] ring-1 ring-[var(--accent)]/30" : "bg-[var(--canvas-2)] active:bg-[var(--canvas-3)]")
                           }
                         >
-                          <div className="size-10 rounded-lg grid place-items-center text-xl shrink-0" style={{ background: theme.accentSoft }}>
-                            {c.heroEmoji}
+                          <div
+                            className="size-10 rounded-lg grid place-items-center text-[15px] font-bold shrink-0"
+                            style={{ background: theme.accentSoft, color: theme.accentInk }}
+                          >
+                            {c.titel.charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0 pt-0.5">
                             <div className={"text-[14px] leading-tight " + (isActive ? "font-bold text-[var(--accent-press)]" : "font-semibold text-[var(--ink)]")}>
