@@ -87,28 +87,34 @@ export default function KampagnerPage() {
      thumb-tap away. */
   type SheetTab = "format" | "billede" | "tema";
   const [sheetTab, setSheetTab] = useState<SheetTab | null>(null);
+  /* Mobile-only: pixel-perfect zoom lightbox. The inline preview on mobile
+     fits the whole creative in view so the user sees the layout. Tap the
+     magnifying glass to open it large enough to read text and inspect
+     details — scroll/pan inside, X or ESC to close. */
+  const [zoomOpen, setZoomOpen] = useState(false);
 
   // ESC closes drawers
   useEffect(() => {
-    if (!drawerOpen && !historyOpen && !sheetTab) return;
+    if (!drawerOpen && !historyOpen && !sheetTab && !zoomOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDrawerOpen(false);
         setHistoryOpen(false);
         setSheetTab(null);
+        setZoomOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen, historyOpen, sheetTab]);
+  }, [drawerOpen, historyOpen, sheetTab, zoomOpen]);
 
-  // Body scroll lock while any mobile bottom sheet is open
+  // Body scroll lock while any mobile bottom sheet OR zoom lightbox is open
   useEffect(() => {
-    if (!sheetTab) return;
+    if (!sheetTab && !zoomOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
-  }, [sheetTab]);
+  }, [sheetTab, zoomOpen]);
 
   // Image variants filtered by active theme — sommer photos for sommer-sikring,
   // winter for vinter-byg, dusk/autumn for indbrud-efterar.
@@ -178,25 +184,32 @@ export default function KampagnerPage() {
           eyebrow="Marketing-værktøjskasse"
           title="Kampagner"
           themeColor={theme.accent}
-          actions={<>
-            {hasEdits && (
-              <button onClick={resetEdits} className="btn btn-secondary" data-tt="Vend tilbage til original copy">
-                ⤺ Nulstil tekst
+          actions={
+            /* PageHeader actions on desktop only. On mobile these were
+               wrapping into a gray strip above the canvas; the same
+               functions live in the bottom tab sheets (Mine kampagner is
+               inside the Kampagne sheet, Nulstil/Gem are in the edit
+               drawer). */
+            <div className="hidden lg:contents">
+              {hasEdits && (
+                <button onClick={resetEdits} className="btn btn-secondary" data-tt="Vend tilbage til original copy">
+                  Nulstil tekst
+                </button>
+              )}
+              <button
+                onClick={() => setHistoryOpen(true)}
+                className="btn btn-secondary inline-flex items-center gap-2"
+                data-tt="Se kampagner du har kørt — genbestil eller send igen"
+              >
+                <Icon name="history" size={14} />
+                Mine kampagner
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-[var(--accent)] text-white text-[10px] font-bold leading-none">{CAMPAIGN_HISTORY.length}</span>
               </button>
-            )}
-            <button
-              onClick={() => setHistoryOpen(true)}
-              className="btn btn-secondary inline-flex items-center gap-2"
-              data-tt="Se kampagner du har kørt — genbestil eller send igen"
-            >
-              <Icon name="history" size={14} />
-              Mine kampagner
-              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-[var(--accent)] text-white text-[10px] font-bold leading-none">{CAMPAIGN_HISTORY.length}</span>
-            </button>
-            <button onClick={() => pushToast("Gemt som skabelon")} className="btn btn-secondary" data-tt="Gem som personlig skabelon">
-              Gem skabelon
-            </button>
-          </>}
+              <button onClick={() => pushToast("Gemt som skabelon")} className="btn btn-secondary" data-tt="Gem som personlig skabelon">
+                Gem skabelon
+              </button>
+            </div>
+          }
         />
       </div>
 
@@ -614,23 +627,14 @@ export default function KampagnerPage() {
                 </div>
               </div>
 
-              {/* Mobile preview — force desktop-scale dimensions via the
-                  --cp-max-w / --cp-h CSS variables that CampaignPreview's
-                  FRAME respects. At 720px wide, the cqw-based internal
-                  text resolves at desktop-equivalent sizes (1.8cqw is
-                  ~13px instead of ~7px). Since the preview is wider and
-                  taller than a phone viewport, the wrapper is overflow-
-                  auto so the user can pan horizontally / scroll vertically
-                  to inspect the whole ad. Centered when the preview
-                  happens to fit (e.g. small google ad, bilstreamer). */}
-              <div
-                className="lg:hidden absolute inset-0 overflow-auto"
-                style={{
-                  ["--cp-max-w" as string]: "720px",
-                  ["--cp-h" as string]: "900px",
-                }}
-              >
-                <div className="min-h-full flex items-center justify-center px-3 py-4">
+              {/* Mobile preview — fit the WHOLE creative in view so the
+                  user gets the layout/feel at a glance. Uses the FRAME
+                  defaults (92vw / 72vh) so the preview sizes to fit the
+                  canvas section. Text inside is proportionally small at
+                  this scale; the magnifying-glass button below opens a
+                  pixel-perfect lightbox for reading + inspecting. */}
+              <div className="lg:hidden absolute inset-0 grid place-items-center px-4 py-4">
+                <div className="relative max-w-full max-h-full grid place-items-center">
                   <CampaignPreview
                     campaign={activeCampaign}
                     partner={CURRENT_PARTNER}
@@ -640,6 +644,20 @@ export default function KampagnerPage() {
                   />
                 </div>
               </div>
+
+              {/* Zoom button — opens the pixel-perfect lightbox.
+                  Positioned top-right of the canvas, above the preview. */}
+              <button
+                onClick={() => setZoomOpen(true)}
+                aria-label="Forstør kreativ"
+                className="lg:hidden absolute top-3 right-3 z-10 size-11 rounded-full bg-white/95 backdrop-blur-md shadow-[0_2px_10px_rgba(0,0,0,0.18)] grid place-items-center text-[var(--ink)] active:scale-[0.95] transition-transform"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M21 21l-4.3-4.3" />
+                  <path d="M11 8v6M8 11h6" />
+                </svg>
+              </button>
             </>
           )}
 
@@ -963,6 +981,69 @@ export default function KampagnerPage() {
               </div>
             )}
           </aside>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════
+          MOBILE ZOOM LIGHTBOX — pixel-perfect view of the creative.
+          Forces CampaignPreview to render at 720px container width via
+          the --cp-max-w / --cp-h CSS variables, so the internal cqw text
+          resolves at desktop-equivalent sizes. The wrapper is overflow-
+          auto with touch-action: manipulation so the user can pan in
+          both axes + pinch-zoom (where the platform supports it). X
+          button in the top bar, ESC also closes.
+          ═════════════════════════════════════════════════════════════ */}
+      {zoomOpen && activeCampaign && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/92 backdrop-blur-sm flex flex-col" role="dialog" aria-modal="true" aria-label="Forstør kreativ">
+          {/* Top bar */}
+          <div
+            className="shrink-0 flex items-center justify-between gap-3 px-3 py-2 text-white"
+            style={{ paddingTop: "max(8px, env(safe-area-inset-top, 0px))" }}
+          >
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.14em] opacity-60 font-semibold">Pixel-perfekt</div>
+              <div className="text-[14px] font-semibold truncate">
+                {activeCampaign.titel} · {FORMATS.find((f) => f.id === format)?.label}
+              </div>
+            </div>
+            <button
+              onClick={() => setZoomOpen(false)}
+              aria-label="Luk"
+              className="size-10 rounded-full grid place-items-center bg-white/15 active:bg-white/25 transition-colors shrink-0"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Scroll + pinch-zoom area */}
+          <div
+            className="flex-1 overflow-auto"
+            style={{
+              touchAction: "manipulation",
+              ["--cp-max-w" as string]: "720px",
+              ["--cp-h" as string]: "1024px",
+            }}
+          >
+            <div className="min-h-full flex items-center justify-center px-3 py-5">
+              <CampaignPreview
+                campaign={activeCampaign}
+                partner={CURRENT_PARTNER}
+                theme={theme}
+                format={format}
+                image={currentImage}
+              />
+            </div>
+          </div>
+
+          {/* Hint strip */}
+          <div
+            className="shrink-0 text-center text-[11.5px] text-white/55 px-3 py-2"
+            style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))" }}
+          >
+            Træk for at panorere · Knib for at zoome
+          </div>
         </div>
       )}
 
