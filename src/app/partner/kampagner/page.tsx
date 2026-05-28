@@ -314,14 +314,14 @@ export default function KampagnerPage() {
             }}
           />
 
-          {/* FLOATING TOP BAR — two groups now: mode+formats (left), actions (right).
-              Hidden on mobile (<lg) — too dense for narrow screens. Mobile shows
-              the preview canvas only with the editor accessible via drawer.
-              The campaign title pill was killed — the picker on the left already
-              shows which campaign is active (left accent strip + ring + bold).
-              Tooltips render BELOW (data-tt-pos="bottom") so they fall into the
-              canvas space instead of being clipped above. */}
-          <div className="hidden lg:flex absolute top-4 left-4 right-4 z-20 items-center justify-between gap-3 pointer-events-none flex-wrap">
+          {/* FLOATING TOP BAR — two groups: mode+formats (left), actions (right).
+              On desktop (lg:+) it floats over the canvas. On mobile we anchor it
+              as a static row above the preview with a light background + border,
+              so users can still switch Print/Digital, pick a format, and tap
+              Rediger / Send. Without this the page was view-only on mobile —
+              "I can see the preview but can't change anything". Buttons inside
+              keep their `pointer-events-auto` so they stay tappable. */}
+          <div className="relative flex flex-wrap items-center justify-between gap-2 p-3 bg-[var(--canvas-2)] border-b border-[var(--line-2)] pointer-events-none lg:absolute lg:top-4 lg:left-4 lg:right-4 lg:z-20 lg:gap-3 lg:p-0 lg:bg-transparent lg:border-0">
 
             {/* Udkast badge — only shown when there are unsaved edits, no longer
                 attached to the now-killed title pill. */}

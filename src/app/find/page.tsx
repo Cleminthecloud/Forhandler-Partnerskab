@@ -421,11 +421,19 @@ function Star() {
   );
 }
 
-/* ─── FindSearchModal — Airbnb-style full-screen search ───────────────
-   Mobile-first modal: top header with close button + title, scrolling
-   body with sections (Hvad / Hvor / Hvem), sticky bottom action bar
-   showing match count + Søg button. Touch targets ≥44pt throughout,
-   uses dvh for full-height layout. */
+/* ─── FindSearchModal — Airbnb-style step-by-step search ───────────────
+   Replaces the previous "one tall scroll" with the Airbnb pattern: three
+   stacked cards (Hvor → Hvad → Hvem). One card expanded at a time, the
+   others collapse to a short row showing the current value (or "Tilføj X"
+   if blank). Sticky top header (back + title + close). Sticky bottom bar
+   with "Ryd alt" link + accent "Søg" button showing match count.
+
+   Skip controls: each expanded card has a "Spring over" underline link
+   alongside the "Næste" button — no field is required, every step can
+   be passed through to the bottom Søg button.
+
+   Touch targets ≥44pt. 100dvh root. Background is light gray so the
+   white cards stand out — same elevation pattern as the screenshots. */
 function FindSearchModal({
   tema, setTema, fag, setFag, region, setRegion, postnr, setPostnr,
   matches, onClose,
@@ -441,35 +449,108 @@ function FindSearchModal({
   matches: number;
   onClose: () => void;
 }) {
+  const [step, setStep] = useState<"hvor" | "hvad" | "hvem">("hvor");
+
+  // Collapsed-card summary lines. Empty selection shows a soft "Tilføj X"
+  // hint — the affordance Airbnb uses ("Add dates", "Add guests") to
+  // suggest the field is optional and tappable.
+  const hvorValue = (() => {
+    const parts: string[] = [];
+    if (region !== "Alle") parts.push(region);
+    if (postnr) parts.push(`${postnr}`);
+    return parts.length ? parts.join(" · ") : "Tilføj område";
+  })();
+  const hvadValue =
+    tema === "Alle" ? "Tilføj opgave" : (THEMES.find((t) => t.id === tema)?.label ?? "Tilføj opgave");
+  const hvemValue = fag === "Alle" ? "Tilføj faggruppe" : fag;
+
+  function clearAll() {
+    setTema("Alle"); setFag("Alle"); setRegion("Alle"); setPostnr("");
+    setStep("hvor");
+  }
+
   return (
     <div
-      className="md:hidden fixed inset-0 z-[70] bg-[var(--canvas)] flex flex-col"
+      className="md:hidden fixed inset-0 z-[70] bg-[#F5F5F7] flex flex-col"
       style={{ height: "100dvh" }}
       role="dialog"
       aria-modal="true"
       aria-label="Find en partner"
     >
-      {/* Header — close + title */}
-      <div className="flex items-center gap-3 px-4 border-b border-[var(--line-2)] shrink-0" style={{ minHeight: 56, paddingTop: "env(safe-area-inset-top, 0px)" }}>
-        <button
-          onClick={onClose}
-          aria-label="Luk"
-          className="size-10 rounded-full grid place-items-center hover:bg-[var(--canvas-2)] transition-colors -ml-2"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <h2 className="font-semibold text-[var(--ink)]" style={{ fontSize: "clamp(17px, 4.5vw, 20px)" }}>Find en partner</h2>
-      </div>
+      {/* ─── Sticky header — back + title + circular close ─── */}
+      <header className="shrink-0 bg-white border-b border-[var(--line-2)]" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <div className="flex items-center justify-between h-[56px] px-3">
+          <button
+            onClick={onClose}
+            aria-label="Tilbage"
+            className="size-10 grid place-items-center rounded-full -ml-1 active:bg-[var(--canvas-2)] transition-colors"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <div className="font-semibold text-[var(--ink)]" style={{ fontSize: 15 }}>Find en partner</div>
+          <button
+            onClick={onClose}
+            aria-label="Luk"
+            className="size-9 grid place-items-center rounded-full border border-[var(--line)] -mr-1 active:bg-[var(--canvas-2)] transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </header>
 
-      {/* Scrollable body */}
-      <div className="flex-1 overflow-y-auto" style={{ paddingInline: "clamp(16px, 5vw, 24px)", paddingBlock: "clamp(20px, 5vw, 28px)", display: "flex", flexDirection: "column", gap: "clamp(24px, 6vw, 32px)" }}>
-        {/* Hvad — service type */}
-        <section>
-          <h3 className="text-[var(--ink)] font-semibold" style={{ fontSize: "clamp(15px, 4vw, 17px)" }}>Hvad leder du efter?</h3>
-          <p className="text-[var(--ink-3)] mt-1" style={{ fontSize: "clamp(13px, 3.5vw, 14px)" }}>Vælg et tema, eller behold alle.</p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
+      {/* ─── Stacked step cards — one expanded, others collapsed ─── */}
+      <div className="flex-1 overflow-y-auto px-3 pt-3 pb-5 flex flex-col gap-2.5">
+        {/* STEP 1 — HVOR */}
+        <StepCard
+          isActive={step === "hvor"}
+          onActivate={() => setStep("hvor")}
+          label="Hvor"
+          valueIfCollapsed={hvorValue}
+          expandedTitle="Hvor søger du?"
+          expandedSubtitle="Vælg en region — eller spring over for hele Danmark."
+        >
+          <div className="grid grid-cols-2 gap-2">
+            {REGIONS.map((r) => (
+              <FilterChip
+                key={r}
+                active={region === r}
+                onClick={() => setRegion(r)}
+                label={r === "Alle" ? "Hele Danmark" : r}
+              />
+            ))}
+          </div>
+          <label className="block mt-4">
+            <span className="text-[var(--ink-3)] font-semibold uppercase tracking-wider" style={{ fontSize: 11 }}>Postnummer (valgfrit)</span>
+            <input
+              type="text"
+              value={postnr}
+              onChange={(e) => setPostnr(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))}
+              placeholder="Fx 3100"
+              inputMode="numeric"
+              className="w-full mt-1.5 bg-[var(--canvas-2)] border border-transparent rounded-[var(--r-md)] focus:bg-white focus:border-[var(--accent)] outline-none transition-colors"
+              style={{ minHeight: 52, paddingInline: 14, fontSize: 16 }}
+            />
+          </label>
+          <StepFooter
+            onSkip={() => { setRegion("Alle"); setPostnr(""); setStep("hvad"); }}
+            onNext={() => setStep("hvad")}
+          />
+        </StepCard>
+
+        {/* STEP 2 — HVAD */}
+        <StepCard
+          isActive={step === "hvad"}
+          onActivate={() => setStep("hvad")}
+          label="Hvad"
+          valueIfCollapsed={hvadValue}
+          expandedTitle="Hvad leder du efter?"
+          expandedSubtitle="Vælg et tema — eller spring over for hele sortimentet."
+        >
+          <div className="grid grid-cols-2 gap-2">
             <FilterChip
               active={tema === "Alle"}
               onClick={() => setTema("Alle")}
@@ -487,13 +568,22 @@ function FindSearchModal({
               />
             ))}
           </div>
-        </section>
+          <StepFooter
+            onSkip={() => { setTema("Alle"); setStep("hvem"); }}
+            onNext={() => setStep("hvem")}
+          />
+        </StepCard>
 
-        {/* Hvem — faggruppe */}
-        <section>
-          <h3 className="text-[var(--ink)] font-semibold" style={{ fontSize: "clamp(15px, 4vw, 17px)" }}>Hvilken faggruppe?</h3>
-          <p className="text-[var(--ink-3)] mt-1" style={{ fontSize: "clamp(13px, 3.5vw, 14px)" }}>Vælg den faggruppe der passer din opgave.</p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
+        {/* STEP 3 — HVEM */}
+        <StepCard
+          isActive={step === "hvem"}
+          onActivate={() => setStep("hvem")}
+          label="Hvem"
+          valueIfCollapsed={hvemValue}
+          expandedTitle="Hvilken faggruppe?"
+          expandedSubtitle="Vælg den faggruppe der passer din opgave."
+        >
+          <div className="grid grid-cols-2 gap-2">
             {FAGGRUPPER.map((f) => (
               <FilterChip
                 key={f}
@@ -503,59 +593,106 @@ function FindSearchModal({
               />
             ))}
           </div>
-        </section>
-
-        {/* Hvor — region + postnr */}
-        <section>
-          <h3 className="text-[var(--ink)] font-semibold" style={{ fontSize: "clamp(15px, 4vw, 17px)" }}>Hvor søger du?</h3>
-          <p className="text-[var(--ink-3)] mt-1" style={{ fontSize: "clamp(13px, 3.5vw, 14px)" }}>Filtrér på region eller indtast postnummer.</p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            {REGIONS.map((r) => (
-              <FilterChip
-                key={r}
-                active={region === r}
-                onClick={() => setRegion(r)}
-                label={r === "Alle" ? "Hele Danmark" : r}
-              />
-            ))}
+          {/* Last step has no "Næste" — the bottom Søg button is the final action.
+              Skip still available for symmetry. */}
+          <div className="mt-5 flex items-center">
+            <button
+              onClick={() => setFag("Alle")}
+              className="text-[14px] font-semibold underline text-[var(--ink-2)]"
+              style={{ minHeight: 44, paddingInline: 4 }}
+            >
+              Spring over
+            </button>
           </div>
-          <div className="mt-3">
-            <label className="block">
-              <span className="text-[var(--ink-3)] font-semibold uppercase tracking-wider" style={{ fontSize: "11px" }}>Postnummer</span>
-              <input
-                type="text"
-                value={postnr}
-                onChange={(e) => setPostnr(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))}
-                placeholder="3100"
-                inputMode="numeric"
-                className="w-full mt-1.5 bg-white border border-[var(--line)] rounded-[var(--r-md)] focus:border-[var(--accent)] outline-none transition-colors"
-                style={{ minHeight: 56, paddingInline: 16, fontSize: 16 }}
-              />
-            </label>
-          </div>
-        </section>
+        </StepCard>
       </div>
 
-      {/* Sticky bottom action bar */}
-      <div className="border-t border-[var(--line-2)] bg-white flex items-center justify-between gap-3 shrink-0" style={{ paddingInline: "clamp(16px, 5vw, 24px)", paddingBlock: 12, paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}>
+      {/* ─── Sticky bottom — Ryd alt + Søg with match count ─── */}
+      <footer
+        className="shrink-0 bg-white border-t border-[var(--line-2)] flex items-center justify-between gap-3 px-4"
+        style={{ paddingBlock: 12, paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}
+      >
         <button
-          onClick={() => { setTema("Alle"); setFag("Alle"); setRegion("Alle"); setPostnr(""); }}
+          onClick={clearAll}
           className="text-[14px] font-semibold underline text-[var(--ink-2)]"
-          style={{ minHeight: 44, paddingInline: 8 }}
+          style={{ minHeight: 44, paddingInline: 4 }}
         >
           Ryd alt
         </button>
         <button
           onClick={onClose}
-          className="flex-1 max-w-[260px] bg-[var(--accent)] text-white font-semibold rounded-full hover:bg-[var(--accent-press)] transition-colors inline-flex items-center justify-center gap-2"
-          style={{ minHeight: 52, fontSize: "clamp(14px, 3.8vw, 16px)" }}
+          className="flex-1 max-w-[260px] bg-[var(--accent)] text-white font-semibold rounded-full active:scale-[0.98] hover:bg-[var(--accent-press)] transition-all inline-flex items-center justify-center gap-2"
+          style={{ minHeight: 52, fontSize: 15 }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
           </svg>
-          Vis {matches} {matches === 1 ? "partner" : "partnere"}
+          Søg ({matches})
         </button>
-      </div>
+      </footer>
+    </div>
+  );
+}
+
+/* StepCard — collapsed pill row OR expanded full content card.
+   Only one card is "active" at a time. Tap a collapsed card to expand
+   it (parent rolls the others into pills). */
+function StepCard({
+  isActive, onActivate, label, valueIfCollapsed, expandedTitle, expandedSubtitle, children,
+}: {
+  isActive: boolean;
+  onActivate: () => void;
+  label: string;
+  valueIfCollapsed: string;
+  expandedTitle: string;
+  expandedSubtitle?: string;
+  children: React.ReactNode;
+}) {
+  if (!isActive) {
+    return (
+      <button
+        onClick={onActivate}
+        className="w-full bg-white rounded-[16px] px-5 flex items-center justify-between text-left active:scale-[0.99] transition-transform shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+        style={{ minHeight: 60, paddingBlock: 16 }}
+      >
+        <span className="font-semibold text-[var(--ink)]" style={{ fontSize: 14 }}>{label}</span>
+        <span className="text-[var(--ink-3)] truncate ml-3" style={{ fontSize: 14, maxWidth: "60%" }}>{valueIfCollapsed}</span>
+      </button>
+    );
+  }
+  return (
+    <div className="bg-white rounded-[16px] p-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+      <h3 className="font-bold text-[var(--ink)] tracking-tight" style={{ fontSize: 22, letterSpacing: "-0.01em" }}>{expandedTitle}</h3>
+      {expandedSubtitle && (
+        <p className="text-[var(--ink-3)] mt-1" style={{ fontSize: 13.5 }}>{expandedSubtitle}</p>
+      )}
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}
+
+/* StepFooter — the "Spring over | Næste" row at the bottom of each
+   expanded card (except the last step which uses the bottom Søg). */
+function StepFooter({ onSkip, onNext }: { onSkip: () => void; onNext: () => void }) {
+  return (
+    <div className="mt-5 flex items-center justify-between">
+      <button
+        onClick={onSkip}
+        className="text-[14px] font-semibold underline text-[var(--ink-2)]"
+        style={{ minHeight: 44, paddingInline: 4 }}
+      >
+        Spring over
+      </button>
+      <button
+        onClick={onNext}
+        className="bg-[var(--ink)] text-white font-semibold rounded-full inline-flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
+        style={{ minHeight: 46, paddingInline: 22, fontSize: 15 }}
+      >
+        Næste
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
     </div>
   );
 }
