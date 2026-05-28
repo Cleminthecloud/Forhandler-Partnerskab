@@ -134,8 +134,10 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
       {/* ─── CRM RAIL: Kontakt + Konsulent + Næste besøg ─── */}
       <section className="px-6 lg:px-12 mt-7">
         <div className="grid gap-3 lg:grid-cols-3">
-          {/* Contact card */}
-          <div className="card card-lg">
+          {/* Contact card. All three CRM-rail cards use flex flex-col so the
+              button row anchors to the bottom — divider line + buttons align
+              across the row regardless of how much content sits above. */}
+          <div className="card card-lg flex flex-col">
             <div className="flex items-baseline justify-between mb-4">
               <h3 className="t-h3">Kontakt</h3>
               <span className="t-caption">Ejer · ansvarlig</span>
@@ -147,7 +149,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <ContactRow label="Web" value={partner.webadresse} href={`https://${partner.webadresse}`} external />
               <ContactRow label="Adresse" value={`${partner.postnr} ${partner.by}`} />
             </ul>
-            <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
+            <div className="mt-auto pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
               <a href={`tel:${partner.telefon.replace(/\s/g, "")}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="phone" size={12} /> Ring</a>
               <a href={`mailto:${partner.email}`} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="mail" size={12} /> Email</a>
               <button onClick={() => pushToast(`Note tilføjet til ${partner.firma}`)} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="plus" size={12} /> Note</button>
@@ -155,7 +157,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
           </div>
 
           {/* Assigned consultant */}
-          <div className="card card-lg">
+          <div className="card card-lg flex flex-col">
             <div className="flex items-baseline justify-between mb-4">
               <h3 className="t-h3">Tilknyttet konsulent</h3>
               <button onClick={() => pushToast("Skift konsulent kræver godkendelse fra teamleder")} className="link text-[12px]">Skift →</button>
@@ -181,7 +183,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <div className="flex justify-between"><span className="text-[var(--ink-3)]">Sidste touchpoint</span><span className="tabular-nums">5 dage siden</span></div>
               <div className="flex justify-between"><span className="text-[var(--ink-3)]">Relation-score</span><span className="tabular-nums font-semibold text-[#2D4A0F]">Stærk · 8.4</span></div>
             </div>
-            <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
+            <div className="mt-auto pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
               <button onClick={() => pushToast("Beskedseditor til Dennis åbnes…")} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Skriv til Dennis</button>
               <button onClick={() => pushToast("Briefing genereret — sendt til Dennis' indbakke")} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Send briefing</button>
             </div>
@@ -200,14 +202,14 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               </div>
               <div className="text-[12px] text-[var(--ink-3)] mt-1 capitalize">{nextVisit.ugedag}dag · Hos partneren</div>
             </div>
-            <div className="space-y-2 text-[12px] text-[var(--ink-2)] flex-1 leading-[1.5]">
+            <div className="space-y-2 text-[12px] text-[var(--ink-2)] leading-[1.5]">
               <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · Stroxx Q3-pipeline · genforhandling af bonusaftale</div>
               <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, Jens Pedersen (Sikring)</div>
               <div className="inline-flex items-center gap-1.5 text-[12px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
                 <Icon name="check" size={11} /> {partner.ejer} har bekræftet
               </div>
             </div>
-            <div className="mt-5 pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
+            <div className="mt-auto pt-4 border-t border-[var(--line-2)] flex flex-wrap gap-2">
               <button onClick={() => setShowVisitDialog(true)} className="btn btn-primary text-[12px] !px-3 !py-1.5">Genplanlæg</button>
               <button onClick={() => pushToast("Besøg tilføjet til din Outlook-kalender")} className="btn btn-secondary text-[12px] !px-3 !py-1.5 inline-flex items-center gap-1.5"><Icon name="calendar" size={12} /> Tilføj</button>
               <button onClick={() => pushToast(`Aflysning sendt til ${partner.ejer}`)} className="btn btn-secondary text-[12px] !px-3 !py-1.5">Aflys</button>
