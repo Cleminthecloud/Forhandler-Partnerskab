@@ -11,6 +11,7 @@ interface Edits {
   hovedbudskab?: string;
   underbudskab?: string;
   cta?: string;
+  ctaLink?: string;     // Destination URL for digital ads (FB/IG/LinkedIn/Google/Email)
 }
 
 export default function KampagnerPage() {
@@ -610,6 +611,18 @@ export default function KampagnerPage() {
                   onChange={(v) => updateEdit("cta", v)}
                   max={40}
                 />
+                <div className="h-4" />
+                {/* CTA destination URL — where clicks go on digital ads.
+                    Defaults to the partner's main website. Required by Meta,
+                    Google, LinkedIn — without it, ads can't be approved. */}
+                <EditField
+                  label="Link til CTA"
+                  value={edits[baseCampaign?.id ?? ""]?.ctaLink ?? `https://${CURRENT_PARTNER.webadresse}`}
+                  onChange={(v) => updateEdit("ctaLink", v)}
+                  max={200}
+                  placeholder="https://din-side.dk/booking"
+                  helpText="Hvor klik fra Facebook · Instagram · LinkedIn · Google sender kunden hen. Print-formater ignorerer dette felt."
+                />
                 {hasEdits && (
                   <button onClick={resetEdits} className="mt-4 text-[12px] font-semibold text-[var(--accent)] hover:underline">
                     Nulstil til original
@@ -885,7 +898,7 @@ function ActionConfirm({
 }
 
 /* ─── Inspector edit field ─── */
-function EditField({ label, value, onChange, max, multiline, rows }: { label: string; value: string; onChange: (v: string) => void; max?: number; multiline?: boolean; rows?: number }) {
+function EditField({ label, value, onChange, max, multiline, rows, placeholder, helpText }: { label: string; value: string; onChange: (v: string) => void; max?: number; multiline?: boolean; rows?: number; placeholder?: string; helpText?: string }) {
   const len = value.length;
   const near = max ? len > max * 0.85 : false;
   return (
@@ -903,6 +916,7 @@ function EditField({ label, value, onChange, max, multiline, rows }: { label: st
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, max))}
           rows={rows ?? 3}
+          placeholder={placeholder}
           className="w-full bg-[var(--canvas-2)] rounded-[var(--r-md)] px-3 py-2.5 text-[13px] text-[var(--ink)] outline-none resize-y border border-transparent focus:border-[var(--accent)] focus:bg-white transition-colors leading-[1.5]"
         />
       ) : (
@@ -910,9 +924,11 @@ function EditField({ label, value, onChange, max, multiline, rows }: { label: st
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, max))}
+          placeholder={placeholder}
           className="w-full bg-[var(--canvas-2)] rounded-[var(--r-md)] px-3 py-2.5 text-[13px] text-[var(--ink)] outline-none border border-transparent focus:border-[var(--accent)] focus:bg-white transition-colors"
         />
       )}
+      {helpText && <div className="text-[11.5px] text-[var(--ink-3)] mt-1.5 leading-[1.5]">{helpText}</div>}
     </div>
   );
 }
