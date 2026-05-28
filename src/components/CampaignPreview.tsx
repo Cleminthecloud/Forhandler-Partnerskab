@@ -467,7 +467,7 @@ function GoogleAd({ campaign, partner, theme, image }: { campaign: Campaign; par
             consistent with FB ad + bilstreamer pattern. */}
         <div className="relative" style={{ height: "48%" }}>
           <PhotoArea image={image} height="100%" />
-          <div className="absolute" style={{ top: "3cqw", right: "3cqw", height: "3.5cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.5))" }}>
+          <div className="absolute" style={{ top: "3cqw", right: "3cqw", height: "7cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.5))" }}>
             <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
           </div>
         </div>
