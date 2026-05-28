@@ -94,8 +94,10 @@ export default function FindPartnerPage() {
 
       {/* MOBILE: Airbnb-style search trigger — single pill that opens a
           full-screen modal with the Hvad/Hvor/Hvem filters. Replaces the
-          5-column form below which won't fit on a phone. */}
-      <div className="md:hidden sticky top-[57px] z-20 bg-white/95 backdrop-blur-md border-b border-[var(--line-2)] px-4 py-3">
+          5-column form below which won't fit on a phone. NOT sticky on
+          mobile because the CarlRasHeader above is already tall (~218px)
+          and stacking another sticky layer was overlapping the hero text. */}
+      <div className="md:hidden bg-white border-b border-[var(--line-2)] px-4 py-3">
         <button
           onClick={() => setMobileSearchOpen(true)}
           className="w-full flex items-center gap-3 bg-white rounded-full border border-[var(--line)] shadow-[0_4px_16px_rgba(0,26,51,0.06)] px-4 py-3 text-left"
@@ -354,13 +356,17 @@ function PartnerCard({ partner, cover, isFav, onToggleFav }: { partner: PartnerP
           <svg width="18" height="18" viewBox="0 0 24 24" fill={isFav ? "#E30613" : "none"} stroke={isFav ? "#E30613" : "white"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
         </button>
 
-        {/* Logo monogram bottom-left */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-2">
-          <div className="size-9 rounded-lg grid place-items-center text-white font-semibold text-[12px] shadow-md" style={{ background: partner.logoBg }}>
-            {partner.initialer}
-          </div>
-          <div className="text-white text-[12px] uppercase tracking-wider font-semibold drop-shadow">
-            ✓ Carl Ras certificeret
+        {/* Bottom row — partner monogram + certificering badge as a single
+            unified pill. Reads as one element instead of two floating items;
+            keeps the card image visible on mobile where space is tighter. */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
+          <div className="inline-flex items-center gap-2 bg-black/55 backdrop-blur-md rounded-full pl-1 pr-3 py-1 max-w-full">
+            <div className="size-7 rounded-full grid place-items-center text-white font-semibold text-[11px] shrink-0" style={{ background: partner.logoBg }}>
+              {partner.initialer}
+            </div>
+            <div className="text-white text-[10.5px] uppercase tracking-wider font-semibold whitespace-nowrap">
+              ✓ Carl Ras certificeret
+            </div>
           </div>
         </div>
       </div>
@@ -548,16 +554,26 @@ function FilterChip({ active, onClick, label, subtitle, accent }: { active: bool
     <button
       onClick={onClick}
       className={
-        "text-left rounded-[var(--r-md)] border-2 transition-all active:scale-[0.98] " +
-        (active ? "border-[var(--ink)] bg-white" : "border-[var(--line)] bg-white hover:border-[var(--ink-3)]")
+        "relative text-left rounded-[var(--r-md)] border-2 transition-all active:scale-[0.98] " +
+        (active
+          ? "border-[var(--ink)] bg-[var(--ink)] text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+          : "border-[var(--line)] bg-white hover:border-[var(--ink-3)]")
       }
       style={{ minHeight: 64, padding: "12px 14px" }}
     >
+      {/* Checkmark badge in the corner of the active chip — unmistakable signal */}
+      {active && (
+        <span className="absolute top-1.5 right-1.5 size-5 rounded-full bg-white grid place-items-center">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 13l4 4L19 7" />
+          </svg>
+        </span>
+      )}
       <div className="flex items-center gap-2">
-        {accent && <span className="size-2 rounded-full shrink-0" style={{ background: accent }} />}
-        <span className="font-semibold text-[var(--ink)]" style={{ fontSize: "clamp(13px, 3.6vw, 14px)" }}>{label}</span>
+        {accent && <span className={"size-2 rounded-full shrink-0 " + (active ? "ring-1 ring-white/40" : "")} style={{ background: accent }} />}
+        <span className={"font-semibold " + (active ? "text-white" : "text-[var(--ink)]")} style={{ fontSize: "clamp(13px, 3.6vw, 14px)" }}>{label}</span>
       </div>
-      {subtitle && <div className="text-[var(--ink-3)] mt-0.5" style={{ fontSize: "clamp(11.5px, 3vw, 12.5px)" }}>{subtitle}</div>}
+      {subtitle && <div className={"mt-0.5 " + (active ? "text-white/80" : "text-[var(--ink-3)]")} style={{ fontSize: "clamp(11.5px, 3vw, 12.5px)" }}>{subtitle}</div>}
     </button>
   );
 }
