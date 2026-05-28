@@ -5,10 +5,37 @@
 export const dynamic = "force-dynamic";
 import { use, useState } from "react";
 import Link from "next/link";
-import { PARTNERS, PRODUCTS, salesFor, CURRENT_PARTNER, CARL_RAS_KONSULENT } from "@/lib/data";
+import { PARTNERS, PRODUCTS, SPECIALISTS, salesFor, CURRENT_PARTNER, CARL_RAS_KONSULENT, Faggruppe } from "@/lib/data";
 import { useApp } from "@/components/AppState";
 import { InteractiveArea, InteractivePie, MiniArea } from "@/components/ChartsInteractive";
 import { Icon } from "@/components/Icon";
+
+/* Pair each faggruppe with the right Carl Ras BU specialist + a
+   pipeline keyword that's plausible for that trade. Without this the
+   "Næste besøg" card showed Stroxx (locks) + Jens Pedersen (Sikring)
+   for EVERY partner — so a Bornholm Maler or a Vestjysk Tømrer got
+   a fake locksmith review on their schedule. */
+function specialistFor(faggruppe: Faggruppe): { specialist: typeof SPECIALISTS[number]; pipeline: string } {
+  const find = (id: string) => SPECIALISTS.find((s) => s.id === id)!;
+  switch (faggruppe) {
+    case "Låsesmed":
+      return { specialist: find("s-jens"),   pipeline: "Stroxx Q3-pipeline" };
+    case "Elektriker":
+      return { specialist: find("s-marie"),  pipeline: "Smart-home Q3-pipeline" };
+    case "VVS":
+      return { specialist: find("s-morten"), pipeline: "Frostsikring Q3-pipeline" };
+    case "Tømrer":
+      return { specialist: find("s-morten"), pipeline: "Tagrender & facade Q3-pipeline" };
+    case "Maler":
+      return { specialist: find("s-henrik"), pipeline: "Træfacade Q3-pipeline" };
+    case "Murer":
+      return { specialist: find("s-henrik"), pipeline: "Beslag & forstærkning Q3-pipeline" };
+    case "Ejendomsservice":
+      return { specialist: find("s-morten"), pipeline: "Helårsservice Q3-pipeline" };
+    default:
+      return { specialist: find("s-jens"),   pipeline: "Q3-pipeline" };
+  }
+}
 
 const ACTIVITY_COLOR: Record<string, string> = {
   ordre:   "#2D4A0F",
@@ -86,6 +113,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
   }
 
   const nextVisit = nextVisitFor(partner.id);
+  const fagSpecialist = specialistFor(partner.faggruppe);
   void CURRENT_PARTNER;
 
   return (
@@ -203,8 +231,8 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
               <div className="text-[12px] text-[var(--ink-3)] mt-1 capitalize">{nextVisit.ugedag}dag · Hos partneren</div>
             </div>
             <div className="space-y-2 text-[12px] text-[var(--ink-2)] leading-[1.5]">
-              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · Stroxx Q3-pipeline · genforhandling af bonusaftale</div>
-              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, Jens Pedersen (Sikring)</div>
+              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Agenda</span>Kvartals-review · {fagSpecialist.pipeline} · genforhandling af bonusaftale</div>
+              <div><span className="text-[var(--ink-3)] uppercase tracking-wider text-[12px] font-semibold block mb-0.5">Deltagere</span>{partner.ejer}, Dennis Holmberg, {fagSpecialist.specialist.navn} ({fagSpecialist.specialist.bu.split(" · ")[0]})</div>
               <div className="inline-flex items-center gap-1.5 text-[12px] px-2 py-1 rounded-full mt-1" style={{ background: "var(--accent-soft, #F5FAEB)", color: "#324A14" }}>
                 <Icon name="check" size={11} /> {partner.ejer} har bekræftet
               </div>
@@ -419,7 +447,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                   value={visitAgenda}
                   onChange={(e) => setVisitAgenda(e.target.value)}
                   rows={3}
-                  placeholder="Fx kvartals-review, ny Stroxx-pris, Q3 pipeline …"
+                  placeholder={`Fx kvartals-review, ${fagSpecialist.pipeline.toLowerCase()}, bonusaftale …`}
                   className="w-full px-3 py-2 rounded-[var(--r-sm)] border border-[var(--line-2)] text-[13px] focus:outline-none focus:border-[var(--accent)] resize-none"
                 />
               </div>
