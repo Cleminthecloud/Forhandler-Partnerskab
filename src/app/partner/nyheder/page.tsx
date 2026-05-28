@@ -92,6 +92,13 @@ export default function NyhederPage() {
 
 /* ──────────────────────── Cards ──────────────────────── */
 
+/* All article cards route to the real Carl Ras Specialisten blog. This is
+   intentional: the demo's nyheder grid is the funnel — we use it to drive
+   traffic to carl-ras.dk where the actual content lives and where SEO,
+   newsletter signup, and product cross-sell happen. Each card opens in a
+   new tab so the partner doesn't lose their place inside the platform. */
+const SPECIALISTEN_URL = "https://www.carl-ras.dk/specialisten/";
+
 /* All three card variants share the /find Airbnb-feel pattern:
    bg-[var(--canvas)] → rounded-[var(--r-xl)] (22px) → overflow-hidden,
    hover lifts the card 1px and bumps shadow from --shadow-1 to --shadow-3,
@@ -101,7 +108,12 @@ export default function NyhederPage() {
 function FeaturedCard({ post }: { post: BlogPost }) {
   const tema = post.tema ? THEMES.find((t) => t.id === post.tema) : null;
   return (
-    <article className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex flex-col h-full min-h-[420px]">
+    <a
+      href={SPECIALISTEN_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex flex-col h-full min-h-[420px] no-underline"
+    >
       <div className="relative aspect-[16/9] overflow-hidden bg-[var(--canvas-2)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={post.image} alt={post.titel} className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] group-hover:scale-[1.05]" loading="eager" />
@@ -139,13 +151,18 @@ function FeaturedCard({ post }: { post: BlogPost }) {
           </span>
         </div>
       </div>
-    </article>
+    </a>
   );
 }
 
 function SecondaryCard({ post }: { post: BlogPost }) {
   return (
-    <article className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex">
+    <a
+      href={SPECIALISTEN_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex no-underline"
+    >
       <div className="relative w-[40%] shrink-0 overflow-hidden bg-[var(--canvas-2)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={post.image} alt={post.titel} className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] group-hover:scale-[1.05]" loading="lazy" />
@@ -163,14 +180,19 @@ function SecondaryCard({ post }: { post: BlogPost }) {
           <AuthorChip post={post} size="sm" />
         </div>
       </div>
-    </article>
+    </a>
   );
 }
 
 function ArticleCard({ post }: { post: BlogPost }) {
   const tema = post.tema ? THEMES.find((t) => t.id === post.tema) : null;
   return (
-    <article className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex flex-col h-full">
+    <a
+      href={SPECIALISTEN_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 shadow-[var(--shadow-1)] hover:shadow-[var(--shadow-3)] cursor-pointer flex flex-col h-full no-underline"
+    >
       <div className="relative aspect-[16/10] overflow-hidden bg-[var(--canvas-2)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={post.image} alt={post.titel} className="absolute inset-0 size-full object-cover transition-transform duration-[600ms] group-hover:scale-[1.05]" loading="lazy" />
@@ -204,7 +226,7 @@ function ArticleCard({ post }: { post: BlogPost }) {
           </span>
         </div>
       </div>
-    </article>
+    </a>
   );
 }
 
@@ -231,12 +253,23 @@ function AuthorChip({ post, size }: { post: BlogPost; size: "sm" | "md" }) {
   const role = size === "md" ? "text-[12px]" : "text-[12px]";
   return (
     <div className="flex items-center gap-2.5 min-w-0">
-      <div
-        className={`${av} rounded-full grid place-items-center text-white font-semibold shrink-0`}
-        style={{ background: post.forfatterBg, fontSize: size === "md" ? 12 : 10 }}
-      >
-        {post.forfatterInitialer}
-      </div>
+      {/* Portrait if present, else colored initials disc — same dimensions
+          so the layout doesn't shift between specialists. */}
+      {post.forfatterPortrait ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={post.forfatterPortrait}
+          alt={post.forfatter}
+          className={`${av} rounded-full object-cover shrink-0`}
+        />
+      ) : (
+        <div
+          className={`${av} rounded-full grid place-items-center text-white font-semibold shrink-0`}
+          style={{ background: post.forfatterBg, fontSize: size === "md" ? 12 : 10 }}
+        >
+          {post.forfatterInitialer}
+        </div>
+      )}
       <div className="min-w-0">
         <div className={`${txt} font-semibold text-[var(--ink)] truncate leading-tight`}>{post.forfatter}</div>
         <div className={`${role} text-[var(--ink-3)] truncate leading-tight mt-0.5`}>{post.forfatterRolle} · {post.dato}</div>
