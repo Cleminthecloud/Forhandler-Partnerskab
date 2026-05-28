@@ -80,31 +80,35 @@ export default function KampagnerPage() {
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
-  /* Mobile-only: bottom sheet for switching media/format + tapping Rediger.
-     On desktop these controls live in the floating top bar. */
-  const [mobileFormatOpen, setMobileFormatOpen] = useState(false);
+  /* Mobile-only: bottom tab bar opens one of four sheets — Format, Billede,
+     Tema, or Rediger (which routes to the existing edit drawer). On desktop
+     these controls live in the floating top bar + left aside, both hidden
+     below `lg:`. The preview is the killer feature; everything else is one
+     thumb-tap away. */
+  type SheetTab = "format" | "billede" | "tema";
+  const [sheetTab, setSheetTab] = useState<SheetTab | null>(null);
 
   // ESC closes drawers
   useEffect(() => {
-    if (!drawerOpen && !historyOpen && !mobileFormatOpen) return;
+    if (!drawerOpen && !historyOpen && !sheetTab) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDrawerOpen(false);
         setHistoryOpen(false);
-        setMobileFormatOpen(false);
+        setSheetTab(null);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen, historyOpen, mobileFormatOpen]);
+  }, [drawerOpen, historyOpen, sheetTab]);
 
-  // Body scroll lock while the mobile format sheet is open
+  // Body scroll lock while any mobile bottom sheet is open
   useEffect(() => {
-    if (!mobileFormatOpen) return;
+    if (!sheetTab) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
-  }, [mobileFormatOpen]);
+  }, [sheetTab]);
 
   // Image variants filtered by active theme — sommer photos for sommer-sikring,
   // winter for vinter-byg, dusk/autumn for indbrud-efterar.
@@ -163,23 +167,9 @@ export default function KampagnerPage() {
     /* pb-[92px] on mobile leaves room for the fixed mobile bottom bar so it
        doesn't cover the canvas preview at the end of the page. Reset on lg+. */
     <div className="flex flex-col min-h-[calc(100vh-48px)] lg:h-[calc(100vh-48px)] pb-[92px] lg:pb-0 animate-in">
-      {/* Mobile: notice that the editor is desktop-best. Browsing still works
-          (campaigns, preview) — but the floating chrome and side rail were
-          built for ≥1024px viewports. */}
-      <div className="lg:hidden mx-4 mt-4 mb-2 p-4 rounded-[var(--r-md)] border border-[var(--line-2)] bg-[var(--canvas-2)]">
-        <div className="flex items-start gap-3">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)] shrink-0 mt-0.5">
-            <rect x="2" y="3" width="20" height="14" rx="2" />
-            <path d="M8 21h8M12 17v4" />
-          </svg>
-          <div>
-            <div className="text-[14px] font-semibold text-[var(--ink)]">Kampagne-editoren er bygget til desktop</div>
-            <p className="text-[12.5px] text-[var(--ink-2)] mt-1 leading-[1.5]">
-              Du kan stadig gennemse kampagnerne her, men redigering af tekst, formater og send-til-Meta er bedst på en større skærm eller iPad i landskab.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Desktop-best notice killed on mobile — now that the page has a
+          proper tabbed bottom bar (Format / Billede / Tema / Rediger) the
+          editor IS usable on a phone, the apology was misleading. */}
 
       {/* ─── COMPACT HEADER (logo changer now lives in the edit drawer) ─── */}
       <div className="px-4 lg:px-10 xl:px-12 pt-6 pb-3 shrink-0">
@@ -213,11 +203,11 @@ export default function KampagnerPage() {
       {/* ─── EDITOR: left rail + canvas. Generous pb so the floating dock never crowds the browser-window edge.
           On mobile (<lg) the rail stacks above the canvas so nothing overflows horizontally. */}
       <div className="flex-1 grid gap-4 px-4 lg:px-10 xl:px-12 pb-8 lg:pb-10 grid-cols-1 lg:grid-cols-[280px_1fr] min-h-0">
-        {/* LEFT — campaign picker + image variants. Sticky scrolling only on
-            desktop where the rail is alongside the canvas. On mobile, render
-            inline at the top of the page so users can pick a campaign, then
-            scroll down to see the preview. */}
-        <aside className="flex flex-col gap-4 lg:self-start lg:sticky lg:top-[60px] lg:h-[calc(100vh-90px)] lg:overflow-y-auto lg:pr-1 lg:scrollbar-hidden">
+        {/* LEFT — campaign picker + image variants. Desktop only.
+            On mobile (<lg) the equivalent controls live in the bottom tab
+            bar (Tema sheet + Billede sheet) so the canvas can take the
+            whole viewport — the preview is the killer feature. */}
+        <aside className="hidden lg:flex flex-col gap-4 lg:self-start lg:sticky lg:top-[60px] lg:h-[calc(100vh-90px)] lg:overflow-y-auto lg:pr-1 lg:scrollbar-hidden">
           <div className="card !p-3">
             {/* Theme tabs — pick the årshjul, see only its campaigns below.
                 Short single-word labels (Sommer / Vinter / Indbrud) fit cleanly in
@@ -315,8 +305,10 @@ export default function KampagnerPage() {
           </div>
         </aside>
 
-        {/* CENTER — CANVAS (full bleed, floating chrome) */}
-        <section className="relative rounded-[var(--r-xl)] overflow-hidden bg-[var(--canvas-3)] border border-[var(--line-2)] min-h-[400px] lg:min-h-[640px]">
+        {/* CENTER — CANVAS (full bleed, floating chrome). On mobile we
+            give it the bulk of the viewport — preview is the killer
+            feature, chrome lives in the bottom tab bar. */}
+        <section className="relative rounded-[var(--r-xl)] overflow-hidden bg-[var(--canvas-3)] border border-[var(--line-2)] min-h-[calc(100dvh-220px)] lg:min-h-[640px]">
           {/* subtle canvas grid */}
           <div
             aria-hidden
@@ -639,53 +631,107 @@ export default function KampagnerPage() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════
-          MOBILE BOTTOM BAR — fixed at viewport bottom on <lg.
-          Shows the current Print/Digital · Format, an Edit icon, and a
-          "Skift format" pill that opens the bottom sheet below. This is
-          how mobile users access the controls that float over the canvas
-          on desktop.
+          MOBILE BOTTOM TAB BAR — four tabs at viewport bottom. Each tab
+          opens a bottom sheet with focused controls:
+            Format  → Print/Digital + format chips
+            Billede → image variants (was in the aside on desktop)
+            Tema    → theme tabs + campaign list (was in the aside)
+            Rediger → opens the existing edit drawer (which is already
+                      a bottom-sheet on mobile via .mobile-sheet)
+          The preview is the killer feature, so the tab bar is the only
+          chrome above the canvas — controls stay one tap away without
+          eating screen.
           ═════════════════════════════════════════════════════════════ */}
-      <div
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[var(--line-2)] flex items-center gap-2 px-3 py-2 shadow-[0_-6px_18px_rgba(0,0,0,0.06)]"
-        style={{ paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))" }}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-[var(--line-2)] flex items-stretch shadow-[0_-6px_18px_rgba(0,0,0,0.06)]"
+        style={{ paddingBottom: "max(6px, env(safe-area-inset-bottom, 0px))" }}
+        aria-label="Kampagne-kontroller"
       >
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">Vises</div>
-          <div className="text-[13px] font-semibold text-[var(--ink)] truncate">
-            {category === "print" ? "Print" : "Digital"} · {FORMATS.find((f) => f.id === format)?.label ?? "—"}
-          </div>
-        </div>
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="size-10 grid place-items-center rounded-full border border-[var(--line)] text-[var(--ink)] active:bg-[var(--canvas-2)] transition-colors shrink-0"
-          aria-label="Rediger tekst"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
-          </svg>
-        </button>
-        <button
-          onClick={() => setMobileFormatOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 bg-[var(--ink)] text-white rounded-full font-semibold active:scale-[0.98] transition-transform shrink-0"
-          style={{ minHeight: 40, fontSize: 13 }}
-        >
-          Skift format
-          <svg width="10" height="6" viewBox="0 0 10 6">
-            <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-          </svg>
-        </button>
-      </div>
+        {[
+          {
+            id: "format" as const,
+            label: "Format",
+            sub: category === "print" ? "Print" : "Digital",
+            icon: (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M9 3v18" />
+              </svg>
+            ),
+          },
+          {
+            id: "billede" as const,
+            label: "Billede",
+            sub: variants[imageVariant]?.label.split(" ")[0] ?? "",
+            icon: (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="M21 15l-5-5L5 21" />
+              </svg>
+            ),
+          },
+          {
+            id: "tema" as const,
+            label: "Kampagne",
+            sub: activeCampaign?.heroEmoji ?? "—",
+            icon: (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-6 9 6v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                <path d="M9 22V12h6v10" />
+              </svg>
+            ),
+          },
+          {
+            id: "rediger" as const,
+            label: "Rediger",
+            sub: hasEdits ? "Ændret" : "Tekst",
+            icon: (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
+              </svg>
+            ),
+          },
+        ].map((tab) => {
+          const isActive =
+            tab.id === "rediger" ? drawerOpen : sheetTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                if (tab.id === "rediger") {
+                  setSheetTab(null);
+                  setDrawerOpen(true);
+                } else {
+                  setSheetTab(sheetTab === tab.id ? null : tab.id);
+                }
+              }}
+              className={
+                "flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-colors " +
+                (isActive ? "text-[var(--accent)]" : "text-[var(--ink-2)] active:text-[var(--ink)]")
+              }
+              aria-pressed={isActive}
+            >
+              <span className={isActive ? "text-[var(--accent)]" : "text-[var(--ink-2)]"}>{tab.icon}</span>
+              <span className="text-[10.5px] font-semibold leading-tight">{tab.label}</span>
+              {tab.sub && (
+                <span className="text-[9.5px] text-[var(--ink-3)] leading-tight truncate max-w-[64px]">{tab.sub}</span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
 
       {/* ═══════════════════════════════════════════════════════════════
-          MOBILE FORMAT BOTTOM SHEET — slides up. Contains Print/Digital
-          segmented control, format chips for current media, and a quick
-          "Rediger tekst" row that opens the edit drawer.
+          MOBILE BOTTOM SHEETS — one per tab (Rediger uses the existing
+          edit drawer, not a sheet). All share the same shell: backdrop,
+          drag handle, header with title + X, scrolling body.
           ═════════════════════════════════════════════════════════════ */}
-      {mobileFormatOpen && (
-        <div className="lg:hidden fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="Skift format">
+      {sheetTab && (
+        <div className="lg:hidden fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={sheetTab === "format" ? "Skift format" : sheetTab === "billede" ? "Skift billede" : "Skift kampagne"}>
           <div
-            onClick={() => setMobileFormatOpen(false)}
+            onClick={() => setSheetTab(null)}
             className="absolute inset-0 bg-black/45 backdrop-blur-[1px] animate-in"
           />
           <aside
@@ -693,16 +739,20 @@ export default function KampagnerPage() {
             style={{ animation: "slideInUp 280ms cubic-bezier(0.22,1,0.36,1)", paddingBottom: "max(20px, env(safe-area-inset-bottom, 0px))" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drag indicator */}
+            {/* Drag handle */}
             <div className="grid place-items-center pt-3">
               <span className="w-10 h-1 rounded-full bg-[var(--line)] opacity-60" />
             </div>
 
-            {/* Sheet header */}
+            {/* Header */}
             <div className="flex items-center justify-between px-5 pt-3 pb-4">
-              <h3 className="font-bold text-[var(--ink)] tracking-tight" style={{ fontSize: 20, letterSpacing: "-0.01em" }}>Skift format</h3>
+              <h3 className="font-bold text-[var(--ink)] tracking-tight" style={{ fontSize: 20, letterSpacing: "-0.01em" }}>
+                {sheetTab === "format" && "Medie & format"}
+                {sheetTab === "billede" && "Vælg billede"}
+                {sheetTab === "tema" && "Vælg kampagne"}
+              </h3>
               <button
-                onClick={() => setMobileFormatOpen(false)}
+                onClick={() => setSheetTab(null)}
                 aria-label="Luk"
                 className="size-9 grid place-items-center rounded-full active:bg-[var(--canvas-2)] transition-colors"
               >
@@ -712,81 +762,171 @@ export default function KampagnerPage() {
               </button>
             </div>
 
-            {/* Body */}
-            <div className="px-5 pb-3 overflow-y-auto">
-              {/* Media — segmented Print/Digital. Switching media also picks the
-                  first format in that category so the canvas updates immediately. */}
-              <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mb-2">Medie</div>
-              <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-[var(--canvas-2)]">
-                {(["print", "digital"] as const).map((c) => {
-                  const active = category === c;
-                  return (
-                    <button
-                      key={c}
-                      onClick={() => {
-                        setCategory(c);
-                        const first = activeCampaign?.formater.find((f) => f.startsWith(c + "-"));
-                        if (first) setFormat(first);
-                      }}
-                      className={
-                        "py-2.5 text-[14px] font-semibold rounded-full transition-colors " +
-                        (active ? "bg-white text-[var(--ink)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--ink-3)]")
-                      }
-                    >
-                      {c === "print" ? "Print" : "Digital"}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* ─── FORMAT SHEET ─── */}
+            {sheetTab === "format" && (
+              <div className="px-5 pb-3 overflow-y-auto">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mb-2">Medie</div>
+                <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-[var(--canvas-2)]">
+                  {(["print", "digital"] as const).map((c) => {
+                    const active = category === c;
+                    return (
+                      <button
+                        key={c}
+                        onClick={() => {
+                          setCategory(c);
+                          const first = activeCampaign?.formater.find((f) => f.startsWith(c + "-"));
+                          if (first) setFormat(first);
+                        }}
+                        className={
+                          "py-2.5 text-[14px] font-semibold rounded-full transition-colors " +
+                          (active ? "bg-white text-[var(--ink)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--ink-3)]")
+                        }
+                      >
+                        {c === "print" ? "Print" : "Digital"}
+                      </button>
+                    );
+                  })}
+                </div>
 
-              {/* Format chips for the current media */}
-              <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mt-5 mb-2">Format</div>
-              <div className="grid grid-cols-2 gap-2">
-                {currentCategoryFormats.map((f) => {
-                  const meta = FORMATS.find((x) => x.id === f);
-                  if (!meta) return null;
-                  const active = format === f;
-                  return (
-                    <button
-                      key={f}
-                      onClick={() => { setFormat(f); setMobileFormatOpen(false); }}
-                      className={
-                        "text-left rounded-[var(--r-md)] border-2 transition-all active:scale-[0.98] " +
-                        (active
-                          ? "border-[var(--ink)] bg-[var(--ink)] text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
-                          : "border-[var(--line)] bg-white")
-                      }
-                      style={{ minHeight: 64, padding: "12px 14px" }}
-                    >
-                      <div className={"font-semibold " + (active ? "text-white" : "text-[var(--ink)]")} style={{ fontSize: 14 }}>{meta.label}</div>
-                      <div className={"mt-0.5 " + (active ? "text-white/80" : "text-[var(--ink-3)]")} style={{ fontSize: 12 }}>{meta.dim}</div>
-                    </button>
-                  );
-                })}
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mt-5 mb-2">Format</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {currentCategoryFormats.map((f) => {
+                    const meta = FORMATS.find((x) => x.id === f);
+                    if (!meta) return null;
+                    const active = format === f;
+                    return (
+                      <button
+                        key={f}
+                        onClick={() => { setFormat(f); setSheetTab(null); }}
+                        className={
+                          "text-left rounded-[var(--r-md)] border-2 transition-all active:scale-[0.98] " +
+                          (active
+                            ? "border-[var(--ink)] bg-[var(--ink)] text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)]"
+                            : "border-[var(--line)] bg-white")
+                        }
+                        style={{ minHeight: 64, padding: "12px 14px" }}
+                      >
+                        <div className={"font-semibold " + (active ? "text-white" : "text-[var(--ink)]")} style={{ fontSize: 14 }}>{meta.label}</div>
+                        <div className={"mt-0.5 " + (active ? "text-white/80" : "text-[var(--ink-3)]")} style={{ fontSize: 12 }}>{meta.dim}</div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+            )}
 
-              {/* Edit text shortcut — opens the existing edit drawer */}
-              <div className="mt-5 pt-5 border-t border-[var(--line-2)]">
+            {/* ─── BILLEDE SHEET ─── */}
+            {sheetTab === "billede" && (
+              <div className="px-5 pb-3 overflow-y-auto">
+                <p className="text-[13px] text-[var(--ink-3)] mb-3">Skift fotoet i kampagnen. Tryk på en variant for at se den i canvas.</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {variants.map((v, idx) => {
+                    const active = imageVariant === idx;
+                    return (
+                      <button
+                        key={v.id}
+                        onClick={() => { setImageVariant(idx); setSheetTab(null); }}
+                        className={
+                          "aspect-[3/4] rounded-[var(--r-md)] relative overflow-hidden grid place-items-end transition-all active:scale-[0.97] " +
+                          (active ? "ring-2 ring-[var(--ink)] ring-offset-2" : "ring-1 ring-[var(--line-2)]")
+                        }
+                        style={{ background: v.bg }}
+                      >
+                        <span className="w-full bg-gradient-to-t from-black/60 to-transparent text-white text-[11px] font-semibold px-2 py-1 text-left leading-tight">{v.label}</span>
+                        {active && (
+                          <span className="absolute top-1.5 right-1.5 size-5 rounded-full bg-white grid place-items-center">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ─── TEMA / KAMPAGNE SHEET ─── */}
+            {sheetTab === "tema" && (
+              <div className="px-5 pb-3 overflow-y-auto">
+                {/* Theme tabs — same Sommer/Vinter/Indbrud picker from the
+                    aside. Switching a theme reseeds image + campaign via
+                    the "adjust during render" effect higher up. */}
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mb-2">Tema</div>
+                <div className="grid grid-cols-3 gap-1 p-1 rounded-full bg-[var(--canvas-2)]">
+                  {THEMES.map((t) => {
+                    const isActive = t.id === theme.id;
+                    const shortLabel = t.id.split("-")[0];
+                    const tabLabel = shortLabel.charAt(0).toUpperCase() + shortLabel.slice(1);
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => setThemeId(t.id)}
+                        className={
+                          "py-2.5 text-[13px] font-semibold rounded-full transition-colors " +
+                          (isActive ? "bg-white text-[var(--ink)] shadow-[0_1px_3px_rgba(0,0,0,0.08)]" : "text-[var(--ink-3)]")
+                        }
+                      >
+                        {tabLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Campaign list for the active theme */}
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mt-5 mb-2">Kampagne</div>
+                <ul className="flex flex-col gap-1.5">
+                  {themed.map((c) => {
+                    const isActive = activeCampaign?.id === c.id;
+                    return (
+                      <li key={c.id}>
+                        <button
+                          onClick={() => {
+                            setActiveCampaignId(c.id);
+                            setFormat(c.formater[0]);
+                            setCategory(c.formater[0].startsWith("print") ? "print" : "digital");
+                            setSheetTab(null);
+                          }}
+                          className={
+                            "w-full text-left flex items-start gap-3 p-3 rounded-[var(--r-md)] transition-colors " +
+                            (isActive ? "bg-[var(--accent-tint)] ring-1 ring-[var(--accent)]/30" : "bg-[var(--canvas-2)] active:bg-[var(--canvas-3)]")
+                          }
+                        >
+                          <div className="size-10 rounded-lg grid place-items-center text-xl shrink-0" style={{ background: theme.accentSoft }}>
+                            {c.heroEmoji}
+                          </div>
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <div className={"text-[14px] leading-tight " + (isActive ? "font-bold text-[var(--accent-press)]" : "font-semibold text-[var(--ink)]")}>
+                              {c.titel}
+                            </div>
+                            <div className="text-[12px] text-[var(--ink-3)] mt-0.5">
+                              Print + digital · {c.status}
+                            </div>
+                          </div>
+                          {isActive && (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-1.5">
+                              <path d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                {/* Mine kampagner shortcut */}
                 <button
-                  onClick={() => { setDrawerOpen(true); setMobileFormatOpen(false); }}
-                  className="w-full flex items-center justify-between p-4 rounded-[var(--r-md)] bg-[var(--canvas-2)] active:bg-[var(--canvas-3)] transition-colors"
+                  onClick={() => { setHistoryOpen(true); setSheetTab(null); }}
+                  className="w-full mt-5 pt-4 border-t border-[var(--line-2)] flex items-center justify-between"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ink)] shrink-0">
-                      <path d="M12 20h9" />
-                      <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4z" />
-                    </svg>
-                    <div className="text-left min-w-0">
-                      <div className="font-semibold text-[14px] text-[var(--ink)]">Rediger tekst</div>
-                      <div className="text-[12px] text-[var(--ink-3)] truncate">Hovedbudskab, underbudskab, CTA</div>
-                    </div>
-                  </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ink-3)] shrink-0">
+                  <span className="text-[14px] font-semibold text-[var(--ink-2)]">Tidligere kampagner ({CAMPAIGN_HISTORY.length})</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--ink-3)]">
                     <path d="M9 18l6-6-6-6" />
                   </svg>
                 </button>
               </div>
-            </div>
+            )}
           </aside>
         </div>
       )}
