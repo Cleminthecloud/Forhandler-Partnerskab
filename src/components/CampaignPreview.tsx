@@ -67,6 +67,7 @@ export function CampaignPreview({ campaign, partner, theme, format, image }: Pro
     case "print-bilstreamer": return <Bilstreamer     {...{ campaign, partner, theme, image }} />;
     case "digital-facebook":  return <FacebookSq      {...{ campaign, partner, theme, image }} />;
     case "digital-instagram": return <InstagramStory  {...{ campaign, partner, theme, image }} />;
+    case "digital-linkedin":  return <LinkedInPost    {...{ campaign, partner, theme, image }} />;
     case "digital-email":     return <EmailSig        {...{ campaign, partner, theme, image }} />;
     case "digital-google":    return <GoogleAd        {...{ campaign, partner, theme, image }} />;
     default: return null;
@@ -92,6 +93,7 @@ const FRAME = {
   bilstreamer:  { width:  "clamp(480px, 56vw, 880px)",  aspectRatio: "5 / 1" },
   email:        { width:  "clamp(440px, 56vw, 780px)", aspectRatio: "3 / 1" },
   google:       { width:  "clamp(320px, 36vw, 520px)", aspectRatio: "6 / 5" },     // 300x250-ish
+  linkedin:     { width:  "clamp(520px, 60vw, 940px)", aspectRatio: "1200 / 627" }, // LinkedIn 1.91:1 single-image sponsored post
 } as const;
 
 /* Wrap content in a container-query context so cqw-based font sizes
@@ -347,9 +349,9 @@ function FacebookSq({ campaign, partner, theme, image }: { campaign: Campaign; p
             ? "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%)"
             : "linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, transparent 100%)",
         }} />
-        {/* Carl Ras Partner wordmark anchored top-right of image area — same
-            padding rhythm as the bilstreamer's photo-side mark. */}
-        <div className="absolute" style={{ top: "4cqw", right: "4cqw", height: "3.2cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.5))" }}>
+        {/* Carl Ras Partner wordmark anchored top-right of image area —
+            scaled up to match the Google ad treatment for legibility. */}
+        <div className="absolute" style={{ top: "4cqw", right: "4cqw", height: "6.4cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.5))" }}>
           <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
         </div>
         <div className="absolute inset-x-0 top-0" style={{ padding: "5cqw 6cqw 0" }}>
@@ -417,6 +419,70 @@ function InstagramStory({ campaign, partner, theme, image }: { campaign: Campaig
             </div>
             <span className="font-semibold text-[#1D1D1F]" style={{ fontSize: "2.8cqw" }}>{partner.firma}</span>
             <span className="text-[#515154]" style={{ fontSize: "2.4cqw" }}>· {partner.telefon}</span>
+          </div>
+        </div>
+      </ContentBox>
+    </div>
+  );
+}
+
+/* =================== LinkedIn sponsored post (1200×627, 1.91:1) ===================
+   LinkedIn's single-image sponsored content sits in the feed as a wide
+   banner above the partner's profile + CTA (rendered by LinkedIn itself).
+   Our preview shows the IMAGE ASSET only — a horizontal banner with a
+   clean editorial layout: photo full-bleed, soft gradient for legibility,
+   headline + sub-headline on the left, Carl Ras Partner mark top-right,
+   partner badge bottom-left. No CTA pill (LinkedIn renders that natively
+   under the image when the ad runs). */
+function LinkedInPost({ campaign, partner, image }: { campaign: Campaign; partner: PartnerProfile; theme: Theme; image: CampaignImage }) {
+  const overlayDark = image.fg === "light";
+  const inkColor = overlayDark ? "#FFFFFF" : "#1D1D1F";
+  return (
+    <div className="relative shadow-[0_20px_60px_rgba(0,26,51,0.18)]" style={FRAME.linkedin}>
+      <ContentBox bg={image.bg} radius={6}>
+        {/* Gradient overlay on the left half so the editorial text is legible
+            without darkening the entire image. */}
+        <div className="absolute inset-y-0 left-0 w-[65%]" style={{
+          background: overlayDark
+            ? "linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 60%, transparent 100%)"
+            : "linear-gradient(to right, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.35) 60%, transparent 100%)",
+        }} />
+
+        {/* Carl Ras Partner wordmark — top-right, same treatment as FB/Google */}
+        <div className="absolute" style={{ top: "3cqw", right: "3cqw", height: "3.6cqw", filter: "drop-shadow(0 0.4cqw 1.2cqw rgba(0,0,0,0.5))" }}>
+          <CarlRasPartnerLogo color="white" height={undefined as unknown as number} className="!h-full" />
+        </div>
+
+        {/* Editorial text block — top-left to middle, max 55% width so it
+            doesn't bleed across the photo subject. */}
+        <div className="absolute inset-y-0 left-0 flex flex-col justify-center" style={{ padding: "0 6cqw", maxWidth: "62%" }}>
+          <h3 className="font-bold tracking-tight" style={{ color: inkColor, fontSize: "4.6cqw", lineHeight: 1.08, letterSpacing: "-0.02em", textShadow: overlayDark ? "0 0.3cqw 1.6cqw rgba(0,0,0,0.5)" : "none" }}>
+            {campaign.hovedbudskab}
+          </h3>
+          <p style={{
+            marginTop: "1.6cqw",
+            color: inkColor,
+            opacity: 0.92,
+            fontSize: "2cqw",
+            lineHeight: 1.45,
+            textShadow: overlayDark ? "0 0.2cqw 1cqw rgba(0,0,0,0.5)" : "none",
+          }}>
+            {campaign.underbudskab}
+          </p>
+        </div>
+
+        {/* Partner badge — small, bottom-left, in the LinkedIn feed style */}
+        <div className="absolute bottom-0 left-0 flex items-center" style={{ padding: "3cqw 6cqw", gap: "1.5cqw" }}>
+          <div className="rounded-md grid place-items-center text-white font-bold shrink-0" style={{ background: partner.logoBg, width: "4.2cqw", height: "4.2cqw", fontSize: "1.4cqw" }}>
+            {partner.initialer}
+          </div>
+          <div className="min-w-0">
+            <div className="font-bold leading-tight" style={{ color: inkColor, fontSize: "2cqw", textShadow: overlayDark ? "0 0.2cqw 1cqw rgba(0,0,0,0.5)" : "none" }}>
+              {partner.firma}
+            </div>
+            <div style={{ color: inkColor, opacity: 0.78, fontSize: "1.5cqw", marginTop: "0.3cqw", textShadow: overlayDark ? "0 0.2cqw 0.8cqw rgba(0,0,0,0.4)" : "none" }}>
+              {partner.faggruppe} · {partner.by}
+            </div>
           </div>
         </div>
       </ContentBox>

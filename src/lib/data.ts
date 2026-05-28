@@ -147,7 +147,7 @@ export const EVENTS: CalendarEvent[] = [
 ];
 
 /* ─────────────────────────── Campaigns ─────────────────────────── */
-export type FormatKind = "print-flyer" | "print-poster" | "print-magasin" | "print-bilstreamer" | "digital-facebook" | "digital-instagram" | "digital-email" | "digital-google";
+export type FormatKind = "print-flyer" | "print-poster" | "print-magasin" | "print-bilstreamer" | "digital-facebook" | "digital-instagram" | "digital-linkedin" | "digital-email" | "digital-google";
 
 export interface CampaignFormat {
   id: FormatKind;
@@ -164,6 +164,7 @@ export const FORMATS: CampaignFormat[] = [
   { id: "print-bilstreamer", label: "Bilstreamer", category: "print", dim: "1000 × 200 mm", blurb: "Magnetisk eller perm — Carl Ras Partner på din bil." },
   { id: "digital-facebook", label: "Facebook-opslag", category: "digital", dim: "1080 × 1080 px", blurb: "Klar til at poste på dit lokale opslag." },
   { id: "digital-instagram", label: "Instagram story", category: "digital", dim: "1080 × 1920 px", blurb: "9:16 story format, video eller still." },
+  { id: "digital-linkedin", label: "LinkedIn-opslag", category: "digital", dim: "1200 × 627 px", blurb: "Single-image sponsored post — B2B feed format." },
   { id: "digital-email", label: "Email-signatur", category: "digital", dim: "600 × 200 px", blurb: "Carl Ras Partner-badge i din email-footer." },
   { id: "digital-google", label: "Google-annonce", category: "digital", dim: "300 × 250 px display", blurb: "Geo-targeted i dit lokalområde." },
 ];
@@ -198,6 +199,7 @@ const ALL_FORMATS: FormatKind[] = [
   "print-bilstreamer",
   "digital-facebook",
   "digital-instagram",
+  "digital-linkedin",
   "digital-email",
   "digital-google",
 ];

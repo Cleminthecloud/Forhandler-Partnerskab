@@ -33,11 +33,12 @@ export default function KampagnerPage() {
     | "print-order"
     | "print-pdf"
     | "digital-pack"
-    | "digital-send"      // Meta (FB/IG)
-    | "digital-send-google" // Google Ads
+    | "digital-send"          // Meta (FB/IG)
+    | "digital-send-google"   // Google Ads
+    | "digital-send-linkedin" // LinkedIn Campaign Manager
     | "digital-link"
-    | "email-html"        // Copy email-signature HTML
-    | "email-outlook";    // Install email signature in Outlook
+    | "email-html"            // Copy email-signature HTML
+    | "email-outlook";        // Install email signature in Outlook
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -405,6 +406,47 @@ export default function KampagnerPage() {
                   );
                 }
 
+                // — LinkedIn: link, asset pack, send to LinkedIn Campaign Manager —
+                if (format === "digital-linkedin") {
+                  return (
+                    <>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-link", label: fmtLabel })}
+                        data-tt="Kopiér delelink"
+                        data-tt-pos="bottom"
+                        className="size-7 grid place-items-center rounded-full text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors"
+                        aria-label="Kopiér link"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
+                          <path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-pack", label: fmtLabel })}
+                        data-tt="Download asset-pakke (JPG + PNG + dimensions)"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium text-[var(--ink-2)] hover:bg-[var(--canvas-2)] transition-colors whitespace-nowrap"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Asset-pakke
+                      </button>
+                      <button
+                        onClick={() => setConfirm({ kind: "digital-send-linkedin", label: fmtLabel })}
+                        data-tt="Send kampagnen som kladde til LinkedIn Campaign Manager"
+                        data-tt-pos="bottom"
+                        className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold bg-[var(--accent)] text-white hover:bg-[var(--accent-press)] transition-colors whitespace-nowrap"
+                      >
+                        Send til LinkedIn
+                      </button>
+                    </>
+                  );
+                }
+
                 // — Meta (Facebook / Instagram): link, asset pack, send to Meta —
                 if (format === "digital-facebook" || format === "digital-instagram") {
                   return (
@@ -666,14 +708,15 @@ export default function KampagnerPage() {
           onClose={() => setConfirm(null)}
           onConfirm={(target) => {
             const messages: Record<typeof confirm.kind, string> = {
-              "print-order":         `${confirm.label} er bestilt. Forventet levering: 5 hverdage.`,
-              "print-pdf":           `${confirm.label} (print-PDF) er sendt til din email.`,
-              "digital-pack":        `${confirm.label}-pakke downloades… ZIP er klar om få sekunder.`,
-              "digital-send":        `${confirm.label} er sendt som kladde til ${target ?? "Meta Business"}.`,
-              "digital-send-google": `${confirm.label} er sendt som kladde til Google Ads.`,
-              "digital-link":        `Delelink kopieret til udklipsholder.`,
-              "email-html":          `HTML-snippet kopieret til udklipsholder. Indsæt i din email-klient.`,
-              "email-outlook":       `${confirm.label} sendt til din email som .htm-fil — dobbeltklik for at installere i Outlook.`,
+              "print-order":           `${confirm.label} er bestilt. Forventet levering: 5 hverdage.`,
+              "print-pdf":             `${confirm.label} (print-PDF) er sendt til din email.`,
+              "digital-pack":          `${confirm.label}-pakke downloades… ZIP er klar om få sekunder.`,
+              "digital-send":          `${confirm.label} er sendt som kladde til ${target ?? "Meta Business"}.`,
+              "digital-send-google":   `${confirm.label} er sendt som kladde til Google Ads.`,
+              "digital-send-linkedin": `${confirm.label} er sendt som kladde til LinkedIn Campaign Manager.`,
+              "digital-link":          `Delelink kopieret til udklipsholder.`,
+              "email-html":            `HTML-snippet kopieret til udklipsholder. Indsæt i din email-klient.`,
+              "email-outlook":         `${confirm.label} sendt til din email som .htm-fil — dobbeltklik for at installere i Outlook.`,
             };
             pushToast(messages[confirm.kind]);
             setConfirm(null);
@@ -702,6 +745,7 @@ function ActionConfirm({
     | "digital-pack"
     | "digital-send"
     | "digital-send-google"
+    | "digital-send-linkedin"
     | "digital-link"
     | "email-html"
     | "email-outlook";
@@ -755,6 +799,12 @@ function ActionConfirm({
         title: `Send ${label} som kladde`,
         body: <>Vi pusher kampagnen som <strong>kladde</strong> til din Google Ads-konto, geo-targeted til dit lokalområde. Du publicerer selv når du er klar.</>,
         cta: "Send til Google Ads",
+      };
+      case "digital-send-linkedin": return {
+        eyebrow: "Send til LinkedIn Campaign Manager",
+        title: `Send ${label} som kladde`,
+        body: <>Vi pusher kampagnen som <strong>kladde</strong> til LinkedIn Campaign Manager. Vælg selv målgruppe (jobtitel, branche, virksomhedsstørrelse) og publicér når du er klar.</>,
+        cta: "Send til LinkedIn",
       };
       case "digital-link": return {
         eyebrow: "Kopiér delelink",
@@ -878,6 +928,7 @@ function FormatThumb({ format, active }: { format: FormatKind; active: boolean }
     "print-bilstreamer":{ w: 18, h: 5 },
     "digital-facebook": { w: 15, h: 15 },
     "digital-instagram":{ w: 10, h: 18 },
+    "digital-linkedin": { w: 18, h: 9 },   // 1.91:1 horizontal
     "digital-email":    { w: 18, h: 7 },
     "digital-google":   { w: 15, h: 12 },
   };
