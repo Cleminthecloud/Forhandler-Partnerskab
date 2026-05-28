@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { PARTNERS, Region, Faggruppe, PartnerProfile } from "@/lib/data";
 import { THEMES, ThemeId } from "@/lib/themes";
@@ -46,6 +46,17 @@ export default function FindPartnerPage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<"naer" | "rating" | "sager">("naer");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  // Lock background scroll while the Airbnb-style search modal is open.
+  // Without this, the page underneath scrolls when you swipe inside the
+  // modal — and Safari can also momentarily reveal the CarlRasHeader at
+  // the top because the body keeps tracking touch.
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [mobileSearchOpen]);
 
   const filtered = useMemo(() => {
     const r = PARTNERS.filter((p) => {

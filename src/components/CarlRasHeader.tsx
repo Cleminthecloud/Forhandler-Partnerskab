@@ -125,7 +125,12 @@ const CATEGORIES: Category[] = [
 
 export function CarlRasHeader() {
   return (
-    <header className="bg-white sticky top-0 z-30">
+    /* sticky ONLY on desktop. On mobile this header is ~218px tall
+       (utility strip + top row + sister brands + categories) — pinning
+       it as the user scrolls covers the hero on /find AND the partner
+       name on the profile page. Letting it scroll with content is the
+       normal mobile pattern (Airbnb, Booking, carl-ras.dk itself). */
+    <header className="bg-white md:sticky md:top-0 z-30">
       {/* ── Utility strip (navy) ─────────────────────────────────────── */}
       <div className="bg-[#001A33] text-white">
         <div className="mx-auto max-w-[1440px] px-6 h-8 flex items-center text-[12px]">

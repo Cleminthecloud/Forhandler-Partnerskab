@@ -2,9 +2,81 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PARTNERS } from "@/lib/data";
+import { PARTNERS, Region, Faggruppe, PartnerProfile } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { useApp } from "@/components/AppState";
+
+/* ─────────────────────────────────────────────────────────────────────
+   Region-aware specialist content.
+
+   Earlier this section was hardcoded to Nordsjælland ("Sommerhuse langs
+   Nordsjællands kyst", projects in Hornbæk + Tisvildeleje + Hellebæk).
+   It rendered for ALL partners — so a Bornholm VVS got Nordsjælland
+   case studies, which is the kind of seam Peter spots in two seconds.
+
+   Now headline + body + projects come from partner.region + faggruppe.
+   Each region has its own town pool; project labels combine with the
+   partner's specialer so each profile reads as locally true. */
+
+const REGION_FLAVOR: Record<Region, { flavor: string; towns: string[]; descriptor: string }> = {
+  Nordsjælland:      { flavor: "langs Nordsjællands kyst", descriptor: "Nordkystens",      towns: ["Hornbæk", "Tisvildeleje", "Dronningmølle", "Hellebæk"] },
+  Hovedstaden:       { flavor: "i Storkøbenhavn",          descriptor: "Storkøbenhavns",   towns: ["Frederiksberg", "Hellerup", "Charlottenlund", "Vanløse"] },
+  Vestkysten:        { flavor: "langs Vestkysten",         descriptor: "Vestkystens",      towns: ["Blokhus", "Løkken", "Henne Strand", "Vejers"] },
+  Bornholm:          { flavor: "på Bornholm",              descriptor: "Bornholms",        towns: ["Aakirkeby", "Rønne", "Allinge", "Snogebæk"] },
+  "Lolland-Falster": { flavor: "på Sydhavsøerne",          descriptor: "Sydhavets",        towns: ["Marielyst", "Maribo", "Væggerløse", "Bøtø"] },
+  Fyn:               { flavor: "på Fyn",                   descriptor: "Fynske",           towns: ["Odense", "Faaborg", "Middelfart", "Svendborg"] },
+  Østjylland:        { flavor: "i Østjylland",             descriptor: "Østjyllands",      towns: ["Aarhus", "Ebeltoft", "Grenå", "Mols"] },
+  Nordjylland:       { flavor: "i Vendsyssel",             descriptor: "Vendsyssels",      towns: ["Skagen", "Ålbæk", "Råbjerg", "Frederikshavn"] },
+};
+
+const FAG_PROJECT_VERBS: Record<Faggruppe, { lead: string; price: [number, number] }> = {
+  "Låsesmed":        { lead: "Smart-lock installation",     price: [9, 28] },
+  "Tømrer":          { lead: "Terrasse og facade",          price: [22, 65] },
+  "Elektriker":      { lead: "Smart-home installation",     price: [14, 38] },
+  "VVS":             { lead: "Frostsikring og vintertømning", price: [12, 24] },
+  "Maler":           { lead: "Træfacade og imprægnering",   price: [18, 42] },
+  "Ejendomsservice": { lead: "Helårsservice sommerhus",     price: [8, 18] },
+  "Murer":           { lead: "Facade og indbrudsforstærkning", price: [28, 75] },
+};
+
+function specialistBlurb(p: PartnerProfile): { headline: string; body: string; projects: { titel: string; body: string; pris: string }[] } {
+  const r = REGION_FLAVOR[p.region];
+  const v = FAG_PROJECT_VERBS[p.faggruppe];
+  const firstName = p.ejer.split(" ")[0];
+  const teamSize = p.tier === "Guld" ? "fast hold på 6–8 mand" : p.tier === "Sølv" ? "tre-mands hold" : "to-mands hold";
+  const sinceYear = (() => {
+    // partner.medlemSiden is the join date in the program ("februar 2026") — for "siden YYYY" we step back
+    // a plausible founding year based on the antalSager (more cases = older firm).
+    if (p.antalSager > 200) return 2008;
+    if (p.antalSager > 100) return 2014;
+    if (p.antalSager > 40)  return 2018;
+    return 2022;
+  })();
+
+  // Pull two "lead" specialer for the headline if available
+  const specialty = p.specialer[0] ?? p.faggruppe;
+
+  return {
+    headline: `${specialty} ${r.flavor}`,
+    body: `${p.firma} har serviceret kunder ${r.flavor} siden ${sinceYear}. ${firstName} driver et ${teamSize} med korte responstider og lokalt kendskab til ${r.towns.slice(0, 2).join(" og ")}-områderne. Specialist i ${p.specialer.slice(0, 2).join(" og ").toLowerCase()}.`,
+    projects: r.towns.map((town, i) => {
+      const pris = v.price[0] + Math.round(((v.price[1] - v.price[0]) * ((i * 37) % 100)) / 100);
+      const variant = [
+        `${v.lead}, ${town}`,
+        `${p.specialer[i % p.specialer.length] ?? p.faggruppe}, ${town}`,
+        `${v.lead} — ${town}`,
+        `${p.specialer[(i + 1) % p.specialer.length] ?? p.faggruppe}, ${town}`,
+      ][i];
+      const desc = [
+        `Komplet løsning til lokalt sommerhus. Vurderet og afsluttet inden for 2 uger.`,
+        `Servicebesøg med opfølgning. Anbefalet af ${r.descriptor} grundejerforening.`,
+        `Klargøring inden højsæson. ${p.specialer[0] ?? "Fagligt"} kvalitetscheck.`,
+        `Eftersyn + dokumentation. Carl Ras-certificeret arbejdsproces.`,
+      ][i];
+      return { titel: variant, body: desc, pris: `≈ ${pris}.000 kr` };
+    }),
+  };
+}
 
 export default function PartnerProfilePage({ params }: { params: Promise<{ partnerId: string }> }) {
   const { partnerId } = use(params);
@@ -97,31 +169,31 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
       </header>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_400px]">
-        {/* Left: about + cases */}
+        {/* Left: about + cases. Headline + body + projects are derived from
+            partner.region + partner.faggruppe via specialistBlurb() — so a
+            Bornholm VVS gets Bornholm cases, not Nordsjælland boilerplate. */}
         <section>
-          <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>SPECIALIST I</div>
-          <h2 className="text-[20px] font-semibold mt-2 text-[var(--cr-navy-deep)]">Sommerhuse langs Nordsjællands kyst</h2>
-          <p className="text-[15px] text-[var(--ink-muted-80)] mt-3 leading-relaxed">
-            {partner.firma} har serviceret sommerhuse fra Hornbæk til Tisvildeleje siden 2008. Familieejet,
-            tre-mands hold, korte responstider og lokalt kendskab til områderne. Specialist i smart-lock
-            løsninger til udlejningssommerhuse.
-          </p>
+          {(() => {
+            const blurb = specialistBlurb(p);
+            return (
+              <>
+                <div className="t-tagline" style={{ color: "var(--cr-blue)" }}>SPECIALIST I</div>
+                <h2 className="text-[20px] font-semibold mt-2 text-[var(--cr-navy-deep)]">{blurb.headline}</h2>
+                <p className="text-[15px] text-[var(--ink-muted-80)] mt-3 leading-relaxed">{blurb.body}</p>
 
-          <div className="t-tagline mt-10" style={{ color: "var(--cr-blue)" }}>SENESTE PROJEKTER</div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {[
-              { titel: "Smart-lock installation, Hornbæk", body: "Komplet sikringspakke til 3 udlejningssommerhuse. Ugekoder via app.", pris: "≈ 28.000 kr" },
-              { titel: "Alarm-modernisering, Dronningmølle", body: "Udskiftning af 2014-alarm til moderne push-baseret system.", pris: "≈ 14.500 kr" },
-              { titel: "ABUS Smart Cylinder, Tisvildeleje", body: "Pilot-installation af STROXX-cylinder. Saltluft-test bestået.", pris: "≈ 9.800 kr" },
-              { titel: "Adgangskontrol bryllup, Hellebæk", body: "Midlertidig adgangskontrol til bryllupsweekend i sommerhus.", pris: "≈ 6.200 kr" },
-            ].map((c) => (
-              <div key={c.titel} className="card !p-4">
-                <div className="text-[13px] font-semibold text-[var(--cr-navy-deep)]">{c.titel}</div>
-                <p className="text-[12px] text-[var(--ink-muted-80)] mt-1">{c.body}</p>
-                <div className="text-[12px] text-[var(--ink-muted-48)] mt-2">{c.pris}</div>
-              </div>
-            ))}
-          </div>
+                <div className="t-tagline mt-10" style={{ color: "var(--cr-blue)" }}>SENESTE PROJEKTER</div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {blurb.projects.map((c) => (
+                    <div key={c.titel} className="card !p-4">
+                      <div className="text-[13px] font-semibold text-[var(--cr-navy-deep)]">{c.titel}</div>
+                      <p className="text-[12px] text-[var(--ink-muted-80)] mt-1">{c.body}</p>
+                      <div className="text-[12px] text-[var(--ink-muted-48)] mt-2">{c.pris}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </section>
 
         {/* Right: contact form */}
@@ -144,10 +216,10 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 </Field>
                 <div className="grid grid-cols-[110px_1fr] gap-3">
                   <Field label="Postnr">
-                    <input type="text" value={form.postnr} onChange={(e) => setForm({ ...form, postnr: e.target.value })} className="form-input" placeholder="3100" />
+                    <input type="text" value={form.postnr} onChange={(e) => setForm({ ...form, postnr: e.target.value })} className="form-input" placeholder={p.postnr} />
                   </Field>
                   <Field label="By">
-                    <input type="text" value={form.by} onChange={(e) => setForm({ ...form, by: e.target.value })} className="form-input" placeholder="Hornbæk" />
+                    <input type="text" value={form.by} onChange={(e) => setForm({ ...form, by: e.target.value })} className="form-input" placeholder={p.by} />
                   </Field>
                 </div>
                 <Field label="Hvad har du brug for? *">
