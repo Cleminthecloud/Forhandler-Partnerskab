@@ -39,6 +39,16 @@ const CONNECTED_ACCOUNTS = [
   { id: "linkedin", name: "LinkedIn Pages", account: "—",                                   icon: "in", color: "#0A66C2", connected: false },
 ];
 
+/* Forbundne fakturasystemer — the accounting backends a Danish håndværker
+   actually uses to issue invoices. Dinero and e-conomic dominate the SMB
+   market; Billy.dk is the lightweight challenger. Picked here so the
+   project drawer's "Send til faktura" panel knows where to send. */
+const INVOICE_SYSTEMS = [
+  { id: "dinero",   name: "Dinero",    account: "Hornbæk Låseservice · CVR 11583811",   tag: "D", color: "#0B3D2E", connected: true  },
+  { id: "economic", name: "e-conomic", account: "—",                                     tag: "e", color: "#E2231A", connected: false },
+  { id: "billy",    name: "Billy.dk",  account: "—",                                     tag: "B", color: "#1158A3", connected: false },
+];
+
 export default function PartnerSettingsPage() {
   const { pushToast } = useApp();
   const { theme, themes, setThemeId } = useTheme();
@@ -122,6 +132,49 @@ export default function PartnerSettingsPage() {
                 </li>
               ))}
             </ul>
+          </section>
+
+          {/* Forbundne fakturasystemer — accounting/invoicing connectors.
+              Mirror of the ad-account section above but for the partner's
+              billing backend. The project drawer reads from this list to
+              show "Send til Dinero" (or whichever is connected) as a
+              one-tap CTA on every project. */}
+          <section className="card" id="fakturasystemer">
+            <div className="flex items-baseline justify-between mb-4">
+              <div>
+                <div className="text-[15px] font-semibold text-[var(--ink)]">Forbundne fakturasystemer</div>
+                <div className="text-[11.5px] text-[var(--ink-3)] mt-1">Bruges af &quot;Send til faktura&quot; i Projekter — projektdata flyder direkte til dit regnskab.</div>
+              </div>
+            </div>
+            <ul className="space-y-2.5">
+              {INVOICE_SYSTEMS.map((s) => (
+                <li key={s.id} className="flex items-center gap-3 p-3 rounded-[var(--r-md)] border border-[var(--line-2)]">
+                  <div className="size-10 rounded-md grid place-items-center text-white text-[15px] font-bold shrink-0" style={{ background: s.color }}>{s.tag}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13.5px] font-semibold text-[var(--ink)]">{s.name}</div>
+                    <div className="text-[11.5px] text-[var(--ink-3)] truncate">{s.connected ? s.account : "Ikke forbundet"}</div>
+                  </div>
+                  {s.connected ? (
+                    <>
+                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#2D4A0F] bg-[#E1EFD2] px-2 py-1 rounded-full">
+                        <span className="size-1.5 rounded-full bg-[#5B7F2C]" />
+                        Forbundet
+                      </span>
+                      <button onClick={() => pushToast(`${s.name} afbrudt (demo)`)} className="text-[12px] font-semibold text-[var(--ink-3)] hover:text-[#8a1f1f] shrink-0">
+                        Afbryd
+                      </button>
+                    </>
+                  ) : (
+                    <button onClick={() => pushToast(`${s.name} forbundet (demo)`, "success")} className="btn btn-secondary !py-1.5 shrink-0">
+                      Forbind
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <p className="text-[11.5px] text-[var(--ink-3)] mt-3 leading-[1.5]">
+              Vi sender kun de felter dit system kræver: kunde, postnr, projektreference, varelinjer og beløb ekskl. moms. Carl Ras gemmer ikke fakturadata.
+            </p>
           </section>
 
           {/* Theme preference */}

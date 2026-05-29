@@ -705,6 +705,14 @@ function ProjectDrawer({
             }}
           />
 
+          {/* ─── FAKTURERING ─────────────────────────────────────────
+              Sends project data (kunde, postnr, products, total, deadline)
+              into the partner's accounting system. Demo wires this to a
+              toast; in production it'd be an API call to Dinero/e-conomic
+              or a CSV download. Connected system is sourced from
+              partner settings — see "Forbundne fakturasystemer" there. */}
+          <InvoicePanel project={project} />
+
           {/* Activity log */}
           <section>
             <div className="t-eyebrow mb-3">Aktivitet · {project.noter.length}</div>
@@ -819,6 +827,123 @@ function ProjectFooter({
         </DropdownMenu>
       </div>
     </div>
+  );
+}
+
+/* ─────────────────────────── Invoice handoff ────────────────────────────
+   Sends the won-project data into the partner's accounting system. Dinero
+   and e-conomic dominate the Danish SMB accounting market (the platforms
+   our håndværker partners actually run their billing on). CSV export is
+   the universal fallback for anything else (Billy.dk, Uniconta, etc.).
+
+   Wiring is settings-driven: a partner connects the system once in
+   /partner/settings (under "Forbundne fakturasystemer"), and from then on
+   every project drawer offers a one-tap "Send til <system>" CTA. */
+
+const INVOICE_SYSTEMS: { id: string; name: string; tag: string; bg: string; ink: string; connected: boolean }[] = [
+  { id: "dinero",   name: "Dinero",    tag: "D", bg: "#0B3D2E", ink: "#FFFFFF", connected: true  },
+  { id: "economic", name: "e-conomic", tag: "e", bg: "#E2231A", ink: "#FFFFFF", connected: false },
+  { id: "billy",    name: "Billy.dk",  tag: "B", bg: "#1158A3", ink: "#FFFFFF", connected: false },
+];
+
+function InvoicePanel({ project }: { project: Project }) {
+  const { pushToast } = useApp();
+  const total = project.forventetKr;
+  const lineCount = project.produktIds.length;
+  const connected = INVOICE_SYSTEMS.find((s) => s.connected);
+  const ref = `FK-${new Date().getFullYear()}-${project.id.replace("pr-", "").padStart(4, "0")}`;
+
+  function sendToSystem(system: typeof INVOICE_SYSTEMS[number]) {
+    pushToast(`Faktura-udkast oprettet i ${system.name} — ${ref} · ${project.kunde}`, "success");
+  }
+
+  function downloadCsv() {
+    pushToast(`CSV med ${lineCount} linjer hentet (demo)`, "success");
+  }
+
+  return (
+    <section>
+      <div className="t-eyebrow mb-1">Fakturering</div>
+      <p className="text-[12.5px] text-[var(--ink-3)] mb-3 leading-[1.5]">
+        Send projektdata direkte til dit fakturasystem — eller hent som CSV. Beløb, kunde, postnr og produktlinjer udfyldes automatisk.
+      </p>
+
+      {/* Primary: connected system */}
+      {connected && (
+        <button
+          onClick={() => sendToSystem(connected)}
+          className="w-full flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)] hover:bg-[var(--accent-tint)] transition-colors text-left"
+        >
+          <div
+            className="size-10 rounded-md grid place-items-center font-bold text-[15px] shrink-0"
+            style={{ background: connected.bg, color: connected.ink }}
+          >
+            {connected.tag}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[13.5px] font-semibold text-[var(--ink)]">Send til {connected.name}</div>
+            <div className="text-[11.5px] text-[var(--ink-3)] truncate">
+              {lineCount} linjer · {total.toLocaleString("da-DK")} kr ekskl. moms · {project.kunde}
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#2D4A0F] bg-[#E1EFD2] px-2 py-1 rounded-full shrink-0">
+            <span className="size-1.5 rounded-full bg-[#5B7F2C]" />
+            Forbundet
+          </span>
+        </button>
+      )}
+
+      {/* Alternatives row */}
+      <div className="grid grid-cols-2 gap-2 mt-2">
+        <button
+          onClick={downloadCsv}
+          className="flex items-center justify-center gap-2 p-2.5 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--ink-3)] hover:bg-[var(--canvas-2)] transition-colors text-[12.5px] font-semibold text-[var(--ink-2)]"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+            <path d="M7 10l5 5 5-5" />
+            <path d="M12 15V3" />
+          </svg>
+          Hent CSV
+        </button>
+        <a
+          href="/partner/settings#fakturasystemer"
+          className="flex items-center justify-center gap-2 p-2.5 rounded-[var(--r-md)] border border-[var(--line-2)] hover:border-[var(--ink-3)] hover:bg-[var(--canvas-2)] transition-colors text-[12.5px] font-semibold text-[var(--ink-2)]"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 01-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 01-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 012.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 012.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z" />
+          </svg>
+          Skift system
+        </a>
+      </div>
+
+      {/* Other systems — surfaced inline if not connected, makes the
+          "yes you can switch" idea concrete instead of buried in settings. */}
+      {INVOICE_SYSTEMS.filter((s) => !s.connected).length > 0 && (
+        <details className="mt-3 group">
+          <summary className="text-[12px] font-semibold text-[var(--ink-3)] cursor-pointer hover:text-[var(--ink)] list-none flex items-center gap-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-open:rotate-90 transition-transform">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+            Andre fakturasystemer
+          </summary>
+          <ul className="mt-2 space-y-1.5">
+            {INVOICE_SYSTEMS.filter((s) => !s.connected).map((s) => (
+              <li key={s.id} className="flex items-center gap-3 p-2 rounded-[var(--r-md)]">
+                <div className="size-7 rounded-md grid place-items-center font-bold text-[12px] shrink-0" style={{ background: s.bg, color: s.ink }}>
+                  {s.tag}
+                </div>
+                <span className="flex-1 text-[12.5px] text-[var(--ink-2)]">{s.name}</span>
+                <a href="/partner/settings#fakturasystemer" className="text-[11.5px] font-semibold text-[var(--accent)] hover:underline shrink-0">
+                  Tilknyt
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
   );
 }
 
