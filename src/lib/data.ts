@@ -946,7 +946,8 @@ function buildPartnerSales(tier: Tier, faggruppe: Faggruppe, seed: number): Part
   const omsætningYoY = Math.round(((seed * 13) % 28) - 4);  // -4..+23
   const sagerYTD = Math.round((tier === "Guld" ? 180 : tier === "Sølv" ? 95 : 28) * (0.85 + ((seed % 20) / 100)));
   const sagerYoY = Math.round(((seed * 17) % 22) - 2);
-  const rabatPct = +(tier === "Guld" ? 14 : tier === "Sølv" ? 10 : 5).toFixed(0);
+  // Tier rabatter aligned with deck v1.1 + TierBenefitsDialog: 10/15/20 (Bronze/Sølv/Guld)
+  const rabatPct = +(tier === "Guld" ? 20 : tier === "Sølv" ? 15 : 10).toFixed(0);
   const rabatTotalDKK = Math.round(omsætning12mo * (rabatPct / 100));
   const kontaktOmkostningPerSag = tier === "Guld" ? 145 : tier === "Sølv" ? 220 : 310;
   const npsScore = tier === "Guld" ? 72 + (seed % 18) : tier === "Sølv" ? 48 + (seed % 22) : 22 + (seed % 28);
@@ -1418,6 +1419,37 @@ export interface Product {
   image?: string;        // optional /public/products/xxx.jpg path
   badge?: ProductBadge;  // NEW / OFFER / BLÅ PRIS — shown in product cards
   førpris?: string;      // when badge is OFFER — strikethrough price
+}
+
+/* Tier-based rabat the partner gets on Carl Ras varer. Single source of
+   truth — referenced by TierBenefitsDialog, salesFor(), product card
+   "Din pris" display, and the deck (pages 47–49 say 10/15/20).
+   Bronze 10, Sølv 15, Guld 20. */
+export const TIER_DISCOUNT_PCT: Record<Tier, number> = {
+  Bronze: 10,
+  Sølv:   15,
+  Guld:   20,
+};
+
+/* Parse a "3.737,50 kr" Danish price string back into a number, apply the
+   tier discount, and re-format. Returns { netDkk, netLabel, savingsDkk,
+   savingsLabel } or null if the input doesn't parse. */
+export function priceForTier(priceLabel: string, tier: Tier): {
+  netDkk: number;
+  netLabel: string;
+  savingsDkk: number;
+  savingsLabel: string;
+  pct: number;
+} | null {
+  // Strip "kr" + spaces, convert da-DK punctuation ("." thousands, "," decimal)
+  const cleaned = priceLabel.replace(/\s|kr/gi, "").replace(/\./g, "").replace(",", ".");
+  const list = Number(cleaned);
+  if (!isFinite(list) || list <= 0) return null;
+  const pct = TIER_DISCOUNT_PCT[tier];
+  const net = list * (1 - pct / 100);
+  const savings = list - net;
+  const fmt = (n: number) => n.toLocaleString("da-DK", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " kr";
+  return { netDkk: net, netLabel: fmt(net), savingsDkk: savings, savingsLabel: fmt(savings), pct };
 }
 
 export const PRODUCTS: Product[] = [

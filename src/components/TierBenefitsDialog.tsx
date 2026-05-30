@@ -26,7 +26,7 @@ interface BenefitRow {
   guld: string;
 }
 const BENEFITS: BenefitRow[] = [
-  { label: "Rabat på Carl Ras varer",       bronze: "5%",                  soelv: "12%",                              guld: "18%" },
+  { label: "Rabat på Carl Ras varer",       bronze: "10%",                 soelv: "15%",                              guld: "20%" },
   { label: "Certificeringer",                bronze: "Niveau 1 (selvbetalt)", soelv: "Niveau 1+2 gratis",              guld: "Alle inkl. premium-træning" },
   { label: "Lead-prioritet",                 bronze: "Standard",            soelv: "24t før Bronze",                   guld: "48t før Sølv" },
   { label: "Medie-budget dækket",            bronze: "—",                   soelv: "50% (op til 5.000 kr/md)",          guld: "70% (op til 12.000 kr/md)" },

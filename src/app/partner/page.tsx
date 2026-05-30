@@ -21,6 +21,8 @@ import {
   PARTNER_PERFORMANCE,
   PRODUCTS,
   CARL_RAS_KONSULENT,
+  TIER_DISCOUNT_PCT,
+  priceForTier,
   type ProductBadge,
 } from "@/lib/data";
 import { Radial, BarMini } from "@/components/Charts";
@@ -441,19 +443,28 @@ export default function PartnerDashboard() {
         </div>
       </section>
 
-      {/* ─── CARL RAS ANBEFALER (product push) ─── */}
+      {/* ─── CARL RAS ANBEFALER (product push) ───
+          Prices on the cards include the partner's tier rabat. Mads is
+          Sølv (15%), shown as "Din pris" + "Du sparer" below the listpris.
+          Single source of truth for the % is TIER_DISCOUNT_PCT in data.ts —
+          same value referenced by TierBenefitsDialog, salesFor() and the
+          deck (model v1.1). */}
       <section aria-label="Carl Ras anbefaler">
         <div className="flex items-baseline justify-between mb-5">
           <div>
             <h2 className="t-h2">Carl Ras anbefaler</h2>
-            <p className="t-caption mt-0.5">Udvalgte produkter til {theme.label.toLowerCase()} — direkte links til carl-ras.dk</p>
+            <p className="t-caption mt-0.5">
+              Udvalgte produkter til {theme.label.toLowerCase()} · {CURRENT_PARTNER.tier}-rabat {TIER_DISCOUNT_PCT[CURRENT_PARTNER.tier as Tier]}% er allerede regnet ind
+            </p>
           </div>
           <Link href="/partner/specialister" className="link text-[13px] inline-flex items-center gap-1">
             Få faglig sparring <ArrowRight />
           </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {PRODUCTS.map((p) => (
+          {PRODUCTS.map((p) => {
+            const tierPrice = priceForTier(p.pris, CURRENT_PARTNER.tier as Tier);
+            return (
             <a
               key={p.id}
               href={p.url}
@@ -486,7 +497,7 @@ export default function PartnerDashboard() {
                 </div>
               </div>
 
-              {/* BODY — clear hierarchy: brand → name → price + margin pinned bottom */}
+              {/* BODY — brand → name → tier-discounted price + savings line + resell-margin pinned bottom */}
               <div className="p-5 flex flex-col flex-1 border-t border-[var(--line-2)]">
                 <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--ink-3)]">{p.brand}</div>
                 <h3 className="text-[17px] font-semibold text-[var(--ink)] mt-1.5 leading-[1.3] tracking-[-0.005em] line-clamp-2 min-h-[44px]">
@@ -495,16 +506,31 @@ export default function PartnerDashboard() {
 
                 <div className="mt-auto pt-4 flex items-end justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="text-[19px] font-bold text-[var(--ink)] tabular-nums leading-none">{p.pris}</span>
-                      {p.førpris && (
-                        <span className="text-[12px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.førpris}</span>
-                      )}
-                    </div>
+                    {/* Tier price — what the partner actually pays. Listpris struck
+                        through next to it. If parsing failed we just show the
+                        original listpris (rare but defensive). */}
+                    {tierPrice ? (
+                      <>
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-[19px] font-bold text-[var(--ink)] tabular-nums leading-none">{tierPrice.netLabel}</span>
+                          <span className="text-[12px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.pris}</span>
+                        </div>
+                        <div className="text-[12px] text-[var(--accent)] font-semibold mt-1.5 tabular-nums">
+                          Du sparer {tierPrice.savingsLabel} · {CURRENT_PARTNER.tier}-rabat {tierPrice.pct}%
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-[19px] font-bold text-[var(--ink)] tabular-nums leading-none">{p.pris}</span>
+                        {p.førpris && (
+                          <span className="text-[12px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.førpris}</span>
+                        )}
+                      </div>
+                    )}
                     {p.margin && (
-                      <div className="text-[12px] text-[var(--ink-3)] mt-2 inline-flex items-center gap-1.5">
-                        <span className="size-1 rounded-full" style={{ background: "var(--accent)" }} />
-                        {p.margin}
+                      <div className="text-[11.5px] text-[var(--ink-3)] mt-2 inline-flex items-center gap-1.5">
+                        <span className="size-1 rounded-full" style={{ background: "var(--ink-3)" }} />
+                        Videresalgsmargin {p.margin.replace("partner", "").trim()}
                       </div>
                     )}
                   </div>
@@ -517,7 +543,7 @@ export default function PartnerDashboard() {
                 </div>
               </div>
             </a>
-          ))}
+          );})}
         </div>
       </section>
 
