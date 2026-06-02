@@ -38,12 +38,17 @@ export default function PartnerDashboard() {
   const [showKonsulentBook, setShowKonsulentBook] = useState(false);
   const [showTierBenefits, setShowTierBenefits] = useState(false);
 
-  // Tier-progression gradient: ring fades from current tier color to next tier color.
-  // For Guld (top tier) there's no next, so the ring stays solid gold.
+  // Tier-progression gradient. The ring should read as a journey: the START
+  // of the fill (top, where the bar began) is the tier you CAME FROM, and
+  // the LEADING edge (where progress has reached) is the tier you're HEADING
+  // to. With the Radial's -90° SVG rotation + clockwise stroke, gradientFrom
+  // paints the leading edge and gradientTo paints the start — so the labels
+  // are passed accordingly. Was reversed previously, which made the ring
+  // read as "going from gold to silver" — the opposite of the journey.
   const currentTier = CURRENT_PARTNER.tier as Tier;
   const nextTier: Tier | null = currentTier === "Bronze" ? "Sølv" : currentTier === "Sølv" ? "Guld" : null;
-  const tierFrom = TIER_COLOR[currentTier].ring;
-  const tierTo = nextTier ? TIER_COLOR[nextTier].ring : TIER_COLOR[currentTier].ring;
+  const tierFrom = nextTier ? TIER_COLOR[nextTier].ring : TIER_COLOR[currentTier].ring;  // leading edge — heading to
+  const tierTo = TIER_COLOR[currentTier].ring;                                            // start of fill — came from
 
   const myLeads = leads.filter((l) => l.partnerId === CURRENT_PARTNER.id);
   const newLeads = myLeads.filter((l) => l.status === "Ny");
