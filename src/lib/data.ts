@@ -592,7 +592,7 @@ export const SCENARIOS: Scenario[] = [
       pricing: {
         bot: [
           "Pr. enhed ≈ 4.924 kr ex. moms. For 25 enheder = 123.100 kr.",
-          "Med din Sølv-margin på ≈18% har du ~22.158 kr i partnerprovision på den her ordre. Hvis du opgraderer til Guld inden årsskiftet er det ≈24% = ~29.500 kr.",
+          "Med din videresalgsmargin på ≈18% har du ~22.158 kr i partnerprovision på den her ordre. Det er oveni din Sølv-tier-rabat på 15% når du køber hos Carl Ras.",
           "Vil du lægge hele pakken i kurven (×25 af hver) eller sende et færdigt tilbud til kunden?",
         ],
         chips: [
@@ -604,7 +604,7 @@ export const SCENARIOS: Scenario[] = [
       "pricing-private": {
         bot: [
           "Pr. enhed ≈ 3.951 kr ex. moms. For 25 enheder = 98.775 kr.",
-          "Din Sølv-margin på den her er ~17.780 kr.",
+          "Din videresalgsmargin på den her er ~17.780 kr.",
         ],
         chips: [
           { label: "Læg alt i kurv (×25)", action: { kind: "add-all", next: "after-basket" } },
