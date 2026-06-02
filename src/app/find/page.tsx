@@ -87,7 +87,7 @@ export default function FindPartnerPage() {
           <h1 className="t-display mt-3 max-w-[820px]">
             Lokal håndværker.
             <br />
-            <span className="text-[var(--ink-3)]">Godkendt af Carl Ras.</span>
+            <span className="text-[var(--ink-3)]">Anbefalet af Carl Ras.</span>
           </h1>
           <p className="t-body-lg mt-4 max-w-[560px]">
             Certificerede specialister i hele Danmark. Sammenlign, gem favoritter, kontakt direkte.
