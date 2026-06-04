@@ -157,22 +157,27 @@ export function DenmarkMap({ partners, selectedRegion = "Alle", onPick, onRegion
           );
         })}
 
-        {/* Hover label for partner pin */}
-        {hoverPartner && (
-          <g pointerEvents="none">
-            <rect
-              x={(REGION_POS[hoverPartner.region].cx) + 14}
-              y={(REGION_POS[hoverPartner.region].cy) - 14}
-              width="170"
-              height="40"
-              rx="8"
-              fill="white"
-              stroke="#E0E0E0"
-            />
-            <text x={REGION_POS[hoverPartner.region].cx + 22} y={REGION_POS[hoverPartner.region].cy + 2} fontSize="11" fontFamily="Inter" fontWeight="600" fill="#002D59">{hoverPartner.firma}</text>
-            <text x={REGION_POS[hoverPartner.region].cx + 22} y={REGION_POS[hoverPartner.region].cy + 16} fontSize="10" fontFamily="Inter" fill="#7A7A7A">{hoverPartner.by} · {hoverPartner.faggruppe}</text>
-          </g>
-        )}
+        {/* Hover label for partner pin.
+            Flips to the LEFT side of the pin when the pin is near the
+            right edge of the viewBox — otherwise the label overflows
+            the SVG and gets clipped by the parent container. Same logic
+            for top: nudge down if near the top edge. */}
+        {hoverPartner && (() => {
+          const pos = REGION_POS[hoverPartner.region];
+          const labelW = 170;
+          const labelH = 40;
+          const flipLeft = pos.cx + 14 + labelW > 590; // would overflow right edge
+          const x = flipLeft ? pos.cx - 14 - labelW : pos.cx + 14;
+          const y = Math.max(4, pos.cy - 14);
+          const textX = flipLeft ? x + 8 : x + 8;
+          return (
+            <g pointerEvents="none">
+              <rect x={x} y={y} width={labelW} height={labelH} rx="8" fill="white" stroke="#E0E0E0" />
+              <text x={textX} y={y + 16} fontSize="11" fontFamily="Inter" fontWeight="600" fill="#002D59">{hoverPartner.firma}</text>
+              <text x={textX} y={y + 30} fontSize="10" fontFamily="Inter" fill="#7A7A7A">{hoverPartner.by} · {hoverPartner.faggruppe}</text>
+            </g>
+          );
+        })()}
       </svg>
 
       {/* Top-right counter pill */}

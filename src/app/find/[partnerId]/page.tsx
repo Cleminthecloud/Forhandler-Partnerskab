@@ -90,6 +90,24 @@ function deriveAddress(p: PartnerProfile): string {
   return `${street} ${number}, ${p.postnr} ${p.by}`;
 }
 
+/* Cover photo — replaces the Unsplash CDN URLs in data.ts with our own
+   local sommerhus photos. Unsplash IDs were returning generic/wrong content
+   (computer screens, abstract shots) which broke the "local" feel. These
+   sommerhus images live in /public/campaigns and are tied to the partner's
+   trade so the visual makes sense. */
+function coverPhotoFor(p: PartnerProfile): string {
+  const map: Record<Faggruppe, string> = {
+    "Låsesmed":        "/campaigns/sommerhus-lock-pov.jpg",   // lock POV — relevant for locksmith
+    "Tømrer":          "/campaigns/sommerhus-family_wide.jpg",
+    "Elektriker":      "/campaigns/sommerhus-dusk.jpg",        // dusk lighting — electrical theme
+    "Maler":           "/campaigns/sommerhus-family_wide.jpg",
+    "VVS":             "/campaigns/sommerhus-family.jpg",
+    "Ejendomsservice": "/campaigns/sommerhus-family.jpg",
+    "Murer":           "/campaigns/sommerhus-family_wide.jpg",
+  };
+  return map[p.faggruppe];
+}
+
 /* Mock reviews — derived from region + faggruppe so they read locally true.
    Customer names + cities use the region's town pool. */
 function deriveReviews(p: PartnerProfile): { author: string; from: string; date: string; rating: number; body: string }[] {
@@ -225,6 +243,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
   const serviceArea = deriveServiceArea(p);
   const blurb = specialistBlurb(p);
   const reviewCount = Math.floor(p.antalSager * 0.6);
+  const cover = coverPhotoFor(p);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -254,31 +273,31 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
   return (
     <article>
       {/* ─── HERO COVER ──────────────────────────────────────────────
-         Local-area cover photo (already in partner.coverImage). Subtle
-         gradient bottom so the next section sits on a softer edge.
-         Back link floats on top so it doesn't push the hero down. */}
+         Local sommerhus photo from /public/campaigns — controlled assets,
+         so the visual always fits the trade (lock POV for låsesmed, dusk
+         for elektriker, etc). Strong bottom gradient + the identity row
+         sits ENTIRELY BELOW the cover (Twitter/LinkedIn pattern) so the
+         company name is always on a white background — never overlapping
+         the photo. Just the portrait avatar floats up to overlap. */}
       <section className="relative bg-[var(--canvas-2)]">
-        <div className="relative h-[280px] sm:h-[340px] lg:h-[380px] overflow-hidden">
-          {p.coverImage ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={p.coverImage} alt="" className="absolute inset-0 size-full object-cover" />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)] to-[var(--cr-navy-deep)]" />
-          )}
-          {/* Bottom gradient for legibility + soft transition */}
-          <div className="absolute inset-x-0 bottom-0 h-[120px] bg-gradient-to-t from-black/40 to-transparent" />
+        <div className="relative h-[220px] sm:h-[280px] lg:h-[320px] overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={cover} alt="" className="absolute inset-0 size-full object-cover" />
+          {/* Stronger bottom gradient so the avatar pops + visual transition */}
+          <div className="absolute inset-x-0 bottom-0 h-[140px] bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
           {/* Back link — floats top-left, blurred pill so it reads on any photo */}
           <Link
             href="/find"
-            className="absolute top-5 left-5 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/90 backdrop-blur-md text-[13px] font-semibold text-[var(--ink)] shadow-[0_2px_8px_rgba(0,0,0,0.12)] hover:bg-white transition-colors"
+            className="absolute top-5 left-5 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md text-[13px] font-semibold text-[var(--ink)] shadow-[0_2px_8px_rgba(0,0,0,0.12)] hover:bg-white transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Tilbage til søgning
           </Link>
 
-          {/* Local-area caption — bottom-right, subtle */}
-          <div className="absolute bottom-5 right-5 text-white/85 text-[12px] font-medium tracking-wide drop-shadow">
+          {/* Local-area caption — bottom-right on the photo, sits on the
+              gradient so it's always readable */}
+          <div className="absolute bottom-4 right-5 text-white text-[12px] font-semibold tracking-wide drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
             {p.by} · {p.region}
           </div>
         </div>
@@ -286,22 +305,28 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
 
       <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8">
         {/* ─── IDENTITY ROW ─────────────────────────────────────────
-           Owner portrait overlaps the hero bottom (Airbnb host pattern).
-           Company name + badges sit beside the portrait. */}
-        <header className="-mt-12 sm:-mt-14 flex flex-wrap items-end gap-5 sm:gap-6 relative z-10">
-          {p.ejerPortrait ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={p.ejerPortrait}
-              alt={p.ejer}
-              className="size-24 sm:size-28 rounded-2xl object-cover shrink-0 ring-4 ring-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
-            />
-          ) : (
-            <div className="size-24 sm:size-28 rounded-2xl ring-4 ring-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] grid place-items-center text-white font-semibold text-[28px] shrink-0" style={{ background: p.logoBg }}>
-              {p.initialer}
-            </div>
-          )}
-          <div className="flex-1 min-w-[260px] pb-1">
+           Twitter/LinkedIn pattern: only the portrait avatar overlaps
+           the cover. Everything textual sits BELOW the cover on white,
+           never overlapping the photo. */}
+        <header className="relative z-10">
+          {/* Portrait — floats upward to overlap the cover by ~52px */}
+          <div className="-mt-[52px] sm:-mt-[64px]">
+            {p.ejerPortrait ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={p.ejerPortrait}
+                alt={p.ejer}
+                className="size-24 sm:size-28 rounded-2xl object-cover ring-4 ring-white shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+              />
+            ) : (
+              <div className="size-24 sm:size-28 rounded-2xl ring-4 ring-white shadow-[0_8px_24px_rgba(0,0,0,0.14)] grid place-items-center text-white font-semibold text-[28px]" style={{ background: p.logoBg }}>
+                {p.initialer}
+              </div>
+            )}
+          </div>
+
+          {/* Company info — fully below the cover, on white */}
+          <div className="mt-4">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-[28px] sm:text-[34px] font-semibold tracking-tight text-[var(--ink)]">{p.firma}</h1>
               <span className="text-[12px] font-semibold px-2.5 py-1 rounded-full" style={{
@@ -383,7 +408,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                     title={c.titel}
                     body={c.body}
                     price={c.pris}
-                    coverFallback={p.coverImage}
+                    coverFallback={cover}
                     index={i}
                   />
                 ))}
@@ -417,21 +442,28 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 Dækker bl.a. {serviceArea.towns.slice(0, 3).join(", ")} og {serviceArea.towns[3]}.
               </p>
 
-              <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_320px]">
-                <div className="card !p-3">
-                  <DenmarkMap partners={[p]} selectedRegion={p.region} />
-                </div>
-                <div className="card !p-5 space-y-3">
-                  <div className="t-eyebrow text-[var(--accent)]">DÆKKEDE BYER</div>
-                  <ul className="space-y-2">
-                    {serviceArea.towns.map((t) => (
-                      <li key={t} className="flex items-center gap-2 text-[14px] text-[var(--ink-2)]">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)] shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        {t}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {/* Map FILLS the section width — the partner pin's tooltip
+                  is clipped when the map is in a narrow column. Town list
+                  moves below as a horizontal chip row instead of a sidebar. */}
+              <div className="mt-5 card !p-3">
+                <DenmarkMap partners={[p]} selectedRegion={p.region} />
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] py-1.5 mr-1">
+                  Dækker:
+                </span>
+                {serviceArea.towns.map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-1.5 text-[13px] px-3 py-1.5 rounded-full bg-[var(--canvas-2)] text-[var(--ink-2)] font-medium"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent)] shrink-0">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {t}
+                  </span>
+                ))}
               </div>
             </section>
 

@@ -28,10 +28,11 @@ const FAG_ICONS: Record<Faggruppe, string> = {
 };
 
 function coverFor(p: PartnerProfile, idx: number): string {
-  // Prefer the partner's own cover photo (trade-scene from data layer)
-  if (p.coverImage) return p.coverImage;
-  // Fallback to themed sommerhus stock
-  if (p.faggruppe === "Låsesmed") return COVER_IMAGES[2];
+  // Use local sommerhus stock per-trade — the Unsplash CDN URLs in the
+  // data layer were returning generic/unrelated content (computer screens,
+  // abstract shots), which broke the "local" feel. The local images in
+  // /public/campaigns are sommerhus-themed and always render correctly.
+  if (p.faggruppe === "Låsesmed") return COVER_IMAGES[2];        // lock POV
   if (p.faggruppe === "Tømrer" || p.faggruppe === "Murer") return COVER_IMAGES[0];
   if (p.faggruppe === "VVS" || p.faggruppe === "Ejendomsservice") return COVER_IMAGES[1];
   return COVER_IMAGES[idx % COVER_IMAGES.length];
