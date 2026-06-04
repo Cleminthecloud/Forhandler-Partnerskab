@@ -90,22 +90,29 @@ function deriveAddress(p: PartnerProfile): string {
   return `${street} ${number}, ${p.postnr} ${p.by}`;
 }
 
-/* Cover photo — replaces the Unsplash CDN URLs in data.ts with our own
-   local sommerhus photos. Unsplash IDs were returning generic/wrong content
-   (computer screens, abstract shots) which broke the "local" feel. These
-   sommerhus images live in /public/campaigns and are tied to the partner's
-   trade so the visual makes sense. */
+/* Region-mapped Danish cover photos from Unsplash. Each photo was hand-
+   picked from Unsplash search results for the relevant region (Skagen
+   lighthouse for Nordjylland, Bornholm rocks for Bornholm, Nyhavn for
+   Hovedstaden, etc.). Loaded from images.unsplash.com directly — the
+   user's browser fetches them at runtime.
+
+   Why region-based instead of faggruppe-based: a Hornbæk locksmith and a
+   Hornbæk tømrer should both show a Nordsjælland coastal scene. Trade is
+   secondary; location is the dominant trust signal here. */
+const REGION_COVER_IDS: Record<Region, string> = {
+  "Nordsjælland":    "mDceqGnb8Ps", // beach with grassy hill — Nordsjælland coast
+  "Hovedstaden":     "PAMKahnLhd0", // Nyhavn canal at sunrise — Copenhagen
+  "Vestkysten":      "DR6SFVhkZtI", // sun setting over ocean — west coast
+  "Bornholm":        "jcRIu_D1dfs", // brown rock formation on sea — Bornholm cliffs
+  "Lolland-Falster": "kJv05ClK57k", // grass field near water — quiet Sydhavsøerne
+  "Fyn":             "x8dgFTYbGOw", // trees and house — Fyn countryside
+  "Østjylland":      "imLsDPLnr7Y", // top view of houses in landscape — Aarhus area
+  "Nordjylland":     "WlQg8uCFVu0", // lighthouse — Skagen
+};
+
 function coverPhotoFor(p: PartnerProfile): string {
-  const map: Record<Faggruppe, string> = {
-    "Låsesmed":        "/campaigns/sommerhus-lock-pov.jpg",   // lock POV — relevant for locksmith
-    "Tømrer":          "/campaigns/sommerhus-family_wide.jpg",
-    "Elektriker":      "/campaigns/sommerhus-dusk.jpg",        // dusk lighting — electrical theme
-    "Maler":           "/campaigns/sommerhus-family_wide.jpg",
-    "VVS":             "/campaigns/sommerhus-family.jpg",
-    "Ejendomsservice": "/campaigns/sommerhus-family.jpg",
-    "Murer":           "/campaigns/sommerhus-family_wide.jpg",
-  };
-  return map[p.faggruppe];
+  const id = REGION_COVER_IDS[p.region];
+  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=80`;
 }
 
 /* Mock reviews — derived from region + faggruppe so they read locally true.

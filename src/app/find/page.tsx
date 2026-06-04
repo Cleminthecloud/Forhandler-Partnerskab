@@ -6,12 +6,22 @@ import { THEMES, ThemeId } from "@/lib/themes";
 import { useTheme } from "@/components/ThemeProvider";
 import { DenmarkMap } from "@/components/DenmarkMap";
 
-const COVER_IMAGES = [
-  "/campaigns/sommerhus-family.jpg",
-  "/campaigns/sommerhus-dusk.jpg",
-  "/campaigns/sommerhus-lock-pov.jpg",
-  "/campaigns/sommerhus-family_wide.jpg",
-];
+/* Region-mapped Danish cover photos from Unsplash — same set as the
+   partner profile page so the listing thumbnail matches the profile hero.
+   Loaded from images.unsplash.com at runtime; the user's browser fetches
+   them directly (CDN-cached, fast). */
+const REGION_COVER_IDS: Record<Region, string> = {
+  "Nordsjælland":    "mDceqGnb8Ps",
+  "Hovedstaden":     "PAMKahnLhd0",
+  "Vestkysten":      "DR6SFVhkZtI",
+  "Bornholm":        "jcRIu_D1dfs",
+  "Lolland-Falster": "kJv05ClK57k",
+  "Fyn":             "x8dgFTYbGOw",
+  "Østjylland":      "imLsDPLnr7Y",
+  "Nordjylland":     "WlQg8uCFVu0",
+};
+const unsplash = (id: string, w = 900) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 const FAGGRUPPER: Array<"Alle" | Faggruppe> = ["Alle", "Låsesmed", "Tømrer", "Elektriker", "VVS", "Maler", "Ejendomsservice", "Murer"];
 const REGIONS: Array<"Alle" | Region> = ["Alle", "Nordsjælland", "Vestkysten", "Bornholm", "Lolland-Falster", "Hovedstaden", "Østjylland", "Nordjylland", "Fyn"];
@@ -27,15 +37,13 @@ const FAG_ICONS: Record<Faggruppe, string> = {
   "Murer":            "M3 7h7v4H3zM10 11h7v4h-7zM3 11h7v4H3zM10 7h7v4h-7zM3 15h7v4H3zM10 15h7v4h-7z",
 };
 
-function coverFor(p: PartnerProfile, idx: number): string {
-  // Use local sommerhus stock per-trade — the Unsplash CDN URLs in the
-  // data layer were returning generic/unrelated content (computer screens,
-  // abstract shots), which broke the "local" feel. The local images in
-  // /public/campaigns are sommerhus-themed and always render correctly.
-  if (p.faggruppe === "Låsesmed") return COVER_IMAGES[2];        // lock POV
-  if (p.faggruppe === "Tømrer" || p.faggruppe === "Murer") return COVER_IMAGES[0];
-  if (p.faggruppe === "VVS" || p.faggruppe === "Ejendomsservice") return COVER_IMAGES[1];
-  return COVER_IMAGES[idx % COVER_IMAGES.length];
+function coverFor(p: PartnerProfile): string {
+  // Region-mapped Danish photo — each partner gets a cover that visually
+  // matches their region (Bornholm cliffs for Bornholm partners, Nyhavn
+  // for Hovedstaden, etc.). Location is the dominant trust signal here
+  // so we lean on region over trade.
+  const id = REGION_COVER_IDS[p.region];
+  return unsplash(id, 900);
 }
 
 export default function FindPartnerPage() {
@@ -341,7 +349,7 @@ export default function FindPartnerPage() {
               >
                 <PartnerCard
                   partner={p}
-                  cover={coverFor(p, idx)}
+                  cover={coverFor(p)}
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFav(p.id)}
                 />

@@ -1,8 +1,31 @@
 "use client";
 import { useState } from "react";
-import { CURRENT_PARTNER, salesFor } from "@/lib/data";
+import Link from "next/link";
+import { CURRENT_PARTNER, Region, salesFor } from "@/lib/data";
 import { useApp } from "@/components/AppState";
 import { PageHeader } from "@/components/PageHeader";
+
+/* Region-mapped Unsplash cover photos — same map as /find and /find/[partnerId]
+   so the partner's preview here matches exactly what customers see. */
+const REGION_COVER_IDS: Record<Region, string> = {
+  "Nordsjælland":    "mDceqGnb8Ps",
+  "Hovedstaden":     "PAMKahnLhd0",
+  "Vestkysten":      "DR6SFVhkZtI",
+  "Bornholm":        "jcRIu_D1dfs",
+  "Lolland-Falster": "kJv05ClK57k",
+  "Fyn":             "x8dgFTYbGOw",
+  "Østjylland":      "imLsDPLnr7Y",
+  "Nordjylland":     "WlQg8uCFVu0",
+};
+
+/* Deterministic 8-digit CVR — same derivation as the find profile so the
+   number shown here matches the public listing exactly. */
+function deriveCVR(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = ((h << 5) - h) + id.charCodeAt(i);
+  const seven = Math.abs(h % 9_000_000) + 1_000_000;
+  return `${(Math.abs(h) % 8) + 2}${seven}`;
+}
 
 export default function PartnerProfilePage() {
   const { pushToast } = useApp();
@@ -17,6 +40,19 @@ export default function PartnerProfilePage() {
   const [beskrivelse, setBeskrivelse] = useState(CURRENT_PARTNER.beskrivelse);
   const [specialer,   setSpecialer]   = useState<string[]>(CURRENT_PARTNER.specialer);
   const [newSpec,     setNewSpec]     = useState("");
+
+  // Public-profile fields that mirror /find/[partnerId]. Locally editable
+  // so the partner can manage what customers see. Initial values match the
+  // deterministic defaults that the public page synthesizes.
+  const [gade,         setGade]         = useState("Hovedgade 23");
+  const [hoursMonFri,  setHoursMonFri]  = useState("07:00 – 17:00");
+  const [hoursLor,     setHoursLor]     = useState("09:00 – 13:00");
+  const [hoursSon,     setHoursSon]     = useState("Lukket");
+  const [vagttelefon,  setVagttelefon]  = useState("Ja, akut udrykning udenfor åbningstid");
+
+  const coverId = REGION_COVER_IDS[CURRENT_PARTNER.region];
+  const coverUrl = `https://images.unsplash.com/photo-${coverId}?auto=format&fit=crop&w=1200&q=80`;
+  const cvr = deriveCVR(CURRENT_PARTNER.id);
 
   function addSpec() {
     const t = newSpec.trim();
@@ -50,6 +86,111 @@ export default function PartnerProfilePage() {
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* LEFT — editable form */}
         <div className="space-y-5">
+          {/* OFFENTLIG PROFIL — mirrors carl-ras.dk/find/[partnerId] so the
+              partner can manage exactly what customers see. Sits at the top
+              because it's the highest-value section (drives leads). */}
+          <section className="card">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <div className="text-[15px] font-semibold text-[var(--ink)]">Offentlig profil</div>
+                <div className="text-[11.5px] text-[var(--ink-3)] mt-1">Sådan ser kunderne dig på carl-ras.dk/find</div>
+              </div>
+              <Link
+                href={`/find/${CURRENT_PARTNER.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--accent)] hover:underline shrink-0 mt-0.5"
+              >
+                Se offentlig profil
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17l10-10M7 7h10v10"/></svg>
+              </Link>
+            </div>
+
+            {/* Cover photo preview + change. Currently region-mapped (auto),
+                with an upload hint for the future. */}
+            <div className="mb-5">
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Coverbillede</label>
+              <div className="relative aspect-[16/6] rounded-lg overflow-hidden bg-[var(--canvas-2)] border border-[var(--line-2)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={coverUrl} alt="" className="absolute inset-0 size-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                <div className="absolute bottom-2 left-3 text-white text-[11px] font-semibold tracking-wide drop-shadow">
+                  {CURRENT_PARTNER.by} · {CURRENT_PARTNER.region}
+                </div>
+                <button
+                  onClick={() => pushToast("Cover-upload kommer snart")}
+                  className="absolute top-2 right-2 inline-flex items-center gap-1.5 text-[11.5px] font-semibold px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur text-[var(--ink)] shadow-[0_2px_8px_rgba(0,0,0,0.12)] hover:bg-white transition-colors"
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8l9-5 9 5M3 16l9 5 9-5"/></svg>
+                  Skift coverbillede
+                </button>
+              </div>
+              <div className="text-[11.5px] text-[var(--ink-3)] mt-2">
+                Vi viser et regionsspecifikt billede som standard. Upload dit eget for at vise lokal forankring — fx en arbejdsscene fra et nyligt projekt.
+              </div>
+            </div>
+
+            {/* Owner portrait */}
+            <div className="mb-5">
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Portræt af ejer / kontaktperson</label>
+              <div className="flex items-center gap-4">
+                {CURRENT_PARTNER.ejerPortrait ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={CURRENT_PARTNER.ejerPortrait}
+                    alt={CURRENT_PARTNER.ejer}
+                    className="size-16 rounded-2xl object-cover ring-2 ring-white shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                  />
+                ) : (
+                  <div className="size-16 rounded-2xl grid place-items-center text-white font-semibold text-[20px]" style={{ background: CURRENT_PARTNER.logoBg }}>
+                    {CURRENT_PARTNER.initialer}
+                  </div>
+                )}
+                <button
+                  onClick={() => pushToast("Portræt-upload kommer snart")}
+                  className="btn btn-secondary !py-1.5"
+                >
+                  Skift portræt
+                </button>
+              </div>
+              <div className="text-[11.5px] text-[var(--ink-3)] mt-2">
+                Et tydeligt ansigt skaber tillid. Brug et nyt foto i godt lys, ikke et logo.
+              </div>
+            </div>
+
+            {/* Address row */}
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_1fr] gap-4 mb-4">
+              <Field label="Gadeadresse" value={gade} onChange={setGade} />
+              <Field label="Postnr" value={CURRENT_PARTNER.postnr} onChange={() => undefined} disabled />
+              <Field label="By" value={CURRENT_PARTNER.by} onChange={() => undefined} disabled />
+            </div>
+            <div className="text-[11.5px] text-[var(--ink-3)] -mt-1 mb-5 flex items-center gap-1.5">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg>
+              Adressen vises offentligt med link til Google Maps.
+            </div>
+
+            {/* CVR — read-only, sourced from CVR-registret */}
+            <div className="mb-5">
+              <Field label="CVR (fra Virk.dk)" value={cvr} onChange={() => undefined} disabled />
+              <div className="text-[11.5px] text-[var(--ink-3)] mt-1.5">
+                Hentes automatisk fra Virk.dk når du bliver godkendt af Carl Ras.
+              </div>
+            </div>
+
+            {/* Opening hours */}
+            <div>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-2">Åbningstider</label>
+              <div className="space-y-2">
+                <HoursField day="Mandag – fredag" value={hoursMonFri} onChange={setHoursMonFri} />
+                <HoursField day="Lørdag" value={hoursLor} onChange={setHoursLor} />
+                <HoursField day="Søndag" value={hoursSon} onChange={setHoursSon} />
+              </div>
+              <div className="mt-3">
+                <Field label="Vagttelefon (akut udrykning)" value={vagttelefon} onChange={setVagttelefon} />
+              </div>
+            </div>
+          </section>
+
           {/* Identity */}
           <section className="card">
             <SectionHeader title="Forretningen" hint="Vises på din /find-profil og i co-brandede ad-materialer" />
@@ -220,6 +361,21 @@ function Field({ label, value, onChange, multiline = false, disabled = false, ty
           className="field !text-[13.5px] disabled:opacity-60"
         />
       )}
+    </div>
+  );
+}
+
+function HoursField({ day, value, onChange }: { day: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-[13px] text-[var(--ink-2)] w-[140px] shrink-0">{day}</span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="field !text-[13px] !py-1.5 flex-1"
+        placeholder="07:00 – 17:00 eller Lukket"
+      />
     </div>
   );
 }
