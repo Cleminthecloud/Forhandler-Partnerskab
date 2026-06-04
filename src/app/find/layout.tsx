@@ -4,7 +4,10 @@ import { DemoTopBar } from "@/components/Shell";
 export default function FindLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <CarlRasHeader />
+      {/* Non-sticky on /find — let the carl-ras.dk chrome scroll away
+          and our search bar take over the sticky slot. Header still
+          renders at the top, just doesn't pin. */}
+      <CarlRasHeader sticky={false} />
       {/* Floating demo control — keeps the carl-ras.dk illusion intact.
           Hidden on mobile because it overlaps the carl-ras.dk-style header.
           Mobile users can switch persona via the hamburger menu inside the

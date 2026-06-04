@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { PARTNERS, Region, Faggruppe, PartnerProfile } from "@/lib/data";
 import { THEMES, ThemeId } from "@/lib/themes";
@@ -47,6 +47,24 @@ export default function FindPartnerPage() {
   const [sort, setSort] = useState<"naer" | "rating" | "sager">("naer");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
+  // Sticky search bar condenses (smaller padding, faggruppe strip
+  // compresses) once the user scrolls past the hero. Apple/Linear pattern:
+  // gives the bar a "wake-up" feel and reclaims real estate. Driven by an
+  // IntersectionObserver on a sentinel element just below the hero so we
+  // don't read window.scrollY on every event.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [condensed, setCondensed] = useState(false);
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setCondensed(!entry.isIntersecting),
+      { rootMargin: "0px 0px -80% 0px" } // fires when sentinel is near the viewport top
+    );
+    io.observe(sentinel);
+    return () => io.disconnect();
+  }, []);
+
   // Lock background scroll while the Airbnb-style search modal is open.
   // Without this, the page underneath scrolls when you swipe inside the
   // modal — and Safari can also momentarily reveal the CarlRasHeader at
@@ -69,6 +87,35 @@ export default function FindPartnerPage() {
     if (sort === "sager")  r.sort((a, b) => b.antalSager - a.antalSager);
     return r;
   }, [fag, region, postnr, sort]);
+
+  // Filter signature — used as part of each card's React key so the cards
+  // unmount + remount when filters change, re-firing the card-rise-in
+  // entrance animation. Cheap to compute, 4 string concats.
+  const filterSig = `${tema}-${fag}-${region}-${postnr}-${sort}`;
+
+  // Faggruppe tab items — shared by both mobile + desktop strips so the
+  // sliding underline (FagTabStrip) has a single source of truth.
+  const fagTabItems: FagTabItem[] = [
+    {
+      id: "Alle",
+      label: "Alle",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18" />
+        </svg>
+      ),
+    },
+    ...(FAGGRUPPER.filter((f) => f !== "Alle") as Faggruppe[]).map<FagTabItem>((f) => ({
+      id: f,
+      label: f,
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d={FAG_ICONS[f]} />
+        </svg>
+      ),
+    })),
+  ];
 
   function toggleFav(id: string) {
     setFavorites((prev) => {
@@ -103,6 +150,10 @@ export default function FindPartnerPage() {
         </div>
       </section>
 
+      {/* Sentinel — when this scrolls out of the viewport (i.e. user has
+          scrolled past the hero), the sticky search bar condenses. */}
+      <div ref={sentinelRef} aria-hidden="true" />
+
       {/* MOBILE: Airbnb-style search trigger — single pill that opens a
           full-screen modal with the Hvad/Hvor/Hvem filters. Replaces the
           5-column form below which won't fit on a phone. NOT sticky on
@@ -136,30 +187,14 @@ export default function FindPartnerPage() {
           </span>
         </button>
 
-        {/* Faggruppe icon strip — horizontal scroll on mobile, same as desktop */}
-        <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 -mx-2 px-2 scrollbar-hidden">
-          <button
-            onClick={() => setFag("Alle")}
-            className={"flex flex-col items-center gap-1 px-3 py-2 rounded-lg shrink-0 transition-colors " +
-              (fag === "Alle" ? "border-b-2 border-[var(--ink)] text-[var(--ink)]" : "border-b-2 border-transparent text-[var(--ink-3)]")}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18"/></svg>
-            <span className="text-[12px] font-medium whitespace-nowrap">Alle</span>
-          </button>
-          {(FAGGRUPPER.filter((f) => f !== "Alle") as Faggruppe[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFag(f)}
-              className={"flex flex-col items-center gap-1 px-3 py-2 rounded-lg shrink-0 transition-colors " +
-                (fag === f ? "border-b-2 border-[var(--ink)] text-[var(--ink)]" : "border-b-2 border-transparent text-[var(--ink-3)]")}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d={FAG_ICONS[f]} />
-              </svg>
-              <span className="text-[12px] font-medium whitespace-nowrap">{f}</span>
-            </button>
-          ))}
-        </div>
+        {/* Faggruppe icon strip — mobile. Sliding-underline tab pattern
+            via FagTabStrip. */}
+        <FagTabStrip
+          items={fagTabItems}
+          activeId={fag}
+          onChange={(id) => setFag(id as "Alle" | Faggruppe)}
+          className="mt-3 scrollbar-hidden"
+        />
       </div>
 
       {/* MOBILE: Airbnb-style full-screen search modal */}
@@ -175,8 +210,31 @@ export default function FindPartnerPage() {
       )}
 
       {/* Sticky search + faggruppe-chips strip — DESKTOP ONLY now */}
-      <div className="hidden md:block sticky top-[143px] z-20 bg-white/95 backdrop-blur-md border-y border-[var(--line-2)]">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-10 py-3">
+      {/* Sticky search + faggruppe chips — pins to top-0 now that the
+          CarlRasHeader scrolls away (sticky={false} in /find layout).
+          One single sticky surface, no stacked stickies, no jump.
+
+          Condense behavior: when the user scrolls past the hero, the
+          outer padding tightens and the faggruppe strip compresses, so
+          the bar reclaims ~30px of vertical real estate. Transitions
+          ease over 280ms — Apple-style chrome that wakes up on scroll. */}
+      <div
+        className={
+          "hidden md:block sticky top-0 z-20 bg-white/95 backdrop-blur-md border-y border-[var(--line-2)] shadow-[0_2px_8px_rgba(0,26,51,0.04)] " +
+          (condensed ? "find-sticky-condensed" : "")
+        }
+        style={{
+          transition: "padding 280ms cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      >
+        <div
+          className="mx-auto max-w-[1440px] px-6 lg:px-10"
+          style={{
+            paddingTop: condensed ? 8 : 12,
+            paddingBottom: condensed ? 6 : 12,
+            transition: "padding 280ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
           {/* Search bar */}
           <form onSubmit={(e) => e.preventDefault()} className="bg-[var(--canvas)] rounded-full border border-[var(--line)] shadow-[0_4px_16px_rgba(0,26,51,0.04)] flex items-center divide-x divide-[var(--line-2)] hover:shadow-[0_6px_20px_rgba(0,26,51,0.08)] transition-shadow">
             <SearchField label="Hvad" className="rounded-l-full">
@@ -219,29 +277,26 @@ export default function FindPartnerPage() {
             .search-input::placeholder { color: var(--ink-4); font-weight: 400; }
           `}</style>
 
-          {/* Faggruppe icon strip — Airbnb category style */}
-          <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 -mx-2 px-2">
-            <button
-              onClick={() => setFag("Alle")}
-              className={"flex flex-col items-center gap-1 px-3 py-2 rounded-lg shrink-0 transition-colors " +
-                (fag === "Alle" ? "border-b-2 border-[var(--ink)] text-[var(--ink)]" : "border-b-2 border-transparent text-[var(--ink-3)] hover:text-[var(--ink)]")}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18"/></svg>
-              <span className="text-[12px] font-medium whitespace-nowrap">Alle</span>
-            </button>
-            {(FAGGRUPPER.filter((f) => f !== "Alle") as Faggruppe[]).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFag(f)}
-                className={"flex flex-col items-center gap-1 px-3 py-2 rounded-lg shrink-0 transition-colors " +
-                  (fag === f ? "border-b-2 border-[var(--ink)] text-[var(--ink)]" : "border-b-2 border-transparent text-[var(--ink-3)] hover:text-[var(--ink)]")}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={FAG_ICONS[f]} />
-                </svg>
-                <span className="text-[12px] font-medium whitespace-nowrap">{f}</span>
-              </button>
-            ))}
+          {/* Faggruppe icon strip — desktop. Sliding-underline pattern
+              via FagTabStrip — shared component, one source of truth.
+              When the bar is condensed (scrolled past hero), the strip
+              compresses: icons shrink, top margin halves. */}
+          <div
+            style={{
+              maxHeight: condensed ? 36 : 64,
+              opacity: 1,
+              overflow: "hidden",
+              transition:
+                "max-height 280ms cubic-bezier(0.22, 1, 0.36, 1), margin-top 280ms cubic-bezier(0.22, 1, 0.36, 1)",
+              marginTop: condensed ? 4 : 12,
+            }}
+          >
+            <FagTabStrip
+              items={fagTabItems}
+              activeId={fag}
+              onChange={(id) => setFag(id as "Alle" | Faggruppe)}
+              compact={condensed}
+            />
           </div>
         </div>
       </div>
@@ -250,7 +305,9 @@ export default function FindPartnerPage() {
       <section className="mx-auto max-w-[1440px] px-6 lg:px-10 py-10">
         <div className="flex flex-wrap items-baseline justify-between gap-3 mb-6">
           <div>
-            <h2 className="t-h2">{filtered.length} partnere matcher</h2>
+            <h2 className="t-h2">
+              <CountUp value={filtered.length} /> partnere matcher
+            </h2>
             <p className="t-caption mt-1">Carl Ras-certificerede · {region === "Alle" ? "hele Danmark" : region}</p>
           </div>
           <div className="flex items-center gap-3">
@@ -264,23 +321,38 @@ export default function FindPartnerPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          {/* Gallery grid */}
+          {/* Gallery grid. The filter signature is part of the key on each
+              card wrapper so the cards re-mount when a filter changes — that
+              re-fires the card-rise-in animation and gives the grid an
+              "alive" feel instead of a static pop. Only the first 8 cards
+              get staggered delay (40ms each) so large result sets don't
+              stall behind the cascade. */}
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
             {filtered.map((p, idx) => (
-              <PartnerCard
-                key={p.id}
-                partner={p}
-                cover={coverFor(p, idx)}
-                isFav={favorites.has(p.id)}
-                onToggleFav={() => toggleFav(p.id)}
-              />
+              <div
+                key={`${p.id}__${filterSig}`}
+                className="card-rise-in"
+                style={{ animationDelay: idx < 8 ? `${idx * 40}ms` : "0ms" }}
+              >
+                <PartnerCard
+                  partner={p}
+                  cover={coverFor(p, idx)}
+                  isFav={favorites.has(p.id)}
+                  onToggleFav={() => toggleFav(p.id)}
+                />
+              </div>
             ))}
           </div>
 
-          {/* Right rail — sticky map */}
-          <aside className="lg:sticky lg:top-[280px] self-start space-y-4">
+          {/* Right rail — sticky map. Sits just under the sticky search
+              strip (which is ~160px tall on desktop). +16px buffer. */}
+          <aside className="lg:sticky lg:top-[176px] self-start space-y-4">
             <div className="card !p-3">
-              <DenmarkMap partners={filtered} selectedRegion={region} />
+              <DenmarkMap
+                partners={filtered}
+                selectedRegion={region}
+                onRegionClick={(r) => setRegion(r)}
+              />
             </div>
 
             <div className="card !p-5">
@@ -338,7 +410,14 @@ function PartnerCard({ partner, cover, isFav, onToggleFav }: { partner: PartnerP
   return (
     <Link
       href={`/find/${partner.id}`}
-      className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-3)]"
+      className="group block bg-[var(--canvas)] rounded-[var(--r-xl)] overflow-hidden hover:-translate-y-1 hover:shadow-[var(--shadow-3)]"
+      style={{
+        // Apple/Linear ease-out — pairs with the rest of the app's motion.
+        // Hover transition is split out so transform AND shadow ease together
+        // (transition-all picks up unwanted properties like animation).
+        transition:
+          "transform 240ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms cubic-bezier(0.22, 1, 0.36, 1)",
+      }}
     >
       {/* Hero photo */}
       <div className="relative aspect-[4/3] overflow-hidden">
@@ -413,6 +492,138 @@ function PartnerCard({ partner, cover, isFav, onToggleFav }: { partner: PartnerP
         </div>
       </div>
     </Link>
+  );
+}
+
+/* Faggruppe tab strip — Apple/Stripe-style sliding underline.
+   ONE shared underline lives at the bottom of the strip and translateX +
+   resizes to whichever tab is active. This is the "premium" tab pattern
+   used by Linear, Stripe, Notion, iOS Settings.
+
+   Implementation: each tab gets a ref via the refs Map. After render we
+   measure the active tab's offsetLeft + offsetWidth (relative to the
+   strip), store them in state, and the underline animates to those
+   coords with cubic-bezier(.22,1,.36,1).
+
+   The strip also debounces re-measure on window resize so the underline
+   tracks correctly across viewport changes.
+
+   The component accepts arbitrary tab data — keeps the rendering
+   declarative. Used by both the mobile + desktop faggruppe strips. */
+type FagTabItem = { id: string; label: string; icon: React.ReactNode };
+
+function FagTabStrip({
+  items,
+  activeId,
+  onChange,
+  className = "",
+  compact = false,
+}: {
+  items: FagTabItem[];
+  activeId: string;
+  onChange: (id: string) => void;
+  className?: string;
+  /* When true, tabs render with smaller icons and tighter padding — used
+     when the parent (desktop sticky bar) condenses on scroll. */
+  compact?: boolean;
+}) {
+  const stripRef = useRef<HTMLDivElement | null>(null);
+  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
+
+  // Measure the active tab's position relative to the strip, then update
+  // the underline. Re-runs on activeId change AND on resize so the
+  // underline tracks correctly.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const strip = stripRef.current;
+      const tab = tabRefs.current.get(activeId);
+      if (!strip || !tab) return;
+      const stripBox = strip.getBoundingClientRect();
+      const tabBox = tab.getBoundingClientRect();
+      setBar({
+        left: tabBox.left - stripBox.left + strip.scrollLeft,
+        width: tabBox.width,
+      });
+    };
+    measure();
+    // Re-measure after fonts settle (the label width can shift slightly).
+    const t = window.setTimeout(measure, 60);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
+  }, [activeId, items.length, compact]);
+
+  return (
+    <div
+      ref={stripRef}
+      className={"relative flex items-center gap-1 overflow-x-auto pb-1 -mx-2 px-2 " + className}
+    >
+      {items.map((it) => {
+        const active = it.id === activeId;
+        return (
+          <button
+            key={it.id}
+            ref={(el) => {
+              if (el) tabRefs.current.set(it.id, el);
+              else tabRefs.current.delete(it.id);
+            }}
+            onClick={() => onChange(it.id)}
+            aria-pressed={active}
+            className={
+              "relative flex items-center px-3 shrink-0 transition-colors duration-200 " +
+              (compact ? "flex-row gap-2 py-1.5 " : "flex-col gap-1 pt-2 pb-2.5 ") +
+              (active ? "text-[var(--accent)]" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
+            }
+          >
+            <span
+              style={{
+                width: compact ? 18 : 22,
+                height: compact ? 18 : 22,
+                display: "inline-flex",
+                transition: "width 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            >
+              {it.icon}
+            </span>
+            <span className={"font-medium whitespace-nowrap " + (compact ? "text-[12.5px]" : "text-[12px]")}>{it.label}</span>
+          </button>
+        );
+      })}
+
+      {/* Shared sliding underline. Sits at bottom of the strip; only one
+          element, so the animation is a smooth slide between tabs rather
+          than a fade-in/out per tab. Width auto-shrinks to the active
+          tab. The 0 width fallback (before first measure) keeps it
+          invisible so it doesn't flash at left:0. */}
+      <span
+        aria-hidden="true"
+        className="absolute bottom-1 h-[2px] rounded-full bg-[var(--accent)] pointer-events-none"
+        style={{
+          left: 0,
+          // 12px inset on each side matches the px-3 padding of each tab —
+          // underline visually aligns with the icon+label, not the full
+          // tab hitbox.
+          transform: bar ? `translateX(${bar.left + 12}px)` : "translateX(0)",
+          width: bar ? bar.width - 24 : 0,
+          opacity: bar ? 1 : 0,
+          transition:
+            "transform 260ms cubic-bezier(0.22, 1, 0.36, 1), width 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease-out",
+        }}
+      />
+    </div>
+  );
+}
+
+/* ─── CountUp — animated number tick for the result count ────────────────
+   When `value` changes, briefly renders the .count-bump animation so the
+   eye catches the change. Cheap, no JS animation loop — pure CSS
+   triggered by React key. */
+function CountUp({ value }: { value: number }) {
+  return (
+    <span key={value} className="count-bump tabular-nums">{value}</span>
   );
 }
 

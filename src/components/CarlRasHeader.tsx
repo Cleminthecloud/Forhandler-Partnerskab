@@ -134,7 +134,10 @@ const CATEGORIES: Category[] = [
   },
 ];
 
-export function CarlRasHeader() {
+/* `sticky` opt-out — /find wants the carl-ras.dk chrome to scroll away
+   and our partner-search bar to take over the sticky slot. Default true
+   for any other future host page that wants the standard sticky header. */
+export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
   const pathname = usePathname() ?? "";
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -169,7 +172,7 @@ export function CarlRasHeader() {
        The mobile layout (md:hidden block below) is a slim 56px bar +
        hamburger drawer — a real mobile carl-ras.dk skin, NOT the
        desktop layout shoehorned into a phone viewport. */
-    <header className="bg-white md:sticky md:top-0 z-30">
+    <header className={"bg-white z-30 " + (sticky ? "md:sticky md:top-0" : "")}>
       {/* ═══════════════════════════════════════════════════════════════
           MOBILE — slim top bar (hamburger + logo + cart). Everything
           else (search, categories, sister brands, persona switcher)

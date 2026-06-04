@@ -526,10 +526,39 @@ textarea.field {
   animation: swapFade 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Card stagger entrance — used on result grids (/find partner cards) so the
+   grid feels alive when filters change. Combine with `animationDelay` via
+   inline style for staggered cascade. Capped at first 8 cards in the caller
+   so large grids don't stall. The translate is tiny (8px) — quality apps
+   keep entry motion subtle. Cubic-bezier(.22,1,.36,1) is the Apple/Linear
+   ease-out curve used everywhere in this app. */
+@keyframes cardRiseIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-rise-in {
+  animation: cardRiseIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Number tick-up — applied to a span wrapping a count, gives it a tiny
+   bump animation when the value changes. Combined with a React key on
+   the value to re-fire on change. */
+@keyframes countBump {
+  0%   { transform: translateY(0);  opacity: 1; }
+  35%  { transform: translateY(-4px); opacity: 0.85; }
+  100% { transform: translateY(0);  opacity: 1; }
+}
+.count-bump {
+  display: inline-block;
+  animation: countBump 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Respect users who prefer reduced motion — no animations on navigation. */
 @media (prefers-reduced-motion: reduce) {
   .animate-in { animation: none; }
   .swap-fade  { animation: none; }
+  .card-rise-in { animation: none; }
+  .count-bump   { animation: none; }
   .app-chrome { view-transition-name: none; }
 }
 
