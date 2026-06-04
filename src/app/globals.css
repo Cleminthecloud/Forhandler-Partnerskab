@@ -38,6 +38,14 @@
   --navy:          #002C5B;
   --navy-2:        #1D1D1F;      /* secondary dark for hero/footer */
 
+  /* Semantic status colors — promoted from hex literals scattered
+     across KPI tiles, activity feed, won-state pills, tier accents.
+     Same hex values, just named. */
+  --positive-ink:  #2D4A0F;      /* "won" sparkline + dark green ink on success states */
+  --positive-bg:   #E1EFD2;      /* success pill background */
+  --gold-ink:      #C99A20;      /* points/tier-progress sparkline + warm amber text */
+  --gold-bg:       #FCEFCA;      /* "in-progress" pill background */
+
   /* ---------- Theme accent (orange/green/red) ----------
      STRICT USE: only the theme-switcher chip, the active campaign card,
      and the theme tag on /find. Nowhere else. Eyebrow text uses --ink-3. */

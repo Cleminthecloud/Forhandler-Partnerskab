@@ -388,9 +388,12 @@ function PartnerCard({ partner, cover, isFav, onToggleFav }: { partner: PartnerP
           <h3 className="text-[16px] font-semibold text-[var(--ink)] leading-tight truncate group-hover:text-[var(--accent)] transition-colors">
             {partner.firma}
           </h3>
-          <div className="flex items-center gap-1 shrink-0">
-            <Star /> <span className="text-[13px] font-semibold tabular-nums">{partner.rating}</span>
-            <span className="text-[12px] text-[var(--ink-3)]">({partner.antalSager})</span>
+          <div
+            className="flex items-center gap-1 shrink-0"
+            aria-label={`${partner.rating} stjerner ud af 5, baseret på ${partner.antalSager} sager`}
+          >
+            <Star /> <span className="text-[13px] font-semibold tabular-nums" aria-hidden="true">{partner.rating}</span>
+            <span className="text-[12px] text-[var(--ink-3)]" aria-hidden="true">({partner.antalSager})</span>
           </div>
         </div>
         <div className="text-[13px] text-[var(--ink-3)] mt-0.5 truncate">{partner.faggruppe} · {partner.by} ({partner.postnr})</div>
@@ -483,7 +486,7 @@ function FindSearchModal({
           <button
             onClick={onClose}
             aria-label="Tilbage"
-            className="size-10 grid place-items-center rounded-full -ml-1 active:bg-[var(--canvas-2)] transition-colors"
+            className="size-11 grid place-items-center rounded-full -ml-1 active:bg-[var(--canvas-2)] transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
@@ -493,7 +496,7 @@ function FindSearchModal({
           <button
             onClick={onClose}
             aria-label="Luk"
-            className="size-9 grid place-items-center rounded-full border border-[var(--line)] -mr-1 active:bg-[var(--canvas-2)] transition-colors"
+            className="size-11 grid place-items-center rounded-full border border-[var(--line)] -mr-1 active:bg-[var(--canvas-2)] transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12" />

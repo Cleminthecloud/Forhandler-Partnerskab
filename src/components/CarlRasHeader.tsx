@@ -232,7 +232,7 @@ export function CarlRasHeader() {
               <button
                 onClick={() => setMenuOpen(false)}
                 aria-label="Luk menu"
-                className="size-10 grid place-items-center rounded-md text-[#1D1D1F] active:bg-[#F5F5F7]"
+                className="size-11 grid place-items-center rounded-md text-[#1D1D1F] active:bg-[#F5F5F7]"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M18 6L6 18M6 6l12 12" />

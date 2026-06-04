@@ -123,7 +123,7 @@ export default function PartnerDashboard() {
           delta="+1 sidste 30 dage"
           deltaPositive
           sparkline={[1, 1, 0, 2, 1, 3, 2, 3]}
-          sparkColor="#2D4A0F"
+          sparkColor="var(--positive-ink)"
         />
         <KpiTile
           label="Konvertering"
@@ -138,7 +138,7 @@ export default function PartnerDashboard() {
           value={`${pointsPct}%`}
           delta={`${(CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points).toLocaleString("da-DK")} point igen`}
           sparkline={PARTNER_PERFORMANCE.pointsByWeek}
-          sparkColor="#C99A20"
+          sparkColor="var(--gold-ink)"
         />
       </section>
 
@@ -220,7 +220,11 @@ export default function PartnerDashboard() {
           type="button"
           onClick={() => setShowTierBenefits(true)}
           className="card card-lg flex flex-col text-left hover:shadow-[var(--shadow-3)] hover:-translate-y-0.5 transition-all group cursor-pointer"
-          aria-label="Åbn niveau-fordele"
+          aria-label={
+            nextTier
+              ? `Tier-progression: ${CURRENT_PARTNER.tier}-niveau, ${CURRENT_PARTNER.points.toLocaleString("da-DK")} af ${CURRENT_PARTNER.pointsTilNæste.toLocaleString("da-DK")} point. ${(CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points).toLocaleString("da-DK")} point til ${nextTier}. Åbn niveau-fordele.`
+              : `Tier-progression: ${CURRENT_PARTNER.tier}-niveau opnået. Åbn niveau-fordele.`
+          }
         >
           <div className="flex items-baseline justify-between mb-1">
             <h3 className="t-h3">Tier-progression</h3>
@@ -230,7 +234,9 @@ export default function PartnerDashboard() {
             {(CURRENT_PARTNER.pointsTilNæste - CURRENT_PARTNER.points).toLocaleString("da-DK")} point til næste niveau
           </p>
 
-          <div className="flex-1 grid place-items-center my-4">
+          {/* Visual donut — accessible name lives on the parent button so
+              we hide the duplicated inner text/SVG from assistive tech. */}
+          <div className="flex-1 grid place-items-center my-4" aria-hidden="true">
             <Radial
               value={pointsPct}
               size={180}
@@ -516,12 +522,18 @@ export default function PartnerDashboard() {
                         original listpris (rare but defensive). */}
                     {tierPrice ? (
                       <>
-                        <div className="flex items-baseline gap-2 flex-wrap">
-                          <span className="text-[19px] font-bold text-[var(--ink)] tabular-nums leading-none">{tierPrice.netLabel}</span>
-                          <span className="text-[12px] text-[var(--ink-3)] tabular-nums line-through leading-none">{p.pris}</span>
+                        <div
+                          className="flex items-baseline gap-2 flex-wrap"
+                          aria-label={`Din pris ${tierPrice.netLabel}, listpris ${p.pris}`}
+                        >
+                          <span className="text-[19px] font-bold text-[var(--ink)] tabular-nums leading-none" aria-hidden="true">{tierPrice.netLabel}</span>
+                          <span className="text-[12px] text-[var(--ink-3)] tabular-nums line-through leading-none" aria-hidden="true">{p.pris}</span>
                         </div>
-                        <div className="text-[12px] text-[var(--accent)] font-semibold mt-1.5 tabular-nums">
-                          Du sparer {tierPrice.savingsLabel} · {CURRENT_PARTNER.tier}-rabat {tierPrice.pct}%
+                        <div
+                          className="text-[12px] text-[var(--accent)] font-semibold mt-1.5 tabular-nums"
+                          aria-label={`Du sparer ${tierPrice.savingsLabel} med ${CURRENT_PARTNER.tier}-rabat på ${tierPrice.pct} procent`}
+                        >
+                          <span aria-hidden="true">Du sparer {tierPrice.savingsLabel} · {CURRENT_PARTNER.tier}-rabat {tierPrice.pct}%</span>
                         </div>
                       </>
                     ) : (

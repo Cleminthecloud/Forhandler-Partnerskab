@@ -804,7 +804,7 @@ export default function KampagnerPage() {
               <button
                 onClick={() => setSheetTab(null)}
                 aria-label="Luk"
-                className="size-9 grid place-items-center rounded-full active:bg-[var(--canvas-2)] transition-colors"
+                className="size-11 grid place-items-center rounded-full active:bg-[var(--canvas-2)] transition-colors"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6L6 18M6 6l12 12" />
@@ -815,13 +815,15 @@ export default function KampagnerPage() {
             {/* ─── FORMAT SHEET ─── */}
             {sheetTab === "format" && (
               <div className="px-5 pb-3 overflow-y-auto">
-                <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mb-2">Medie</div>
-                <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-[var(--canvas-2)]">
+                <div id="sheet-medie-label" className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mb-2">Medie</div>
+                <div role="radiogroup" aria-labelledby="sheet-medie-label" className="grid grid-cols-2 gap-1 p-1 rounded-full bg-[var(--canvas-2)]">
                   {(["print", "digital"] as const).map((c) => {
                     const active = category === c;
                     return (
                       <button
                         key={c}
+                        role="radio"
+                        aria-checked={active}
                         onClick={() => {
                           setCategory(c);
                           const first = activeCampaign?.formater.find((f) => f.startsWith(c + "-"));
@@ -838,8 +840,8 @@ export default function KampagnerPage() {
                   })}
                 </div>
 
-                <div className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mt-5 mb-2">Format</div>
-                <div className="grid grid-cols-2 gap-2">
+                <div id="sheet-format-label" className="text-[11px] uppercase tracking-wider font-semibold text-[var(--ink-3)] mt-5 mb-2">Format</div>
+                <div role="radiogroup" aria-labelledby="sheet-format-label" className="grid grid-cols-2 gap-2">
                   {currentCategoryFormats.map((f) => {
                     const meta = FORMATS.find((x) => x.id === f);
                     if (!meta) return null;
@@ -847,6 +849,9 @@ export default function KampagnerPage() {
                     return (
                       <button
                         key={f}
+                        role="radio"
+                        aria-checked={active}
+                        aria-label={`${meta.label}, ${meta.dim}`}
                         onClick={() => { setFormat(f); setSheetTab(null); }}
                         className={
                           "text-left rounded-[var(--r-md)] border-2 transition-all active:scale-[0.98] " +
@@ -868,13 +873,16 @@ export default function KampagnerPage() {
             {/* ─── BILLEDE SHEET ─── */}
             {sheetTab === "billede" && (
               <div className="px-5 pb-3 overflow-y-auto">
-                <p className="text-[13px] text-[var(--ink-3)] mb-3">Skift fotoet i kampagnen. Tryk på en variant for at se den i canvas.</p>
-                <div className="grid grid-cols-3 gap-3">
+                <p id="sheet-billede-label" className="text-[13px] text-[var(--ink-3)] mb-3">Skift fotoet i kampagnen. Tryk på en variant for at se den i canvas.</p>
+                <div role="radiogroup" aria-labelledby="sheet-billede-label" className="grid grid-cols-3 gap-3">
                   {variants.map((v, idx) => {
                     const active = imageVariant === idx;
                     return (
                       <button
                         key={v.id}
+                        role="radio"
+                        aria-checked={active}
+                        aria-label={`Billedvariant: ${v.label}`}
                         onClick={() => { setImageVariant(idx); setSheetTab(null); }}
                         className={
                           "aspect-[3/4] rounded-[var(--r-md)] relative overflow-hidden grid place-items-end transition-all active:scale-[0.97] " +
@@ -884,7 +892,7 @@ export default function KampagnerPage() {
                       >
                         <span className="w-full bg-gradient-to-t from-black/60 to-transparent text-white text-[11px] font-semibold px-2 py-1 text-left leading-tight">{v.label}</span>
                         {active && (
-                          <span className="absolute top-1.5 right-1.5 size-5 rounded-full bg-white grid place-items-center">
+                          <span className="absolute top-1.5 right-1.5 size-5 rounded-full bg-white grid place-items-center" aria-hidden="true">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M5 13l4 4L19 7" />
                             </svg>
@@ -1009,7 +1017,7 @@ export default function KampagnerPage() {
             <button
               onClick={() => setZoomOpen(false)}
               aria-label="Luk"
-              className="size-10 rounded-full grid place-items-center bg-white/15 active:bg-white/25 transition-colors shrink-0"
+              className="size-11 rounded-full grid place-items-center bg-white/15 active:bg-white/25 transition-colors shrink-0"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 6L6 18M6 6l12 12" />
