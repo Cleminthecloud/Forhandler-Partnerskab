@@ -143,8 +143,9 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
           </div>
         </div>
 
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto p-6 min-h-0 space-y-6">
+        {/* Scrollable body — generous rhythm so each section reads as its
+            own surface, not a stacked list. */}
+        <div className="flex-1 overflow-y-auto p-8 min-h-0 space-y-10">
           {/* Facts */}
           <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3">
             <Fact label="Dato">{dateStr.charAt(0).toUpperCase() + dateStr.slice(1)}</Fact>
@@ -173,7 +174,7 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
           {/* Host */}
           {host && (
             <section>
-              <div className="t-eyebrow mb-3">Vært</div>
+              <div className="t-eyebrow mb-4">Vært</div>
               <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
                 {host.portrait ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
@@ -200,13 +201,13 @@ function EventAdminDrawer({ event, onClose, pushToast }: {
 
           {/* Description */}
           <section>
-            <div className="t-eyebrow mb-3">Beskrivelse</div>
+            <div className="t-eyebrow mb-4">Beskrivelse</div>
             <p className="text-[13.5px] text-[var(--ink-2)] leading-[1.55]">{event.beskrivelse}</p>
           </section>
 
           {/* Agenda */}
           <section>
-            <div className="t-eyebrow mb-3">Program</div>
+            <div className="t-eyebrow mb-4">Program</div>
             <ol className="space-y-2">
               {detail.agenda.map((line, i) => (
                 <li key={i} className="flex gap-3 text-[13px] text-[var(--ink-2)]">

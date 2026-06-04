@@ -203,8 +203,8 @@ function CertDrawer({
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-8 py-7 space-y-7">
+        {/* Body — generous rhythm between sections */}
+        <div className="flex-1 overflow-y-auto px-8 py-8 space-y-10">
           {/* Description */}
           <p className="t-body text-[var(--ink-2)] leading-[1.55]">{cert.beskrivelse}</p>
 

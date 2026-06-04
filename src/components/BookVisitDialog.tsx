@@ -132,8 +132,10 @@ export function BookVisitDialog({
           </div>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-7 py-6 space-y-5">
+        {/* Body — form rhythm a touch tighter than full-detail drawers
+            (space-y-8 vs 10) because consecutive form fields read as one
+            unit, not as separate decision surfaces. */}
+        <div className="flex-1 overflow-y-auto px-7 py-7 space-y-8">
           {/* Customer context (project lane) */}
           {context.customerName && (
             <div className="rounded-[var(--r-md)] bg-[var(--canvas-2)] p-3 flex items-center gap-3">

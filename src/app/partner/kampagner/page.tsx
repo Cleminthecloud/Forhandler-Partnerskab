@@ -1113,11 +1113,13 @@ export default function KampagnerPage() {
               </button>
             </div>
 
-            {/* Drawer body — scrollable */}
-            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
+            {/* Drawer body — scrollable. Slightly tighter rhythm than the
+                wide project/lead drawers because this one is narrower
+                (480px) and the sections are smaller forms. */}
+            <div className="flex-1 overflow-y-auto px-5 py-7 space-y-8">
               {/* Tilpas tekst */}
               <section>
-                <div className="t-eyebrow mb-3">Tekst</div>
+                <div className="t-eyebrow mb-4">Tekst</div>
                 <EditField
                   label="Hovedbudskab"
                   value={activeCampaign?.hovedbudskab ?? ""}
@@ -1163,7 +1165,7 @@ export default function KampagnerPage() {
 
               {/* Partner logo — full editor lives here inside the drawer */}
               <section>
-                <div className="t-eyebrow mb-3">Dit logo</div>
+                <div className="t-eyebrow mb-4">Dit logo</div>
                 <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)] mb-2.5">
                   <div
                     className="size-10 rounded-lg grid place-items-center text-white font-semibold text-[13px] shrink-0"
@@ -1199,7 +1201,7 @@ export default function KampagnerPage() {
               {/* Digital-only: connected accounts */}
               {category === "digital" && (
                 <section>
-                  <div className="t-eyebrow mb-3">Forbundne konti</div>
+                  <div className="t-eyebrow mb-4">Forbundne konti</div>
                   <ul className="space-y-2">
                     {CONNECTED_ACCOUNTS.map((a) => (
                       <li key={a.id} className="flex items-center gap-3 p-2.5 rounded-[var(--r-md)] border border-[var(--line-2)]">
