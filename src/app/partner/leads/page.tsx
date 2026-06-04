@@ -10,6 +10,7 @@ import { CURRENT_PARTNER, Lead, LeadStatus, productsForBehov, CERTS_AVAILABLE, S
 import { THEMES } from "@/lib/themes";
 import { PageHeader } from "@/components/PageHeader";
 import { Icon } from "@/components/Icon";
+import { HelpHint } from "@/components/HelpHint";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -32,16 +33,26 @@ export default function LeadsPage() {
   const { leads, updateLeadStatus, pushToast } = useApp();
   const [activeStatus, setActiveStatus] = useState<LeadStatus | "Alle">("Alle");
   const [openLead, setOpenLead] = useState<Lead | null>(null);
+  const [query, setQuery] = useState("");
 
   const myLeads = useMemo(
     () => leads.filter((l) => l.partnerId === CURRENT_PARTNER.id).sort((a, b) => b.dato.localeCompare(a.dato)),
     [leads]
   );
 
-  const filtered = useMemo(
-    () => myLeads.filter((l) => activeStatus === "Alle" ? true : l.status === activeStatus),
-    [myLeads, activeStatus]
-  );
+  /* Status-first, then free-text search across kunde, by, postnr, behov, telefon. */
+  const filtered = useMemo(() => {
+    const byStatus = myLeads.filter((l) => activeStatus === "Alle" ? true : l.status === activeStatus);
+    if (!query.trim()) return byStatus;
+    const q = query.trim().toLowerCase();
+    return byStatus.filter((l) =>
+      l.kunde.toLowerCase().includes(q) ||
+      l.by.toLowerCase().includes(q) ||
+      l.postnr.includes(q) ||
+      l.behov.toLowerCase().includes(q) ||
+      l.telefon.replace(/\s/g, "").includes(q.replace(/\s/g, ""))
+    );
+  }, [myLeads, activeStatus, query]);
 
   const counts = useMemo(() => ({
     Ny:        myLeads.filter((l) => l.status === "Ny").length,
@@ -62,14 +73,48 @@ export default function LeadsPage() {
         eyebrow="Leads · Carl-ras.dk Partnerfinder"
         title="Leads"
         lead="Sommerhusejere finder dig på carl-ras.dk. Når de udfylder kontaktformularen, lander leadet her."
+        afterTitle={
+          <HelpHint label="Hvordan virker lead-routing?" placement="bottom-right">
+            Kunder finder dig på carl-ras.dk/find via region, postnr og faggruppe. Vi router forespørgslen direkte til din indbakke — Sølv-partnere får leads 24 timer før Bronze, Guld 48 timer før Sølv. Reagér inden for SLA&apos;en for at holde din lead-prioritet.
+          </HelpHint>
+        }
       />
 
-      {/* Status pipeline */}
-      <div className="mt-8 flex flex-wrap items-center gap-2">
-        <FilterChip active={activeStatus === "Alle"} onClick={() => setActiveStatus("Alle")} label={`Alle (${myLeads.length})`} />
-        {STATUSES.map((s) => (
-          <FilterChip key={s} active={activeStatus === s} onClick={() => setActiveStatus(s)} label={`${s} (${counts[s]})`} colorBg={STATUS_COLOR[s].bg} colorInk={STATUS_COLOR[s].ink} dot={STATUS_COLOR[s].dot} />
-        ))}
+      {/* Search + status pipeline */}
+      <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
+        {/* Free-text search across kunde, by, postnr, behov, telefon */}
+        <div className="relative flex-1 max-w-md">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)] pointer-events-none">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Søg på kunde, by, postnr…"
+            aria-label="Søg i leads"
+            className="w-full pl-9 pr-9 py-2 text-[13.5px] bg-[var(--canvas-2)] border border-transparent focus:bg-white focus:border-[var(--accent)] rounded-full outline-none transition-colors"
+            style={{ minHeight: 40 }}
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              aria-label="Ryd søgning"
+              className="absolute right-2 top-1/2 -translate-y-1/2 size-6 grid place-items-center rounded-full text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--canvas)] transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <FilterChip active={activeStatus === "Alle"} onClick={() => setActiveStatus("Alle")} label={`Alle (${myLeads.length})`} />
+          {STATUSES.map((s) => (
+            <FilterChip key={s} active={activeStatus === s} onClick={() => setActiveStatus(s)} label={`${s} (${counts[s]})`} colorBg={STATUS_COLOR[s].bg} colorInk={STATUS_COLOR[s].ink} dot={STATUS_COLOR[s].dot} />
+          ))}
+        </div>
       </div>
 
       {/* Leads table. Wrapped in overflow-x-auto so the 5-column layout
@@ -86,7 +131,9 @@ export default function LeadsPage() {
         </div>
         {filtered.length === 0 ? (
           <div className="px-5 py-10 text-center text-[14px] text-[var(--ink-muted-48)]">
-            Ingen leads i denne kategori.
+            {query
+              ? <>Ingen leads matcher &ldquo;<strong className="text-[var(--ink-2)]">{query}</strong>&rdquo;.</>
+              : "Ingen leads i denne kategori."}
           </div>
         ) : filtered.map((l) => (
           <button

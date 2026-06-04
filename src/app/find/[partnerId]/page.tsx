@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PARTNERS, Region, Faggruppe, PartnerProfile } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { useApp } from "@/components/AppState";
+import { Spinner } from "@/components/Spinner";
 
 /* ─────────────────────────────────────────────────────────────────────
    Region-aware specialist content.
@@ -84,6 +85,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
   const { addLead, pushToast } = useApp();
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     kunde: "",
     postnr: "",
@@ -106,12 +108,16 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
 
   const p = partner; // narrowed for inner closures
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.kunde || !form.telefon || !form.behov) {
       pushToast("Udfyld venligst navn, telefon og kort beskrivelse af opgaven.");
       return;
     }
+    setIsSubmitting(true);
+    /* Demo realism: 850ms latency before the success state. In production
+       this would be a real API call to addLead's backend. */
+    await new Promise((r) => setTimeout(r, 850));
     addLead({
       kunde: form.kunde,
       postnr: form.postnr,
@@ -124,6 +130,7 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
       værdi: "Vurderes af partner",
       partnerId: p.id,
     });
+    setIsSubmitting(false);
     setSubmitted(true);
     pushToast(`Tak! ${p.firma} kontakter dig snart.`);
   }
@@ -230,8 +237,19 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 </Field>
               </div>
 
-              <button type="submit" className="mt-5 pill pill-primary w-full justify-center !py-3">
-                Send forespørgsel
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="mt-5 pill pill-primary w-full justify-center !py-3 inline-flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner size={14} label="Sender forespørgsel" />
+                    Sender…
+                  </>
+                ) : (
+                  "Send forespørgsel"
+                )}
               </button>
               <p className="t-caption mt-3 text-center">
                 Vi sender din forespørgsel direkte til {partner.firma}. Carl Ras gemmer ikke dine data.

@@ -20,6 +20,10 @@ interface PageHeaderProps {
   lead?: string;
   themeColor?: string;
   actions?: ReactNode;
+  /** Optional inline node placed right after the title — typically a
+   *  HelpHint or small status badge. Vertically centered, doesn't
+   *  steal display weight from the title itself. */
+  afterTitle?: ReactNode;
   variant?: "default" | "compact";
   /** Extra classes for the outer wrapper — e.g. extra margin overrides */
   className?: string;
@@ -31,6 +35,7 @@ export function PageHeader({
   lead,
   themeColor,
   actions,
+  afterTitle,
   variant = "default",
   className = "",
 }: PageHeaderProps) {
@@ -43,8 +48,9 @@ export function PageHeader({
             <span className="truncate">{eyebrow}</span>
           </div>
           <span className="text-[var(--ink-4)] shrink-0" aria-hidden>·</span>
-          <h1 className="text-[20px] font-semibold tracking-tight text-[var(--ink)] leading-none truncate">
+          <h1 className="text-[20px] font-semibold tracking-tight text-[var(--ink)] leading-none truncate inline-flex items-center gap-2">
             {title}
+            {afterTitle}
           </h1>
         </div>
         {actions && <div className="flex flex-wrap gap-2 shrink-0">{actions}</div>}
@@ -59,7 +65,10 @@ export function PageHeader({
           {themeColor && <span className="theme-dot" style={{ background: themeColor }} />}
           <span>{eyebrow}</span>
         </div>
-        <h1 className="t-display mt-3">{title}</h1>
+        <h1 className="t-display mt-3 inline-flex items-center gap-3 flex-wrap">
+          {title}
+          {afterTitle}
+        </h1>
         {lead && <p className="t-body-lg mt-4 max-w-[680px] !text-[var(--ink-2)]">{lead}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}

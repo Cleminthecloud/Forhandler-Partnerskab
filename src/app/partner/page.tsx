@@ -28,6 +28,7 @@ import {
 import { Radial, BarMini } from "@/components/Charts";
 import { MiniArea, InteractiveArea } from "@/components/ChartsInteractive";
 import { TierBenefitsDialog, TIER_COLOR, StarBadge, type Tier } from "@/components/TierBenefitsDialog";
+import { HelpHint } from "@/components/HelpHint";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -227,7 +228,17 @@ export default function PartnerDashboard() {
           }
         >
           <div className="flex items-baseline justify-between mb-1">
-            <h3 className="t-h3">Tier-progression</h3>
+            <h3 className="t-h3 inline-flex items-center gap-1.5">
+              Tier-progression
+              <span
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center"
+              >
+                <HelpHint label="Hvordan virker tier-progression?">
+                  Du tjener point hver gang du køber hos Carl Ras eller løser sager via platformen. Når du krydser tærsklen til næste niveau låses nye fordele op automatisk — bedre rabatter, prioriteret lead-routing, lavere kontakt-omkostninger og dedikeret konsulent.
+                </HelpHint>
+              </span>
+            </h3>
             <span className="t-caption">{CURRENT_PARTNER.tier}{nextTier ? ` → ${nextTier}` : ""}</span>
           </div>
           <p className="text-[12px] text-[var(--ink-3)] mb-4">
@@ -463,7 +474,12 @@ export default function PartnerDashboard() {
       <section aria-label="Carl Ras anbefaler">
         <div className="flex items-baseline justify-between mb-5">
           <div>
-            <h2 className="t-h2">Carl Ras anbefaler</h2>
+            <h2 className="t-h2 inline-flex items-center gap-2">
+              Carl Ras anbefaler
+              <HelpHint label="Hvordan udvælges produkterne?">
+                Vi kombinerer dit faggruppe-fokus, det aktuelle BU-tema og de produkter andre Sølv-partnere i din region køber mest. Listen opdateres ugentligt — direkte links til carl-ras.dk hvor din partner-rabat allerede er regnet ind.
+              </HelpHint>
+            </h2>
             <p className="t-caption mt-0.5">
               Udvalgte produkter til {theme.label.toLowerCase()} · {CURRENT_PARTNER.tier}-rabat {TIER_DISCOUNT_PCT[CURRENT_PARTNER.tier as Tier]}% er allerede regnet ind
             </p>

@@ -80,6 +80,24 @@ export default function KampagnerPage() {
   const [confirm, setConfirm] = useState<null | { kind: ActionKind; label: string; account?: string }>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyQuery, setHistoryQuery] = useState("");
+  /* Free-text search in the Mine kampagner drawer — matches across the
+     parent campaign title, the format label, the status, and the detail
+     line (e.g. "Lokalavisen Nordsjælland"). */
+  const historyMatches = useMemo(() => {
+    const q = historyQuery.trim().toLowerCase();
+    if (!q) return CAMPAIGN_HISTORY;
+    return CAMPAIGN_HISTORY.filter((h) => {
+      const campaign = CAMPAIGNS.find((c) => c.id === h.campaignId);
+      const fmt = FORMATS.find((f) => f.id === h.format);
+      return (
+        (campaign?.titel.toLowerCase().includes(q) ?? false) ||
+        (fmt?.label.toLowerCase().includes(q) ?? false) ||
+        h.status.toLowerCase().includes(q) ||
+        h.detail.toLowerCase().includes(q)
+      );
+    });
+  }, [historyQuery]);
   /* Mobile-only: bottom tab bar opens one of four sheets — Format, Billede,
      Tema, or Rediger (which routes to the existing edit drawer). On desktop
      these controls live in the floating top bar + left aside, both hidden
@@ -1244,9 +1262,44 @@ export default function KampagnerPage() {
               </button>
             </div>
 
+            {/* Search — free-text match across campaign title, format label, status, detail */}
+            <div className="px-5 pt-4 pb-3 border-b border-[var(--line-2)] bg-[var(--canvas)]">
+              <div className="relative">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)] pointer-events-none">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="M21 21l-4.3-4.3" />
+                </svg>
+                <input
+                  type="search"
+                  value={historyQuery}
+                  onChange={(e) => setHistoryQuery(e.target.value)}
+                  placeholder="Søg i kampagner, format, status…"
+                  aria-label="Søg i tidligere kampagner"
+                  className="w-full pl-9 pr-9 py-2 text-[13.5px] bg-white border border-[var(--line)] focus:border-[var(--accent)] rounded-full outline-none transition-colors"
+                  style={{ minHeight: 38 }}
+                />
+                {historyQuery && (
+                  <button
+                    onClick={() => setHistoryQuery("")}
+                    aria-label="Ryd søgning"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 size-6 grid place-items-center rounded-full text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--canvas-2)] transition-colors"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* Body */}
             <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
-              {CAMPAIGN_HISTORY.map((h) => {
+              {historyMatches.length === 0 && historyQuery && (
+                <div className="py-10 text-center text-[13.5px] text-[var(--ink-3)]">
+                  Ingen kampagner matcher &ldquo;<strong className="text-[var(--ink-2)]">{historyQuery}</strong>&rdquo;.
+                </div>
+              )}
+              {historyMatches.map((h) => {
                 const campaign = CAMPAIGNS.find((c) => c.id === h.campaignId);
                 const fmt = FORMATS.find((f) => f.id === h.format);
                 const tema = campaign ? THEMES.find((t) => t.id === campaign.tema) : null;
