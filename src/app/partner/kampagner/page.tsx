@@ -632,8 +632,14 @@ export default function KampagnerPage() {
             <>
               {/* Desktop preview — natural sizing via FRAME values (vw/vh).
                   The desktop canvas is wide enough that cqw-based text
-                  inside CampaignPreview resolves at readable sizes. */}
-              <div className="hidden lg:grid absolute inset-0 place-items-center px-6 pt-24 pb-12">
+                  inside CampaignPreview resolves at readable sizes.
+                  The key + swap-fade class give a soft crossfade when the
+                  partner changes format/category — feels like an app, not
+                  a page reload. */}
+              <div
+                key={`desktop-${format}-${activeCampaign.id}-${imageVariant}`}
+                className="swap-fade hidden lg:grid absolute inset-0 place-items-center px-6 pt-24 pb-12"
+              >
                 <div className="relative max-w-full max-h-full grid place-items-center">
                   <CampaignPreview
                     campaign={activeCampaign}
@@ -651,7 +657,10 @@ export default function KampagnerPage() {
                   canvas section. Text inside is proportionally small at
                   this scale; the magnifying-glass button below opens a
                   pixel-perfect lightbox for reading + inspecting. */}
-              <div className="lg:hidden absolute inset-0 grid place-items-center px-4 py-4">
+              <div
+                key={`mobile-${format}-${activeCampaign.id}-${imageVariant}`}
+                className="swap-fade lg:hidden absolute inset-0 grid place-items-center px-4 py-4"
+              >
                 <div className="relative max-w-full max-h-full grid place-items-center">
                   <CampaignPreview
                     campaign={activeCampaign}

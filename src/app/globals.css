@@ -513,9 +513,23 @@ textarea.field {
   view-transition-name: app-chrome;
 }
 
+/* Swap animation for content that re-renders on a state change inside an
+   already-mounted page (e.g. switching kampagner format, switching the
+   active campaign, swapping a chart series). Starts at 0.55 opacity +
+   tiny upward translate so the eye reads it as a crossfade, not a flash.
+   Apply via `key={value}` + `className="swap-fade"` on the wrapper. */
+@keyframes swapFade {
+  from { opacity: 0.55; transform: translateY(2px); }
+  to   { opacity: 1;    transform: translateY(0); }
+}
+.swap-fade {
+  animation: swapFade 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Respect users who prefer reduced motion — no animations on navigation. */
 @media (prefers-reduced-motion: reduce) {
   .animate-in { animation: none; }
+  .swap-fade  { animation: none; }
   .app-chrome { view-transition-name: none; }
 }
 

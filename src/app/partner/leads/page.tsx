@@ -191,7 +191,9 @@ export default function LeadsPage() {
             </div>
 
             {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto px-8 py-7 space-y-7 min-h-0">
+            {/* Generous vertical rhythm — sections grouped by proximity, breathing
+                room between them so each reads as its own decision surface. */}
+            <div className="flex-1 overflow-y-auto px-8 py-8 space-y-10 min-h-0">
               <Section label="Beskrivelse">{openLead.beskrivelse}</Section>
 
               <div className="grid grid-cols-2 gap-x-6 gap-y-5">

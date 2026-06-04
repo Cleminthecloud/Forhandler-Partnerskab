@@ -565,7 +565,12 @@ function ProjectDrawer({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+        {/* Body — generous vertical rhythm so each section reads as its own
+            decision surface, not a stacked list. `space-y-10` (40px) between
+            sections + `py-8` end-padding gives the breathing room you'd see
+            in an Apple settings panel — sections feel grouped by proximity,
+            not separated by lines. */}
+        <div className="flex-1 overflow-y-auto px-8 py-8 space-y-10">
           {/* KPI row */}
           <section className="grid grid-cols-3 gap-3">
             <DrawerStat label="Enheder" value={project.enheder.toString()} />
@@ -579,7 +584,7 @@ function ProjectDrawer({
 
           {/* Project plan — Gantt with specialist-recommended template */}
           <section>
-            <div className="t-eyebrow mb-3">Projektplan</div>
+            <div className="t-eyebrow mb-4">Projektplan</div>
             <ProjectPlanner
               projectType={project.type}
               kunde={project.kunde}
@@ -617,7 +622,7 @@ function ProjectDrawer({
           {/* Cross-sell */}
           {crossSell.length > 0 && (
             <section>
-              <div className="t-eyebrow mb-3">Kryds-salg — kunder med {project.type.toLowerCase()} køber også</div>
+              <div className="t-eyebrow mb-4">Kryds-salg — kunder med {project.type.toLowerCase()} køber også</div>
               <ul className="space-y-2">
                 {crossSell.map((p) => (
                   <li key={p.id} className="flex items-center gap-3.5 p-3 rounded-[var(--r-md)] border border-dashed border-[var(--line)]">
@@ -643,7 +648,7 @@ function ProjectDrawer({
 
           {/* Specialist booking */}
           <section>
-            <div className="t-eyebrow mb-3">Specialist</div>
+            <div className="t-eyebrow mb-4">Specialist</div>
             {specialist ? (
               <div className="flex items-center gap-3 p-3 rounded-[var(--r-md)] bg-[var(--canvas-2)]">
                 {specialist.portrait ? (
@@ -715,7 +720,7 @@ function ProjectDrawer({
 
           {/* Activity log */}
           <section>
-            <div className="t-eyebrow mb-3">Aktivitet · {project.noter.length}</div>
+            <div className="t-eyebrow mb-4">Aktivitet · {project.noter.length}</div>
             <ul className="space-y-3">
               {project.noter.map((n, i) => (
                 <li key={i} className="flex gap-3">
