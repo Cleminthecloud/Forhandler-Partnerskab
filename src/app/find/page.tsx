@@ -280,15 +280,14 @@ export default function FindPartnerPage() {
           {/* Faggruppe icon strip — desktop. Sliding-underline pattern
               via FagTabStrip — shared component, one source of truth.
               When the bar is condensed (scrolled past hero), the strip
-              compresses: icons shrink, top margin halves. */}
+              compresses: icons shrink, padding tightens. Layout direction
+              stays flex-col throughout so no hard reflow mid-animation. */}
           <div
             style={{
-              maxHeight: condensed ? 36 : 64,
-              opacity: 1,
-              overflow: "hidden",
-              transition:
-                "max-height 280ms cubic-bezier(0.22, 1, 0.36, 1), margin-top 280ms cubic-bezier(0.22, 1, 0.36, 1)",
+              // Stays flex-col, just tightens — no overflow:hidden so the
+              // underline can't get clipped during the transition.
               marginTop: condensed ? 4 : 12,
+              transition: "margin-top 280ms cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
             <FagTabStrip
@@ -320,19 +319,24 @@ export default function FindPartnerPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        {/* Min-height on the grid prevents the document from collapsing
+            when a filter narrows results to 1–2 cards. Without this, the
+            browser auto-scrolls upward to fit the new short page and the
+            user lands in an unexpected position. 65vh = enough room that
+            the sticky bar always has somewhere to sit. */}
+        <div className="grid gap-6 lg:grid-cols-[1fr_360px] min-h-[65vh]">
           {/* Gallery grid. The filter signature is part of the key on each
               card wrapper so the cards re-mount when a filter changes — that
               re-fires the card-rise-in animation and gives the grid an
-              "alive" feel instead of a static pop. Only the first 8 cards
-              get staggered delay (40ms each) so large result sets don't
-              stall behind the cascade. */}
+              "alive" feel instead of a static pop. Only the first 6 cards
+              get staggered delay (25ms each) so large result sets don't
+              stall behind the cascade and the cascade doesn't compound. */}
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
             {filtered.map((p, idx) => (
               <div
                 key={`${p.id}__${filterSig}`}
                 className="card-rise-in"
-                style={{ animationDelay: idx < 8 ? `${idx * 40}ms` : "0ms" }}
+                style={{ animationDelay: idx < 6 ? `${idx * 25}ms` : "0ms" }}
               >
                 <PartnerCard
                   partner={p}
@@ -531,12 +535,17 @@ function FagTabStrip({
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
 
-  // Measure the active tab's position relative to the strip, then update
-  // the underline. Re-runs on activeId change AND on resize so the
-  // underline tracks correctly.
+  // Measure the active tab's position relative to the strip and update
+  // the underline. Re-runs on activeId/items/compact change AND tracks the
+  // tab's live width via ResizeObserver — so when compact mode animates
+  // padding + icon size, the underline slides smoothly with the tab
+  // instead of snapping to the final position at t=0.
   useLayoutEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    let raf = 0;
     const measure = () => {
-      const strip = stripRef.current;
+      raf = 0;
       const tab = tabRefs.current.get(activeId);
       if (!strip || !tab) return;
       const stripBox = strip.getBoundingClientRect();
@@ -546,13 +555,23 @@ function FagTabStrip({
         width: tabBox.width,
       });
     };
+    // Coalesce multiple measure calls into one rAF — prevents thrash
+    // when ResizeObserver fires for every tab on the same frame.
+    const scheduleMeasure = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(measure);
+    };
     measure();
-    // Re-measure after fonts settle (the label width can shift slightly).
-    const t = window.setTimeout(measure, 60);
-    window.addEventListener("resize", measure);
+    // Track the active tab's live size during the compact transition.
+    // We observe ALL tabs (not just the active one) because activeId may
+    // change while we're inside the effect cleanup window.
+    const ro = new ResizeObserver(scheduleMeasure);
+    tabRefs.current.forEach((el) => ro.observe(el));
+    window.addEventListener("resize", scheduleMeasure);
     return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("resize", measure);
+      if (raf) cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", scheduleMeasure);
     };
   }, [activeId, items.length, compact]);
 
@@ -572,23 +591,33 @@ function FagTabStrip({
             }}
             onClick={() => onChange(it.id)}
             aria-pressed={active}
+            // NB: flex-direction stays `flex-col` regardless of compact mode.
+            // Swapping flex-col → flex-row mid-animation caused jitter (Tailwind
+            // utility-class swaps can't be CSS-transitioned). Now compact only
+            // tightens padding + icon size via inline style — all transitionable.
             className={
-              "relative flex items-center px-3 shrink-0 transition-colors duration-200 " +
-              (compact ? "flex-row gap-2 py-1.5 " : "flex-col gap-1 pt-2 pb-2.5 ") +
+              "relative flex flex-col items-center gap-1 px-3 shrink-0 transition-colors duration-200 " +
               (active ? "text-[var(--accent)]" : "text-[var(--ink-3)] hover:text-[var(--ink)]")
             }
+            style={{
+              paddingTop: compact ? 4 : 8,
+              paddingBottom: compact ? 6 : 10,
+              transition:
+                "padding-top 280ms cubic-bezier(0.22, 1, 0.36, 1), padding-bottom 280ms cubic-bezier(0.22, 1, 0.36, 1), color 200ms ease-out",
+            }}
           >
             <span
               style={{
                 width: compact ? 18 : 22,
                 height: compact ? 18 : 22,
                 display: "inline-flex",
-                transition: "width 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)",
+                transition:
+                  "width 280ms cubic-bezier(0.22, 1, 0.36, 1), height 280ms cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             >
               {it.icon}
             </span>
-            <span className={"font-medium whitespace-nowrap " + (compact ? "text-[12.5px]" : "text-[12px]")}>{it.label}</span>
+            <span className="font-medium whitespace-nowrap text-[12px]">{it.label}</span>
           </button>
         );
       })}

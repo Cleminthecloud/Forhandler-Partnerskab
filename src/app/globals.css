@@ -527,17 +527,18 @@ textarea.field {
 }
 
 /* Card stagger entrance — used on result grids (/find partner cards) so the
-   grid feels alive when filters change. Combine with `animationDelay` via
-   inline style for staggered cascade. Capped at first 8 cards in the caller
-   so large grids don't stall. The translate is tiny (8px) — quality apps
-   keep entry motion subtle. Cubic-bezier(.22,1,.36,1) is the Apple/Linear
-   ease-out curve used everywhere in this app. */
+   grid feels alive when filters change. The motion is DELIBERATELY subtle:
+   opacity starts at 0.6 (not 0) so cards never visibly "blink in", and the
+   translate is just 4px so the eye reads it as a settle rather than a slide.
+   Capped at first 6 cards in the caller so the cascade doesn't compound.
+   Cubic-bezier(.22,1,.36,1) is the Apple/Linear ease-out curve used everywhere. */
 @keyframes cardRiseIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0.6; transform: translateY(4px); }
+  to   { opacity: 1;   transform: translateY(0); }
 }
 .card-rise-in {
-  animation: cardRiseIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cardRiseIn 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
 }
 
 /* Number tick-up — applied to a span wrapping a count, gives it a tiny
