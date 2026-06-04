@@ -4,6 +4,7 @@ import { BLOG_POSTS, BlogPost } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { Icon } from "@/components/Icon";
 import { PageHeader } from "@/components/PageHeader";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 const KAT_COLOR: Record<BlogPost["kategori"], { bg: string; ink: string }> = {
   "Tema-update":     { bg: "#FFF1DC", ink: "#7A4400" },
@@ -34,50 +35,64 @@ export default function NyhederPage() {
         />
       </div>
 
-      {/* ─── FILTER ─── */}
-      <div className="mb-7 flex flex-wrap gap-1.5">
-        {KAT_FILTERS.map((c) => (
-          <button
-            key={c}
-            onClick={() => setCat(c)}
-            className={
-              "px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors border " +
-              (cat === c
-                ? "bg-[var(--cr-navy-deep)] text-white border-transparent"
-                : "bg-white text-[var(--ink-2)] border-[var(--line-2)] hover:border-[var(--ink-3)]")
-            }
-          >
-            {c}
-          </button>
-        ))}
-        <div className="flex-1" />
-        <div className="text-[12px] text-[var(--ink-3)] inline-flex items-center gap-1.5 self-center">
-          <Icon name="book-open" size={13} /> {filtered.length} artikler
+      {/* ─── FILTER STRIP ───────────────────────────────────────
+           Two-row layout on narrow viewports, single row on wide.
+           Article count sits as a quiet tabular-num badge on the right,
+           visually separated from the chips by a flexible gap so it
+           never crowds the chips on smaller widths. */}
+      <ScrollReveal>
+      <div className="mb-8 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex flex-wrap gap-1.5">
+          {KAT_FILTERS.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
+              className={
+                "px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors border " +
+                (cat === c
+                  ? "bg-[var(--cr-navy-deep)] text-white border-transparent"
+                  : "bg-white text-[var(--ink-2)] border-[var(--line-2)] hover:border-[var(--ink-3)]")
+              }
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+        <div className="ms-auto inline-flex items-center gap-1.5 text-[12px] text-[var(--ink-3)] tabular-nums">
+          <Icon name="book-open" size={13} /> {filtered.length} {filtered.length === 1 ? "artikel" : "artikler"}
         </div>
       </div>
+      </ScrollReveal>
 
       {/* ─── HERO + SECONDARY ─── */}
       {featured && (
-        <section className="grid gap-3 lg:grid-cols-[1.7fr_1fr] mb-6">
+        <ScrollReveal delay={80}>
+        {/* Removed min-h-[420px] — let the secondary stack auto-size
+            to match the featured card. The grid handles vertical
+            alignment without a hard pixel floor. */}
+        <section className="grid gap-3 lg:grid-cols-[1.7fr_1fr] mb-6 lg:auto-rows-fr">
           {/* Featured */}
           <FeaturedCard post={featured} />
 
           {/* Secondary stack */}
-          <div className="grid gap-3 grid-rows-2 min-h-[420px]">
+          <div className="grid gap-3 grid-rows-2">
             {secondary.map((p) => (
               <SecondaryCard key={p.id} post={p} />
             ))}
           </div>
         </section>
+        </ScrollReveal>
       )}
 
       {/* ─── GRID ─── */}
       {rest.length > 0 && (
+        <ScrollReveal delay={140}>
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
           {rest.map((p) => (
             <ArticleCard key={p.id} post={p} />
           ))}
         </section>
+        </ScrollReveal>
       )}
 
       {filtered.length === 0 && (

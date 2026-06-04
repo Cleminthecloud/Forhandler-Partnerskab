@@ -11,6 +11,7 @@ import { THEMES } from "@/lib/themes";
 import { PageHeader } from "@/components/PageHeader";
 import { Icon } from "@/components/Icon";
 import { HelpHint } from "@/components/HelpHint";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -81,6 +82,7 @@ export default function LeadsPage() {
       />
 
       {/* Search + status pipeline */}
+      <ScrollReveal>
       <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
         {/* Free-text search across kunde, by, postnr, behov, telefon */}
         <div className="relative flex-1 max-w-md">
@@ -116,10 +118,12 @@ export default function LeadsPage() {
           ))}
         </div>
       </div>
+      </ScrollReveal>
 
       {/* Leads table. Wrapped in overflow-x-auto so the 5-column layout
           scrolls horizontally within the card on narrow viewports instead of
           pushing the whole page sideways. */}
+      <ScrollReveal delay={80}>
       <div className="mt-6 card !p-0 overflow-hidden">
        <div className="overflow-x-auto">
         <div className="grid grid-cols-[1.4fr_100px_120px_110px_130px] gap-4 min-w-[680px] px-5 py-3 border-b border-[var(--line)] bg-[var(--canvas-2)] text-[12px] uppercase tracking-wider text-[var(--ink-3)] font-semibold">
@@ -155,6 +159,7 @@ export default function LeadsPage() {
         ))}
        </div>
       </div>
+      </ScrollReveal>
 
       {/* Side drawer — full-viewport height with sticky header + sticky footer.
           Header carries the close button, body scrolls if content overflows,

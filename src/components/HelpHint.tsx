@@ -73,14 +73,29 @@ export function HelpHint({ label, children, placement = "bottom-left" }: HelpHin
         aria-label={label}
         aria-expanded={open}
         className={
-          "inline-grid place-items-center size-5 rounded-full text-[11px] font-semibold transition-colors " +
+          "inline-grid place-items-center size-[18px] rounded-full transition-colors " +
           (open
             ? "bg-[var(--accent)] text-white"
-            : "bg-[var(--canvas-2)] text-[var(--ink-3)] hover:bg-[var(--accent-tint)] hover:text-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]")
+            : "bg-white border border-[var(--line)] text-[var(--ink-3)] hover:bg-[var(--accent)] hover:border-[var(--accent)] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none")
         }
-        style={{ fontFamily: "Georgia, serif", lineHeight: 1 }}
       >
-        ?
+        {/* Lucide circle-help glyph (without the outer ring — our button
+            background already provides that). Replaces the previous Georgia
+            "?" character, which read as off-brand and odd at small sizes. */}
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <path d="M12 17h.01" />
+        </svg>
       </button>
 
       {open && (

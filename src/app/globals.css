@@ -554,22 +554,24 @@ textarea.field {
   animation: countBump 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Scroll-reveal — fade-and-rise as elements enter the viewport.
+/* Scroll-reveal — fade, rise, and SETTLE as elements enter the viewport.
    Paired with the <ScrollReveal> component which adds .in-view via
-   IntersectionObserver. Translation kept subtle (20px → 0) and slow
-   enough (700ms) to feel fluid, not flashy. The Apple/Linear ease-out
-   curve matches the rest of the app's motion language. */
+   IntersectionObserver. The combination of translateY(24px) + scale(0.985)
+   + opacity reads as a luxurious "settling into place" — the eye picks up
+   the scale as a depth cue rather than a literal zoom. 850ms with the
+   Apple/Linear ease-out curve feels unhurried but not slow. */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(24px) scale(0.985);
+  transform-origin: center top;
   transition:
-    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 850ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 850ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 .scroll-reveal.in-view {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 /* Respect users who prefer reduced motion — no animation on reveal. */
