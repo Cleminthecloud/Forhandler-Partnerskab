@@ -9,6 +9,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { ADMIN_STATS, PARTNERS, Region, Tier } from "@/lib/data";
 import { BarMini } from "@/components/Charts";
 import { InteractiveArea, MiniArea, InteractivePie } from "@/components/ChartsInteractive";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -53,6 +54,7 @@ export default function AdminOverview() {
       </header>
 
       {/* ─── KPI ROW ─── */}
+      <ScrollReveal>
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiTile
           label="Aktive partnere"
@@ -88,8 +90,10 @@ export default function AdminOverview() {
           sparkColor="#C99A20"
         />
       </section>
+      </ScrollReveal>
 
       {/* ─── HERO ROW: Big leads chart + Tier donut ─── */}
+      <ScrollReveal>
       <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
         {/* Big leads chart */}
         <div className="card card-lg">
@@ -144,8 +148,10 @@ export default function AdminOverview() {
           </ul>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* ─── REGION + ACTIVITY ─── */}
+      <ScrollReveal>
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="card card-lg">
           <div className="flex items-baseline justify-between mb-5">
@@ -183,8 +189,10 @@ export default function AdminOverview() {
           </ul>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* ─── TOP PERFORMERS ─── */}
+      <ScrollReveal>
       <section className="card card-lg">
         <div className="flex items-baseline justify-between mb-5">
           <h3 className="t-h3">Top-performere</h3>
@@ -217,6 +225,7 @@ export default function AdminOverview() {
         ))}
        </div>
       </section>
+      </ScrollReveal>
     </div>
   );
 }

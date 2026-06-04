@@ -29,6 +29,7 @@ import { Radial, BarMini } from "@/components/Charts";
 import { MiniArea, InteractiveArea } from "@/components/ChartsInteractive";
 import { TierBenefitsDialog, TIER_COLOR, StarBadge, type Tier } from "@/components/TierBenefitsDialog";
 import { HelpHint } from "@/components/HelpHint";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 type DateRange = "uge" | "maaned" | "kvartal";
 
@@ -109,6 +110,7 @@ export default function PartnerDashboard() {
       </header>
 
       {/* ─── KPI ROW (4 tall tiles with sparklines) ─── */}
+      <ScrollReveal>
       <section aria-label="Nøgletal" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiTile
           label="Nye leads"
@@ -142,8 +144,10 @@ export default function PartnerDashboard() {
           sparkColor="var(--gold-ink)"
         />
       </section>
+      </ScrollReveal>
 
       {/* ─── HERO ROW: Active campaign + Tier radial ─── */}
+      <ScrollReveal>
       <section className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
         {/* Active campaign card — bold, image-feeling */}
         {activeCampaign && (
@@ -276,8 +280,10 @@ export default function PartnerDashboard() {
           </div>
         </button>
       </section>
+      </ScrollReveal>
 
       {/* ─── PERFORMANCE ROW ─── */}
+      <ScrollReveal>
       <section className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         <div className="card card-lg">
           <div className="flex items-baseline justify-between mb-4">
@@ -311,8 +317,10 @@ export default function PartnerDashboard() {
           <BarMini rows={PARTNER_PERFORMANCE.formatsThisMonth} />
         </div>
       </section>
+      </ScrollReveal>
 
       {/* ─── 3-COL DATA ROW ─── */}
+      <ScrollReveal>
       <section className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {/* Nye leads */}
         <Link href="/partner/leads" className="card card-hover block">
@@ -394,8 +402,10 @@ export default function PartnerDashboard() {
           )}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* ─── DIN CARL RAS KONSULENT (CRM hero card) ─── */}
+      <ScrollReveal>
       <section>
         <div
           className="rounded-[var(--r-xl)] overflow-hidden border flex flex-wrap items-center gap-6 p-6 lg:p-7"
@@ -464,6 +474,7 @@ export default function PartnerDashboard() {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* ─── CARL RAS ANBEFALER (product push) ───
           Prices on the cards include the partner's tier rabat. Mads is
@@ -471,6 +482,7 @@ export default function PartnerDashboard() {
           Single source of truth for the % is TIER_DISCOUNT_PCT in data.ts —
           same value referenced by TierBenefitsDialog, salesFor() and the
           deck (model v1.1). */}
+      <ScrollReveal>
       <section aria-label="Carl Ras anbefaler">
         <div className="flex items-baseline justify-between mb-5">
           <div>
@@ -579,8 +591,10 @@ export default function PartnerDashboard() {
           );})}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* ─── ACTIVITY + CONTENT ROW ─── */}
+      <ScrollReveal>
       <section className="grid gap-5 lg:grid-cols-[1.4fr_1fr_1fr]">
         {/* Activity feed */}
         <div className="card card-lg">
@@ -673,6 +687,7 @@ export default function PartnerDashboard() {
           </Link>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* Booking dialog — konsulent lane */}
       <BookVisitDialog
