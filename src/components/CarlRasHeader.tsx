@@ -42,6 +42,13 @@ const SISTER_BRANDS: Sister[] = [
 /* ------------------------------------------------------------------ */
 type Category = { label: string; icon: React.ReactNode };
 
+/* Real carl-ras.dk URLs. Best-effort guesses for the category slugs —
+   most are reliable; the few that aren't will land on the carl-ras.dk
+   homepage which is the safe fallback. All open in a new tab so the
+   demo state is preserved. */
+const CARLRAS_BASE = "https://www.carl-ras.dk";
+const carlRasUrl = (path: string = "/") => `${CARLRAS_BASE}${path}`;
+
 const CATEGORIES: Category[] = [
   {
     label: "Værktøj",
@@ -197,14 +204,14 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
             <CarlRasLogo color="#1158A3" height={22} />
           </Link>
 
-          <Link href="#" aria-label="Søg" className="size-10 grid place-items-center rounded-md text-[#1D1D1F] active:bg-[#F5F5F7]">
+          <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" aria-label="Søg" className="size-10 grid place-items-center rounded-md text-[#1D1D1F] active:bg-[#F5F5F7]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <circle cx="11" cy="11" r="7" />
               <path d="M21 21l-4.3-4.3" />
             </svg>
           </Link>
 
-          <Link href="#" aria-label="Kurv" className="size-10 grid place-items-center rounded-md text-[#1D1D1F] active:bg-[#F5F5F7] relative">
+          <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" aria-label="Kurv" className="size-10 grid place-items-center rounded-md text-[#1D1D1F] active:bg-[#F5F5F7] relative">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 7h18l-2 12H5z" />
               <path d="M9 7V4h6v3" />
@@ -288,7 +295,7 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
                 {CATEGORIES.map((c) => (
                   <li key={c.label}>
                     <Link
-                      href="#"
+                      href={carlRasUrl()} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-3 px-4 text-[15px] font-medium text-[#1D1D1F] border-b border-[#F0F0F2] active:bg-[#F5F5F7]"
                       style={{ minHeight: 52 }}
                     >
@@ -309,7 +316,7 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
                   {SISTER_BRANDS.map((b, i) => (
                     <Link
                       key={i}
-                      href="#"
+                      href={carlRasUrl()} target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-2.5 h-[28px] rounded-[5px] text-[11px] font-bold uppercase tracking-[0.06em] whitespace-nowrap"
                       style={{ background: b.bg, color: b.fg }}
                     >
@@ -331,19 +338,19 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
                   </svg>
                   Find en partner
                 </Link>
-                <Link href="#" className="flex items-center gap-2.5 py-3 text-[14px] text-[#1D1D1F]">
+                <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 py-3 text-[14px] text-[#1D1D1F]">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 22s7-7.5 7-13a7 7 0 10-14 0c0 5.5 7 13 7 13z" /><circle cx="12" cy="9" r="2.5" />
                   </svg>
                   Find butik
                 </Link>
-                <Link href="#" className="flex items-center gap-2.5 py-3 text-[14px] text-[#1D1D1F]">
+                <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 py-3 text-[14px] text-[#1D1D1F]">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 13L13 20a2 2 0 01-2.8 0l-7-7V4h9z" /><circle cx="8.5" cy="8.5" r="1.2" />
                   </svg>
                   Tilbud
                 </Link>
-                <Link href="#" className="flex items-center gap-2.5 py-3 text-[14px] text-[#1D1D1F]">
+                <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 py-3 text-[14px] text-[#1D1D1F]">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0116 0" />
                   </svg>
@@ -393,14 +400,14 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
 
           {/* Find butik · Tilbud */}
           <div className="hidden lg:flex items-center gap-5 text-[13px] font-medium text-[#1D1D1F] shrink-0">
-            <Link href="#" className="flex items-center gap-1.5 hover:text-[#1158A3]">
+            <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1158A3]">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s7-7.5 7-13a7 7 0 10-14 0c0 5.5 7 13 7 13z" />
                 <circle cx="12" cy="9" r="2.5" />
               </svg>
               Find butik
             </Link>
-            <Link href="#" className="flex items-center gap-1.5 hover:text-[#E30613]">
+            <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#E30613]">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 13L13 20a2 2 0 01-2.8 0l-7-7V4h9z" />
                 <circle cx="8.5" cy="8.5" r="1.2" />
@@ -430,20 +437,20 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
 
           {/* Right user actions */}
           <div className="ml-auto flex items-center gap-5 shrink-0">
-            <Link href="#" className="hidden md:flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3]">
+            <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="hidden md:flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20a8 8 0 0116 0" />
               </svg>
               <span className="text-[12px] font-medium">Log ind</span>
             </Link>
-            <Link href="#" className="hidden md:flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3]">
+            <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="hidden md:flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 21l-7-7c-3-3-1-8 3-8 2 0 3 1 4 2 1-1 2-2 4-2 4 0 6 5 3 8z" />
               </svg>
               <span className="text-[12px] font-medium">Favoritter</span>
             </Link>
-            <Link href="#" className="flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3] relative">
+            <Link href={carlRasUrl()} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 text-[#1D1D1F] hover:text-[#1158A3] relative">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 7h18l-2 12H5z" />
                 <path d="M9 7V4h6v3" />
@@ -461,7 +468,7 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
           {SISTER_BRANDS.map((b, i) => (
             <Link
               key={i}
-              href="#"
+              href={carlRasUrl()} target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-3.5 h-[30px] rounded-[5px] text-[12px] font-bold uppercase tracking-[0.08em] whitespace-nowrap shrink-0 transition-transform hover:translate-y-[-1px]"
               style={{ background: b.bg, color: b.fg }}
             >
@@ -501,7 +508,7 @@ export function CarlRasHeader({ sticky = true }: { sticky?: boolean } = {}) {
           {CATEGORIES.map((c) => (
             <Link
               key={c.label}
-              href="#"
+              href={carlRasUrl()} target="_blank" rel="noopener noreferrer"
               className="group flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md hover:bg-[#F5F5F7] text-[#1D1D1F] hover:text-[#1158A3] transition-colors shrink-0 min-w-[88px]"
             >
               <span className="size-[26px] text-[#1158A3] group-hover:text-[#002C5B] transition-colors">

@@ -1,21 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CURRENT_PARTNER, Region, salesFor } from "@/lib/data";
 import { useApp } from "@/components/AppState";
 import { PageHeader } from "@/components/PageHeader";
+import { dawaAutocomplete, DawaResult } from "@/components/RealMap";
 
-/* Region-mapped Unsplash cover photos — same map as /find and /find/[partnerId]
+/* Region-mapped local cover photos — same map as /find + /find/[partnerId]
    so the partner's preview here matches exactly what customers see. */
-const REGION_COVER_IDS: Record<Region, string> = {
-  "Nordsjælland":    "mDceqGnb8Ps",
-  "Hovedstaden":     "PAMKahnLhd0",
-  "Vestkysten":      "DR6SFVhkZtI",
-  "Bornholm":        "jcRIu_D1dfs",
-  "Lolland-Falster": "kJv05ClK57k",
-  "Fyn":             "x8dgFTYbGOw",
-  "Østjylland":      "imLsDPLnr7Y",
-  "Nordjylland":     "WlQg8uCFVu0",
+const REGION_COVER: Record<Region, string> = {
+  "Nordsjælland":    "/campaigns/sommerhus-family_wide.jpg",
+  "Hovedstaden":     "/campaigns/sommerhus-family.jpg",
+  "Vestkysten":      "/campaigns/sommerhus-dusk.jpg",
+  "Bornholm":        "/campaigns/sommerhus-dusk.jpg",
+  "Lolland-Falster": "/campaigns/sommerhus-family.jpg",
+  "Fyn":             "/campaigns/sommerhus-family_wide.jpg",
+  "Østjylland":      "/campaigns/sommerhus-family_wide.jpg",
+  "Nordjylland":     "/campaigns/sommerhus-lock-pov.jpg",
 };
 
 /* Deterministic 8-digit CVR — same derivation as the find profile so the
@@ -50,8 +51,7 @@ export default function PartnerProfilePage() {
   const [hoursSon,     setHoursSon]     = useState("Lukket");
   const [vagttelefon,  setVagttelefon]  = useState("Ja, akut udrykning udenfor åbningstid");
 
-  const coverId = REGION_COVER_IDS[CURRENT_PARTNER.region];
-  const coverUrl = `https://images.unsplash.com/photo-${coverId}?auto=format&fit=crop&w=1200&q=80`;
+  const coverUrl = REGION_COVER[CURRENT_PARTNER.region];
   const cvr = deriveCVR(CURRENT_PARTNER.id);
 
   function addSpec() {
@@ -158,15 +158,23 @@ export default function PartnerProfilePage() {
               </div>
             </div>
 
-            {/* Address row */}
-            <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_1fr] gap-4 mb-4">
-              <Field label="Gadeadresse" value={gade} onChange={setGade} />
+            {/* Address — DAWA-backed autocomplete (api.dataforsyningen.dk).
+                Resolves to a verified Danish address with coordinates;
+                postnr + by are auto-filled from the picked suggestion. */}
+            <div className="mb-2">
+              <DawaAddressField
+                value={gade}
+                onSelect={(r) => setGade(`${r.adresse.vejnavn ?? ""} ${r.adresse.husnr ?? ""}`.trim())}
+                onChange={setGade}
+              />
+            </div>
+            <div className="grid grid-cols-[120px_1fr] gap-4 mb-4">
               <Field label="Postnr" value={CURRENT_PARTNER.postnr} onChange={() => undefined} disabled />
               <Field label="By" value={CURRENT_PARTNER.by} onChange={() => undefined} disabled />
             </div>
             <div className="text-[11.5px] text-[var(--ink-3)] -mt-1 mb-5 flex items-center gap-1.5">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5"/></svg>
-              Adressen vises offentligt med link til Google Maps.
+              Adresseopslag via DAWA (Danmarks Adressers Web API). Vises offentligt med link til Google Maps.
             </div>
 
             {/* CVR — read-only, sourced from CVR-registret */}
@@ -360,6 +368,96 @@ function Field({ label, value, onChange, multiline = false, disabled = false, ty
           disabled={disabled}
           className="field !text-[13.5px] disabled:opacity-60"
         />
+      )}
+    </div>
+  );
+}
+
+/* DAWA-backed address autocomplete. Hits api.dataforsyningen.dk on every
+   keystroke (debounced 250ms), shows suggestions in a popover, and emits
+   the resolved address with coordinates via onSelect. */
+function DawaAddressField({
+  value,
+  onChange,
+  onSelect,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onSelect: (r: DawaResult) => void;
+}) {
+  const [results, setResults] = useState<DawaResult[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  // Debounce query → DAWA call so we don't hammer the API on every keystroke.
+  // The check for short queries is done INSIDE the timeout body so we never
+  // call setState synchronously in the effect body (React 19 strict rule).
+  useEffect(() => {
+    const t = window.setTimeout(async () => {
+      if (!value || value.trim().length < 2) {
+        setResults([]);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const r = await dawaAutocomplete(value, 6);
+      setResults(r);
+      setLoading(false);
+      if (r.length > 0) setOpen(true);
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [value]);
+
+  // Close popover on outside click
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <label className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] block mb-1.5">
+        Gadeadresse
+        <span className="ml-1.5 inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-[var(--cr-blue-tint)] text-[var(--accent)] normal-case tracking-normal">
+          DAWA
+        </span>
+      </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => { if (results.length > 0) setOpen(true); }}
+        placeholder="Begynd at skrive en adresse…"
+        className="field !text-[13.5px]"
+      />
+      {open && (results.length > 0 || loading) && (
+        <div className="absolute left-0 right-0 top-full mt-1 z-30 bg-white rounded-lg border border-[var(--line)] shadow-[0_8px_24px_rgba(0,26,51,0.08)] max-h-[280px] overflow-y-auto">
+          {loading && results.length === 0 && (
+            <div className="px-3 py-2.5 text-[12.5px] text-[var(--ink-3)]">Søger …</div>
+          )}
+          {results.map((r) => (
+            <button
+              key={r.adresse.id}
+              type="button"
+              onClick={() => { onSelect(r); setOpen(false); }}
+              className="w-full text-left px-3 py-2 text-[13px] text-[var(--ink-2)] hover:bg-[var(--canvas-2)] border-b border-[var(--line-2)] last:border-b-0"
+            >
+              <div className="font-medium text-[var(--ink)]">{r.tekst}</div>
+              {(r.adresse.postnr || r.adresse.postnrnavn) && (
+                <div className="text-[11.5px] text-[var(--ink-3)] mt-0.5">
+                  {r.adresse.postnr} {r.adresse.postnrnavn}
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

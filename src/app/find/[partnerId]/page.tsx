@@ -2,11 +2,11 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PARTNERS, Region, Faggruppe, PartnerProfile } from "@/lib/data";
+import { PARTNERS, CURRENT_PARTNER, Region, Faggruppe, PartnerProfile } from "@/lib/data";
 import { THEMES } from "@/lib/themes";
 import { useApp } from "@/components/AppState";
 import { Spinner } from "@/components/Spinner";
-import { DenmarkMap } from "@/components/DenmarkMap";
+import { RealMap } from "@/components/RealMap";
 
 /* ─────────────────────────────────────────────────────────────────────
    Partner profile page — sales-grade landing page.
@@ -90,29 +90,29 @@ function deriveAddress(p: PartnerProfile): string {
   return `${street} ${number}, ${p.postnr} ${p.by}`;
 }
 
-/* Region-mapped Danish cover photos from Unsplash. Each photo was hand-
-   picked from Unsplash search results for the relevant region (Skagen
-   lighthouse for Nordjylland, Bornholm rocks for Bornholm, Nyhavn for
-   Hovedstaden, etc.). Loaded from images.unsplash.com directly — the
-   user's browser fetches them at runtime.
+/* Region-mapped cover photos using our LOCAL sommerhus images.
+   We tried Unsplash CDN before — turned out the photo IDs I scraped were
+   page-slug IDs not CDN IDs, AND most of the visually-strong Denmark
+   photos on Unsplash are Unsplash+ (paid license). Local images sidestep
+   both problems: they always load, they're licensed for our use, and
+   they're already optimized.
 
-   Why region-based instead of faggruppe-based: a Hornbæk locksmith and a
-   Hornbæk tømrer should both show a Nordsjælland coastal scene. Trade is
-   secondary; location is the dominant trust signal here. */
-const REGION_COVER_IDS: Record<Region, string> = {
-  "Nordsjælland":    "mDceqGnb8Ps", // beach with grassy hill — Nordsjælland coast
-  "Hovedstaden":     "PAMKahnLhd0", // Nyhavn canal at sunrise — Copenhagen
-  "Vestkysten":      "DR6SFVhkZtI", // sun setting over ocean — west coast
-  "Bornholm":        "jcRIu_D1dfs", // brown rock formation on sea — Bornholm cliffs
-  "Lolland-Falster": "kJv05ClK57k", // grass field near water — quiet Sydhavsøerne
-  "Fyn":             "x8dgFTYbGOw", // trees and house — Fyn countryside
-  "Østjylland":      "imLsDPLnr7Y", // top view of houses in landscape — Aarhus area
-  "Nordjylland":     "WlQg8uCFVu0", // lighthouse — Skagen
+   Region variation is preserved by cycling the 4 sommerhus shots across
+   the 8 regions in a way that pairs each region with a complementary
+   mood (coast → wide shot, island → dusk, etc.). */
+const REGION_COVER: Record<Region, string> = {
+  "Nordsjælland":    "/campaigns/sommerhus-family_wide.jpg", // coastal sommerhus, wide
+  "Hovedstaden":     "/campaigns/sommerhus-family.jpg",       // family-scale
+  "Vestkysten":      "/campaigns/sommerhus-dusk.jpg",         // dusk over dunes
+  "Bornholm":        "/campaigns/sommerhus-dusk.jpg",         // dramatic light, rocky
+  "Lolland-Falster": "/campaigns/sommerhus-family.jpg",       // quiet
+  "Fyn":             "/campaigns/sommerhus-family_wide.jpg",  // countryside
+  "Østjylland":      "/campaigns/sommerhus-family_wide.jpg",  // hills + water
+  "Nordjylland":     "/campaigns/sommerhus-lock-pov.jpg",     // exterior detail
 };
 
 function coverPhotoFor(p: PartnerProfile): string {
-  const id = REGION_COVER_IDS[p.region];
-  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=80`;
+  return REGION_COVER[p.region];
 }
 
 /* Mock reviews — derived from region + faggruppe so they read locally true.
@@ -260,6 +260,15 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
     }
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 850));
+    // DEMO ROUTING: regardless of which partner profile the form was
+    // submitted on, route the lead into the CURRENT demo partner's inbox
+    // (Hornbæk Låseservice). This lets the user demonstrate the full
+    // customer→partner flow on any partner card: fill the form, switch
+    // to Partner role, and the lead is waiting in /partner/leads.
+    //
+    // In production this would obviously be `partnerId: p.id` — the lead
+    // belongs to the partner the customer was viewing. The override is
+    // strictly a demo affordance.
     addLead({
       kunde: form.kunde,
       postnr: form.postnr,
@@ -267,10 +276,10 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
       telefon: form.telefon,
       email: form.email,
       behov: form.behov,
-      beskrivelse: form.beskrivelse,
+      beskrivelse: `Forespørgsel via ${p.firma}'s offentlige profil.\n\n${form.beskrivelse || form.behov}`,
       tema: form.tema,
       værdi: "Vurderes af partner",
-      partnerId: p.id,
+      partnerId: CURRENT_PARTNER.id,
     });
     setIsSubmitting(false);
     setSubmitted(true);
@@ -449,11 +458,12 @@ export default function PartnerProfilePage({ params }: { params: Promise<{ partn
                 Dækker bl.a. {serviceArea.towns.slice(0, 3).join(", ")} og {serviceArea.towns[3]}.
               </p>
 
-              {/* Map FILLS the section width — the partner pin's tooltip
-                  is clipped when the map is in a narrow column. Town list
-                  moves below as a horizontal chip row instead of a sidebar. */}
-              <div className="mt-5 card !p-3">
-                <DenmarkMap partners={[p]} selectedRegion={p.region} />
+              {/* Real Leaflet+OSM map — fills width. Centered on the
+                  partner's region with a custom Carl Ras-blue pin and
+                  popup. Scroll-wheel zoom disabled so it doesn't hijack
+                  the page scroll. */}
+              <div className="mt-5 card !p-0 overflow-hidden">
+                <RealMap partners={[p]} zoom={9} height={400} />
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="text-[12px] font-semibold uppercase tracking-wider text-[var(--ink-3)] py-1.5 mr-1">

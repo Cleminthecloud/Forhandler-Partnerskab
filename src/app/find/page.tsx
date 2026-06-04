@@ -6,22 +6,19 @@ import { THEMES, ThemeId } from "@/lib/themes";
 import { useTheme } from "@/components/ThemeProvider";
 import { DenmarkMap } from "@/components/DenmarkMap";
 
-/* Region-mapped Danish cover photos from Unsplash — same set as the
-   partner profile page so the listing thumbnail matches the profile hero.
-   Loaded from images.unsplash.com at runtime; the user's browser fetches
-   them directly (CDN-cached, fast). */
-const REGION_COVER_IDS: Record<Region, string> = {
-  "Nordsjælland":    "mDceqGnb8Ps",
-  "Hovedstaden":     "PAMKahnLhd0",
-  "Vestkysten":      "DR6SFVhkZtI",
-  "Bornholm":        "jcRIu_D1dfs",
-  "Lolland-Falster": "kJv05ClK57k",
-  "Fyn":             "x8dgFTYbGOw",
-  "Østjylland":      "imLsDPLnr7Y",
-  "Nordjylland":     "WlQg8uCFVu0",
+/* Region-mapped local cover photos — matches /find/[partnerId] hero so the
+   listing thumbnail equals the profile cover. Local sommerhus images,
+   licensed for our use, always loads. */
+const REGION_COVER: Record<Region, string> = {
+  "Nordsjælland":    "/campaigns/sommerhus-family_wide.jpg",
+  "Hovedstaden":     "/campaigns/sommerhus-family.jpg",
+  "Vestkysten":      "/campaigns/sommerhus-dusk.jpg",
+  "Bornholm":        "/campaigns/sommerhus-dusk.jpg",
+  "Lolland-Falster": "/campaigns/sommerhus-family.jpg",
+  "Fyn":             "/campaigns/sommerhus-family_wide.jpg",
+  "Østjylland":      "/campaigns/sommerhus-family_wide.jpg",
+  "Nordjylland":     "/campaigns/sommerhus-lock-pov.jpg",
 };
-const unsplash = (id: string, w = 900) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 const FAGGRUPPER: Array<"Alle" | Faggruppe> = ["Alle", "Låsesmed", "Tømrer", "Elektriker", "VVS", "Maler", "Ejendomsservice", "Murer"];
 const REGIONS: Array<"Alle" | Region> = ["Alle", "Nordsjælland", "Vestkysten", "Bornholm", "Lolland-Falster", "Hovedstaden", "Østjylland", "Nordjylland", "Fyn"];
@@ -38,12 +35,9 @@ const FAG_ICONS: Record<Faggruppe, string> = {
 };
 
 function coverFor(p: PartnerProfile): string {
-  // Region-mapped Danish photo — each partner gets a cover that visually
-  // matches their region (Bornholm cliffs for Bornholm partners, Nyhavn
-  // for Hovedstaden, etc.). Location is the dominant trust signal here
-  // so we lean on region over trade.
-  const id = REGION_COVER_IDS[p.region];
-  return unsplash(id, 900);
+  // Region-mapped local sommerhus photo — same source map as /find/[id]
+  // so the listing thumbnail equals the profile hero for each partner.
+  return REGION_COVER[p.region];
 }
 
 export default function FindPartnerPage() {
